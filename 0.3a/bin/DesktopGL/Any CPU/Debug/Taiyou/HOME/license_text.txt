@@ -1,0 +1,16 @@
+Taiyou Game Engine is licensed under Apache 2.0 license.
+this software was created with Monogame License.Monogame
+is licensed under MsPL license. Monogame was created by 
+Monogame Team(C) [Monogame and Apache 2.0 license is    
+located on (MONOGAME_LICENSE.txt) on root folder.       
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+WriteLine State1 : Initialize
+
+WriteVar BOOL State1_InitializeCalled True
+
+// Declare Variables
+Declare INT ClickerObject.X 175
+Declare INT ClickerObject.Y 100
+Declare INT ClickerObject.W 50
+Declare INT ClickerObject.H 50
+Declare RECTANGLE ClickerObject.Rectangle 0,0,5,5
+Declare RECTANGLE Platform.Rectangle 10,590,300,10
+Declare RECTANGLE WindowSize.Rectangle 0,0,$INT_WINDOW_WIDTH$,$INT_WINDOW_HEIGHT$
+Declare COLOR Color.BlackLowOpacity 0,0,0,150
+Declare INT ClickAnimMax 0
+Declare LIST.RECTANGLE TEST 5,5,10,10|50,50,30,30
+Declare RECTANGLE TOP_DEBUG_TEXT 0,0,$INT_WINDOW_WIDTH$,25
+Declare STRING TDT_String Debug Room
+
+// Add Render Quee objects
+AddRenderQuee HUD.DarkBackground WindowSize.Rectangle Base.png Color.BlackLowOpacity 0.979
+AddRenderQuee TDT TOP_DEBUG_TEXT Base.png Color.Black 0.987
+AddRenderTextQuee TDT_StringObj 10pt.xnb Color.White %DECREASE%$INT_WINDOW_WIDTH$%150% 5 0.05 TDT_String
+
+

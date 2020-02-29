@@ -1,0 +1,43 @@
+// Initialie the Screen
+IF BOOL $BOOL_State1_InitializeCalled$ == False Call GameStates.State1.Initialize
+
+Declare INT GlobalX 5
+Declare INT GlobalY 5
+Declare INT PlayerRelativeDistanceX 0
+Declare INT PlayerRelativeDistanceY 0
+
+
+
+
+
+
+
+Declare INT ROOL 0
+Declare INT RoolMatherMax 500
+WriteLine RoolMatherMax IS $INT_RoolMatherMax$
+MathOp INT ROOL += 1
+
+Declare RECTANGLE Square$INT_ROOL$ 0,0,5,5
+Declare COLOR Square$INT_ROOL$.C %RANDOM%0%255%,%RANDOM%0%255%,%RANDOM%0%255%,%RANDOM%0%255%
+AddRenderQuee OBJ_Square$INT_ROOL$ Square$INT_ROOL$ Base.png Square$INT_ROOL$.C 1.0
+ChangeRenderProp SPRITE OBJ_Square$INT_ROOL$ X $INT_GlobalX$
+ChangeRenderProp SPRITE OBJ_Square$INT_ROOL$ Y $INT_GlobalY$
+ChangeRenderProp SPRITE OBJ_Square$INT_ROOL$ W %RANDOM%0%$INT_GlobalX$%
+ChangeRenderProp SPRITE OBJ_Square$INT_ROOL$ H %RANDOM%0%$INT_GlobalY$%
+ChangeRenderProp SPRITE OBJ_Square$INT_ROOL$ COLOR %RANDOM%0%255%,%RANDOM%0%225%,%RANDOM%0%215%,%RANDOM%0%195%
+
+IF INT $INT_ROOL$ >= $INT_RoolMatherMax$ WriteVar INT ROOL 0
+
+
+
+
+
+// ORIGINAL CODE
+IF INT $INT_CURSOR_X$ <= $INT_GlobalX$ MathOp INT GlobalX -= 2
+IF INT $INT_CURSOR_X$ >= $INT_GlobalX$ MathOp INT GlobalX += 2
+IF INT $INT_CURSOR_Y$ >= $INT_GlobalY$ MathOp INT GlobalY += 2
+IF INT $INT_CURSOR_Y$ <= $INT_GlobalY$ MathOp INT GlobalY -= 2
+
+
+
+

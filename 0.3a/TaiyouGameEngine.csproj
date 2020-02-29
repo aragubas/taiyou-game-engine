@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Any CPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>905b6b3b-33b1-49fb-b691-ae30f88cb4f5</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TaiyouGameEngine</RootNamespace>
+    <AssemblyName>TaiyouGameEngine</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Any CPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;LINUX</DefineConstants>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Any CPU'">
+    <OutputPath>bin\DesktopGL\Any CPU\Debug</OutputPath>
+    <DefineConstants>TRACE;LINUX</DefineConstants>
+    <Optimize>true</Optimize>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Game1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaiyouReader.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="Sprites.cs" />
+    <Compile Include="TaiyouCommands\Clear.cs" />
+    <Compile Include="TaiyouCommands\Call.cs" />
+    <Compile Include="TaiyouCommands\Write.cs" />
+    <Compile Include="TaiyouCommands\WriteLine.cs" />
+    <Compile Include="TaiyouCommands\Wait.cs" />
+    <Compile Include="TaiyouCommands\WriteFile.cs" />
+    <Compile Include="TaiyouCommands\TaiyouIF.cs" />
+    <Compile Include="TaiyouCommands\Abort.cs" />
+    <Compile Include="TaiyouCommands\Declare.cs" />
+    <Compile Include="TaiyouCommands\WriteVar.cs" />
+    <Compile Include="TaiyouCommands\MathOP.cs" />
+    <Compile Include="TaiyouCommands\Goto.cs" />
+    <Compile Include="TaiyouCommands\FileExists.cs" />
+    <Compile Include="TaiyouCommands\ReadFile.cs" />
+    <Compile Include="TaiyouCommands\DirectoryExists.cs" />
+    <Compile Include="TaiyouCommands\DownloadServerString.cs" />
+    <Compile Include="TaiyouCommands\CopyFile.cs" />
+    <Compile Include="TaiyouCommands\MoveFile.cs" />
+    <Compile Include="TaiyouCommands\DeleteFile.cs" />
+    <Compile Include="TaiyouCommands\AddRenderQuee.cs" />
+    <Compile Include="TriggerEventScript.cs" />
+    <Compile Include="TaiyouCommands\AddEvent.cs" />
+    <Compile Include="TaiyouCommands\CheckEvent.cs" />
+    <Compile Include="WindowManager.cs" />
+    <Compile Include="UserInput\Cursor.cs" />
+    <Compile Include="TaiyouCommands\ChangeWindowPropertie.cs" />
+    <Compile Include="TaiyouCommands\Colision.cs" />
+    <Compile Include="TaiyouCommands\Reload.cs" />
+    <Compile Include="UserInput\KeyBoard.cs" />
+    <Compile Include="TaiyouCommands\GetKeyPressed.cs" />
+    <Compile Include="TaiyouCommands\Undeclare.cs" />
+    <Compile Include="TaiyouCommands\AddRenderTextQuee.cs" />
+    <Compile Include="TaiyouCommands\ChangeRenderProp.cs" />
+    <Compile Include="TaiyouCommands\ChangeBackgroundColor.cs" />
+    <Compile Include="Sounds\SoundtrackManager.cs" />
+    <Compile Include="SoundLoader.cs" />
+    <Compile Include="SoundtrackManager.cs" />
+    <Compile Include="TaiyouCommands\SendBGMCommand.cs" />
+    <Compile Include="TaiyouCommands\MasterVolume.cs" />
+    <Compile Include="Overlay_Error.cs" />
+    <Compile Include="EngineMenu\Main.cs" />
+    <Compile Include="EngineMenu\Screen_LicenseWarning.cs" />
+    <Compile Include="EngineMenu\Screen_GameSelection.cs" />
+    <Compile Include="ColorGenerator.cs" />
+    <Compile Include="CustomListBox.cs" />
+    <Compile Include="Custom_Button.cs" />
+    <Compile Include="LanguageSystem.cs" />
+    <Compile Include="EngineMenu\Screen_FatalError.cs" />
+    <Compile Include="PassCryptografy.cs" />
+    <Compile Include="EngineMenu\Screen_UserLogin.cs" />
+    <Compile Include="TextBox\Text.cs" />
+    <Compile Include="TextBox\TextBox.cs" />
+    <Compile Include="TextBox\TextRenderer.cs" />
+    <Compile Include="TextBox\Cursor.cs" />
+    <Compile Include="TextBox\Extensions.cs" />
+    <Compile Include="TextBox\KeyboardInput.cs" />
+    <Compile Include="TaiyouCommands\StringOperation.cs" />
+    <Compile Include="TaiyouCommands\LanguageSystemManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icon.ico" />
+    <EmbeddedResource Include="Icon.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="Content\Content.mgcb" />
+    <None Include="app.manifest" />
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x86\SDL2.dll">
+      <Link>x86\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x64\SDL2.dll">
+      <Link>x64\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x86\soft_oal.dll">
+      <Link>x86\soft_oal.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x64\soft_oal.dll">
+      <Link>x64\soft_oal.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x86\libSDL2-2.0.so.0">
+      <Link>x86\libSDL2-2.0.so.0</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x64\libSDL2-2.0.so.0">
+      <Link>x64\libSDL2-2.0.so.0</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x86\libopenal.so.1">
+      <Link>x86\libopenal.so.1</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\x64\libopenal.so.1">
+      <Link>x64\libopenal.so.1</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\libSDL2-2.0.0.dylib">
+      <Link>libSDL2-2.0.0.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\libopenal.1.dylib">
+      <Link>libopenal.1.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll.config">
+      <Link>MonoGame.Framework.dll.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TaiyouCommands\" />
+    <Folder Include="UserInput\" />
+    <Folder Include="Sounds\" />
+    <Folder Include="EngineMenu\" />
+    <Folder Include="TextBox\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Deployment.LinuxDeployData scriptName="Start_TaiyouGameEngine" />
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>
