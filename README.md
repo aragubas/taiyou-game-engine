@@ -1,14 +1,17 @@
-# taiyou-game-engine
-Taiyou Game Engine is a Pygame simplification Framework, it have Sprite Management, Font Management and more!
+# Taiyou Game Engine
 
-==-How to render a sprite?
-1 - drop the file to the /Source/SPRITE/ folder
-2 - sprite.RenderSprite(DISPLAY, "/sprite_name.png", (20,20,50,50)
-                        /\        /\                 /\
-                        Surface   File Location      Rectangle
+*Taiyou game engine is aG Game Engine made in Python using the Pygame Library!*
 
-==-How to render a text?
-1 - drop the file to the /Source/FONT/ folder
-2 - sprite.RenderFont(DISPLAY,"/font_file.ttf",20,20,28)
-                      /\        /\             /\/\/\
-                      Surface   File Location  X Y Font Size
+## How game initialization works?
+*It works by importing a Python Script from the requested Game Folder*
+--
+## How to Change the Game?
+*Just put the name of the Game Folder on the file ´/currentGame´ on the root folder.*
+--
+## What is Fogoso?
+**Fogoso the game i am Making with this Game Engine**
+--
+
+# Official Discord Server
+![Fogoso Discord Server](https://discord.gg/Ek5QmBs)
+![Taiyou Game Engine Server](https://discord.gg/RGhzjHU)
