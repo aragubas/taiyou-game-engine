@@ -1,3 +1,20 @@
+#!/usr/bin/python3
+#   Copyright 2020 Aragubas
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
+
 # -- Imports -- #
 import ENGINE.Registry as reg
 import ENGINE.Utils as utils
@@ -26,6 +43,8 @@ Current_Money = 0.0
 Current_MoneyValuePerClick = 0.2
 CUrrent_Experience = 250
 Current_MoneyPerSecound = 0.0
+Current_MoneyFormated = "0,00"
+Current_MoneyPerSecoundFormatted = "0,00"
 
 # -- Receive Log -- #
 ReceiveLog_Y_Offset = 0
@@ -59,7 +78,7 @@ UnloadDelay = 0
 # -- Saving Screen Variables -- #
 IsControlsEnabled = True
 SavingScreenEnabled = False
-SavingStatusText = "Writting Money"
+SavingStatusText = "..."
 
 # -- Load/Save Functions -- #
 def LoadGame():
@@ -217,6 +236,11 @@ def Update():
     global UnloadRequested
     global IsControlsEnabled
     global SavingScreenEnabled
+    global Current_MoneyFormated
+    global Current_MoneyPerSecoundFormatted
+
+    Current_MoneyFormated = "{:2.2f}".format(Current_Money)
+    Current_MoneyPerSecoundFormatted = "{:10.2f}".format(Current_MoneyPerSecound)
 
     if IsControlsEnabled:
         if GameItemsInitialized:
@@ -227,11 +251,9 @@ def Update():
         ItemsView.Set_Y(gameMain.DefaultDisplay.get_height() - 130)
 
         MoneyPerSecound_Delta += 1
-
-        if MoneyPerSecound_Delta == 50:
-            MoneyPerSecound_Last = Current_Money
-        if MoneyPerSecound_Delta == 100:
+        if MoneyPerSecound_Delta == 1000:
             Current_MoneyPerSecound = Current_Money - MoneyPerSecound_Last
+            MoneyPerSecound_Last = Current_Money
             MoneyPerSecound_Delta = 0
 
         # -- Update Buttons Click -- #
@@ -351,6 +373,8 @@ def GameDraw(DISPLAY):
     global StoreWindow_Enabled
     global ItemsView
     global SavingScreenEnabled
+    global Current_MoneyFormated
+    global Current_MoneyPerSecoundFormatted
     # -- Draw the Grind Text -- #
     DrawGrindText(DISPLAY)
     # -- Draw the Grind Button -- #
@@ -367,10 +391,20 @@ def GameDraw(DISPLAY):
     ItemsView.Render(DISPLAY)
 
     # -- Render Money Text -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, "Money: " + str(Current_Money),
-                      (255, 255, 255), 10, 20)
+    MoneyColor = (250,250,255)
+    PerSecoundColor = (220, 220, 220)
+    if Current_Money > 0.1:
+        MoneyColor = (120, 220, 120)
+    elif Current_Money <= 0:
+        MoneyColor = (220, 10, 10)
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, "Money: " + Current_MoneyFormated,
+                      MoneyColor, 10, 20)
+    if Current_MoneyPerSecound > 0.1:
+        PerSecoundColor = (50, 200, 50)
+    elif Current_MoneyPerSecound <= 0:
+        PerSecoundColor = (120, 10, 10)
 
-    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, "Per Secound: " + str(Current_MoneyPerSecound),(255, 255, 255), 10,50)
+    sprite.RenderFont(DISPLAY,"/PressStart2P.ttf", 18, "Per Secound: " + Current_MoneyPerSecoundFormatted,PerSecoundColor, 10,50)
 
     # -- Draw the Store Window -- #
     if StoreWindow_Enabled:

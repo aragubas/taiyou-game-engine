@@ -1,3 +1,20 @@
+#!/usr/bin/python3
+#   Copyright 2020 Aragubas
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
+
 # -- Imports -- #
 import ENGINE.Registry as reg
 import Fogoso.MAIN.ClassesUtils as gameObjs
@@ -22,15 +39,10 @@ FadeEffectState = False
 FadeEffectCurrentState = 0
 FadeEffectValue = 0
 FadeEffectSpeed = 5
-FadeEffectColor_R = 255
-FadeEffectColor_G = 255
-FadeEffectColor_B = 255
+FadeEffectStyle = 0 # 0 = Blur, 1 = Pixalizate, 2 = Blur + Pixalizate, 3 = Pixalizate + Blur
 
 # -- Engine Options -- #
 Engine_MaxFPS = 0
-Engine_ResW = 0
-Engine_ResH = 0
-Engine_MouseHeld = False
 
 # -- Date Variables -- #
 Date_Hour = 0
@@ -53,9 +65,6 @@ CurrentScreen = 0
 
 def GameDraw(DISPLAY):
     global DefaultDisplay
-    global FadeEffectColor_R
-    global FadeEffectColor_G
-    global FadeEffectColor_B
     global LastErrorText
     global LastErrorTextDeltaTime
     global LastErrorTextEnabled
@@ -63,9 +72,9 @@ def GameDraw(DISPLAY):
     global CursorW
     global CursorH
     global Date_Secounds
-
     # -- Clear the Surface -- #
-    DefaultDisplay.fill((20, 25, 35))
+    DefaultDisplay = DISPLAY
+    DISPLAY.fill((0, 2, 19))
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -78,22 +87,23 @@ def GameDraw(DISPLAY):
     # -- Render Fade Effect -- #
     if FadeEffectValue > 0:
         FadeEffect = pygame.Surface((DefaultDisplay.get_width(), DefaultDisplay.get_height()))
-        FadeEffect.fill((FadeEffectColor_R, FadeEffectColor_G, FadeEffectColor_B))
 
-        sprite.RenderRectangle(FadeEffect,(FadeEffectValue,FadeEffectValue,FadeEffectValue),(FadeEffect.get_width() / 2 - FadeEffectValue * 2 / 2 ,FadeEffect.get_height() / 2 - FadeEffectValue * 2 / 2 ,FadeEffectValue * 2,FadeEffectValue * 2))
-        sprite.RenderRectangle(FadeEffect,(255 - FadeEffectValue,255 - FadeEffectValue,255 - FadeEffectValue),(FadeEffect.get_width() / 2 - FadeEffectValue / 2,FadeEffect.get_height() / 2 - FadeEffectValue / 2,FadeEffectValue,FadeEffectValue))
+        if FadeEffectStyle == 0:
+            FadeEffect.blit(sprite.Surface_Blur(DISPLAY, FadeEffectValue), (0,0))
+        if FadeEffectStyle == 1:
+            FadeEffect.blit(sprite.Surface_Pixalizate(DISPLAY, FadeEffectValue), (0,0))
+        if FadeEffectStyle == 2:
+            FadeEffect.blit(sprite.Surface_Blur(sprite.Surface_Pixalizate(DISPLAY, FadeEffectValue), FadeEffectValue), (0,0))
+        if FadeEffectStyle == 3:
+            FadeEffect.blit(sprite.Surface_Pixalizate(sprite.Surface_Blur(DISPLAY, FadeEffectValue), FadeEffectValue), (0, 0))
 
-        FadeEffect.set_alpha(FadeEffectValue)
         DefaultDisplay.blit(FadeEffect, (0, 0))
 
     # -- Render Cursor -- #
     sprite.Render(DefaultDisplay, "/cursors/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1], CursorW, CursorH)
 
-    # -- Blit the HUD Surface to Window -- #
-    if reg.ReadKey_bool("/OPTIONS/smooth_scaling"):
-        pygame.transform.smoothscale(DefaultDisplay, (DISPLAY.get_width(), DISPLAY.get_height()), DISPLAY)
-    else:
-        pygame.transform.scale(DefaultDisplay, (DISPLAY.get_width(), DISPLAY.get_height()), DISPLAY)
+    # -- Update the Screen --
+    pygame.display.update()
 
     # -- Render the Error Overlay -- #
     if LastErrorTextEnabled:
@@ -149,7 +159,6 @@ def Update():
     else:
         ScreensUpdate()
 
-
     # -- Update the Fade Effect -- #
     if FadeEffectState:
         if FadeEffectCurrentState == 0:
@@ -197,28 +206,7 @@ def EventUpdate(event):
     global CursorH
     # -- Update Cursor Location -- #
     if event.type == pygame.MOUSEMOTION:
-        # -- Set the Limits of Cursor -- #
-        if Cursor_Position[0] >= DefaultDisplay.get_width() + CursorW:
-            Cursor_Position[0] = DefaultDisplay.get_width() + CursorW
-        if Cursor_Position[1] >= DefaultDisplay.get_height() + CursorH:
-            Cursor_Position[1] = DefaultDisplay.get_height() + CursorH
-
-        if Cursor_Position[1] <= 0:
-            Cursor_Position[1] = 0
-        if Cursor_Position[0] <= 0:
-            Cursor_Position[0] = 0
-        CursorX, CursorY = pygame.mouse.get_rel()
-        Cursor_Position[0] = Cursor_Position[0] + CursorX
-        Cursor_Position[1] = Cursor_Position[1] + CursorY
-
-    if event.type == pygame.KEYUP:
-        if event.key == pygame.K_ESCAPE:
-            if Engine_MouseHeld:
-                Engine_MouseHeld = False
-            else:
-                Engine_MouseHeld = True
-
-            pygame.event.set_grab(Engine_MouseHeld)
+        Cursor_Position[0], Cursor_Position[1] = pygame.mouse.get_pos()
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -237,9 +225,7 @@ def LoadOptions():
     global Engine_ResW
     global Engine_MaxFPS
     global Cursor_CurrentLevel
-    global FadeEffectColor_R
-    global FadeEffectColor_G
-    global FadeEffectColor_B
+    global FadeEffectStyle
     print("LoadOptions : Init")
     FadeEffectState = True
     FadeEffectCurrentState = 0
@@ -247,14 +233,13 @@ def LoadOptions():
 
     # -- Engine Flags -- #
     Engine_MaxFPS = reg.ReadKey_int("/OPTIONS/maxFPS")
-    Engine_ResW = reg.ReadKey_int("/OPTIONS/resW")
-    Engine_ResH = reg.ReadKey_int("/OPTIONS/resH")
 
     # -- Fade Effect -- #
     FadeEffectSpeed = reg.ReadKey_int("/OPTIONS/fade_flash_speed")
-    FadeEffectColor_R = reg.ReadKey_int("/OPTIONS/fade_flash_r")
-    FadeEffectColor_G = reg.ReadKey_int("/OPTIONS/fade_flash_g")
-    FadeEffectColor_B = reg.ReadKey_int("/OPTIONS/fade_flash_b")
+
+    # -- Fade Style -- #
+    FadeEffectStyle = reg.ReadKey_int("/OPTIONS/fade_flash_style")
+
 
     print("LoadOptions : Data loading complete")
 
@@ -280,7 +265,7 @@ def Initialize(DISPLAY):
 
 def SetWindowParameters():
     global DefaultDisplay
-    DefaultDisplay = pygame.Surface((Engine_ResW, Engine_ResH))
+    DefaultDisplay = pygame.Surface((800, 600))
 
     Messages.append("SET_FPS:" + str(Engine_MaxFPS))
     Messages.append("RESIZIABLE_WINDOW:True")
@@ -289,8 +274,6 @@ def SetWindowParameters():
     pygame.mouse.set_visible(False)
 
     print("SetWindowParameters : FPS:{0}".format(str(Engine_MaxFPS)))
-    print("SetWindowParameters : ResW:{0}".format(str(Engine_ResW)))
-    print("SetWindowParameters : ResH:{0}".format(str(Engine_ResH)))
 
 
 def Event_InGameOverlayOpenned():

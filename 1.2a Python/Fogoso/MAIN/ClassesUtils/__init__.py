@@ -1,7 +1,24 @@
+#!/usr/bin/env python3.7
+#   Copyright 2020 Aragubas
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
 import ENGINE.SPRITE as sprite
 import pygame
 import Fogoso.MAIN as mainScript
 import ENGINE.Registry as reg
+import random
 
 print("Game : Classes Utils v1.0")
 
@@ -330,15 +347,28 @@ class Item_AutoClicker:
         self.ItemClickPerSecound = reg.ReadKey("/ItemData/0/lv_" + str(ItemLevel) + "_click")
         self.ItemLevel = ItemLevel
         self.DeltaTime = 0
-        self.DeltaTimeAction = reg.ReadKey("/ItemData/0/lv_" + str(ItemLevel) + "_delta")
+        self.InternalDelay = 0
+        self.DeltaTimeAction = int(reg.ReadKey("/ItemData/0/lv_" + str(ItemLevel) + "_delta"))
         self.ItemID = 0
+        self.maintenance_delta = reg.ReadKey_int("/ItemData/0/lv_" + str(ItemLevel) + "_delta_maintenance")
+        self.maintenance_cost = reg.ReadKey_float("/ItemData/0/lv_" + str(ItemLevel) + "_cost_maintenance")
+        self.maintenance_delta_time = 0
 
     def Update(self):
         self.DeltaTime += 1
+        self.maintenance_delta_time += 1
+
+        if int(self.maintenance_delta_time) >= int(self.maintenance_delta):
+            mainScript.ScreenGame.AddMessageText("-" + str(self.maintenance_cost), True, (255, 210, 200), -self.maintenance_cost)
+            self.maintenance_delta_time = 0
 
         if int(self.DeltaTime) >= int(self.DeltaTimeAction):
-            mainScript.ScreenGame.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
-            self.DeltaTime = 0
+            self.InternalDelay += 1
+
+            if self.InternalDelay >= random.randint(0, int(self.DeltaTimeAction)):
+                mainScript.ScreenGame.AddMessageText("+" + str(self.ItemClickPerSecound), True, (100, 210, 100), self.ItemClickPerSecound)
+                self.DeltaTime = 0
+                self.InternalDelay = 0
 
 class Item_Nothing:
     def __init__(self, ItemLevel):
