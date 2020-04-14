@@ -17,20 +17,32 @@ def LoadSpritesInFolder(FolderName):
     pygame.font.init()
     FontFolderName = FolderName + "/FONT"
     FolderName = FolderName + "/SPRITE"
-    temp_sprites_files = utils.GetFileInDir(FolderName)
-    temp_font_files = utils.GetFileInDir(FontFolderName)
     index = -1
 
+    SpriteMetadata = open("Fogoso/SOURCE/SPRITE/meta.data", "r")
+    SpriteMetaLines = SpriteMetadata.readlines()
+
     print("LoadSpritesInFolder : Loading all Sprites...")
-    for x in temp_sprites_files:
-        index += 1
-        print("\nLoadSpritesInFolder : File[" + x + "] detected; Index[" + str(index) + "]")
 
-        CorrectKeyName = x.replace(FolderName, "")
-        Sprites_Name.append(CorrectKeyName)
-        Sprites_Data.append(pygame.image.load(x))
+    for line in SpriteMetaLines:
+        line = line.rstrip()
+        if not line.startswith('#'):
+            currentLine = line.split(':')
+            spriteLocation = FolderName + currentLine[0]
+            print("[{0}]".format(spriteLocation))
 
-        print("LoadSpritesInFolder : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
+            if currentLine[1] == "True":
+                Sprites_Name.append(currentLine[0])
+                Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
+                print("LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+
+            elif currentLine[1] == "False":
+                Sprites_Name.append(currentLine[0])
+                Sprites_Data.append(pygame.image.load(spriteLocation).convert())
+                print("LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+            else:
+                print("LoadSpritesInFolder : MetadataFileError!, Value[" + line + "] is invalid.")
+
 
     print("LoadSpritesInFolder : Operation Completed.")
 
@@ -119,8 +131,8 @@ def Render(DISPLAY, spriteName, X, Y, Width=0, Height=0):
 
     except:
         TransformedSpriteCache_Name.append(spriteName + " [{0},{1}]".format(str(Width),str(Height)))
-        TransformedSpriteCache.append(pygame.transform.scale(Sprites_Data[Sprites_Name.index(spriteName)], (Width, Height)))
-        print("GetSprite : Sprite [{0}] added to the Transform Cache.".format(spriteName))
+        TransformedSpriteCache.append(pygame.transform.scale(GetSprite(spriteName), (Width, Height)))
+        print("Render : Sprite [{0}] added to the Transform Cache.".format(spriteName))
 
 
 CurrentLoadedFonts_Name = list()
@@ -138,6 +150,29 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
         CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, Size))
         print("RenderFont ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
         print("RenderFont ; Detailed Error: " + str(ex))
+
+def Surface_Blur(surface, amt):
+    if amt < 1.0:
+        print("Surface_Blue : Invalid Blur Amount.")
+        return surface
+    scale = 1.0/float(amt)
+    surf_size = surface.get_size()
+    scale_size = (int(surf_size[0]*scale), int(surf_size[1]*scale))
+    surf = pygame.transform.smoothscale(surface, scale_size)
+    surf = pygame.transform.smoothscale(surf, surf_size)
+    return surf
+
+def Surface_Pixalizate(surface, amt):
+    if amt < 1.0:
+        print("Surface_Blue : Invalid Blur Amount.")
+        return surface
+    scale = 1.0/float(amt)
+    surf_size = surface.get_size()
+    scale_size = (int(surf_size[0]*scale), int(surf_size[1]*scale))
+    surf = pygame.transform.scale(surface, scale_size)
+    surf = pygame.transform.scale(surf, surf_size)
+    return surf
+
 
 def RenderRectangle(DISPLAY, Color, Rectangle):
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:

@@ -1,20 +1,3 @@
-#!/usr/bin/env python3.7
-#
-#   Copyright 2020 Aragubas
-#
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
-#
-
 import ENGINE.SPRITE as sprite
 import pygame
 import Fogoso.MAIN as mainScript
@@ -485,8 +468,11 @@ class HorizontalItemsView:
 
         for i, itemNam in enumerate(self.ItemsName):
             ItemName = reg.ReadKey("/ItemData/store/" + str(itemNam) + "_name")
-            ItemWidth = 80 + sprite.GetText_width("/PressStart2P.ttf", 12, ItemName)
-            ItemRect = (self.ScrollX + ItemWidth * i, 0, ItemWidth - 5, self.Rectangle[3])
+            ItemWidth = 195
+
+            ItemX = self.ScrollX + ItemWidth * i
+            ItemRect = (ItemX, 0, ItemWidth - 5, self.Rectangle[3])
+            #ItemRect = (self.Rectangle[0],self.ScrollY + self.Rectangle[1] + 42 * i,self.Rectangle[2],40)
 
             # -- Background -- #
             sprite.RenderRectangle(self.ListSurface, (120, 142, 159), ItemRect)
@@ -508,7 +494,7 @@ class HorizontalItemsView:
 
             sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 10, LittleInfoText, (250, 250, 250), ItemRect[0] + 105, ItemRect[1] + 12, reg.ReadKey_bool("/OPTIONS/font_aa"))
             # -- Spacer Bar -- #
-            sprite.RenderRectangle(self.ListSurface, (1, 22, 39), (ItemRect[0] + ItemRect[2] - 5, ItemRect[1], ItemRect[2], ItemRect[3]))
+            #sprite.RenderRectangle(self.ListSurface, (1, 22, 39), (ItemRect[0] + ItemRect[2] - 5, ItemRect[1], ItemRect[2], ItemRect[3]))
 
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
