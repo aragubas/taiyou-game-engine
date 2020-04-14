@@ -1,5 +1,0 @@
-WriteLine GameOverlay is closed.
-
-// Set Window Parameters
-Call Main.UpdateWindow
-WriteLine Window Parameters is now restored.

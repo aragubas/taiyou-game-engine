@@ -1,5 +1,0 @@
-// Update the Window Properties
-ChangeWindowProp MAX_FPS $INT_Global.MaxFPS$
-ChangeWindowProp TITLE $STRING_GameWindowTitle$
-ChangeWindowProp CURSOR_OFFSCREEN False
-ChangeWindowProp VSYNC False

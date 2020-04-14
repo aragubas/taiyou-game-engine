@@ -1,4 +1,0 @@
-// Set Window Parameters
-ChangeWindowProp TITLE DVDLogo
-ChangeWindowProp MAX_FPS 100
-ChangeWindowProp RESIZIABLE_WINDOW True
