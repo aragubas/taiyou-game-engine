@@ -35,7 +35,7 @@ def LoadSpritesInFolder(FolderName):
     FolderName = FolderName + "/SPRITE"
     index = -1
 
-    SpriteMetadata = open("Fogoso/SOURCE/SPRITE/meta.data", "r")
+    SpriteMetadata = open(utils.GetCurrentSourceFolder() + "/SPRITE/meta.data", "r")
     SpriteMetaLines = SpriteMetadata.readlines()
 
     print("LoadSpritesInFolder : Loading all Sprites...")
