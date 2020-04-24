@@ -1,0 +1,7 @@
+#
+# What is this file?
+# This file is a General Sprites Metadata and all sprites listed here will be loaded
+# Format:
+# [sprite_location]:[True or False, transparency]
+#
+/0.png:True

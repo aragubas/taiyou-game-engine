@@ -137,7 +137,7 @@ def Chop(spriteName, rectangle):
 
 TransformedSpriteCache_Name = list()
 TransformedSpriteCache = list()
-def Render(DISPLAY, spriteName, X, Y, Width=0, Height=0):
+def Render(DISPLAY, spriteName, X, Y, Width, Height):
     try:
         if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
             TransformedID = TransformedSpriteCache_Name.index(spriteName + " [{0},{1}]".format(str(Width), str(Height)))
