@@ -7,8 +7,9 @@
 2. Registry System
 
 
-## How game initialization works?
-*It works by importing a Python Script from the requested Game Folder*
+## How game it loads games?
+It loades the games importing the python script in: ``/game_name/MAIN/__init__.py``
+
 
 ## How to Change the Game?
 *Just put the name of the Game Folder on the file ´/currentGame´ on the root folder.*
