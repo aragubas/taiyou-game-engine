@@ -16,7 +16,7 @@
 #
 
 # -- Imports --
-import ENGINE.Utils as utils
+from ENGINE import UTILS as utils
 import pygame
 
 print("Taiyou Sound System version 1.0")

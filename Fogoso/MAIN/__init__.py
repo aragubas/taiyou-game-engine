@@ -16,14 +16,16 @@
 #
 
 # -- Imports -- #
-import ENGINE.Registry as reg
-import Fogoso.MAIN.ClassesUtils as gameObjs
-import Fogoso.MAIN.Screens.Game as ScreenGame
-import Fogoso.MAIN.Screens.MainMenu as ScreenMenu
-import Fogoso.MAIN.Screens.Settings as ScreenSettings
+from ENGINE import REGISTRY as reg
+from Fogoso.MAIN import ClassesUtils as gameObjs
+from Fogoso.MAIN.Screens import Game as ScreenGame
+from Fogoso.MAIN.Screens import MainMenu as ScreenMenu
+from Fogoso.MAIN.Screens import Settings as ScreenSettings
+from Fogoso.MAIN.Screens import Intro as ScreenIntro
+from ENGINE import SPRITE as sprite
 import pygame, sys
-import ENGINE.SPRITE as sprite
-from datetime import datetime
+
+
 
 # -- Messages -- #
 Messages = list()
@@ -43,14 +45,8 @@ FadeEffectStyle = 0 # 0 = Blur, 1 = Pixalizate, 2 = Blur + Pixalizate, 3 = Pixal
 
 # -- Engine Options -- #
 Engine_MaxFPS = 0
-
-# -- Date Variables -- #
-Date_Hour = 0
-Date_Minute = 0
-Date_Secounds = 0
-Date_Month = 0
-Date_Day = 0
-Date_Year = 0
+Engine_ResW = 1024
+Engine_ResH = 720
 
 # -- Last Error Overlay -- #
 LastErrorText = ""
@@ -63,6 +59,8 @@ DefaultDisplay = pygame.Surface((0, 0))
 # -- Screens -- #
 CurrentScreen = 0
 
+ClearColor = (0,0,0)
+
 def GameDraw(DISPLAY):
     global DefaultDisplay
     global LastErrorText
@@ -71,10 +69,10 @@ def GameDraw(DISPLAY):
     global DefaultDisplay
     global CursorW
     global CursorH
-    global Date_Secounds
+    global ClearColor
     # -- Clear the Surface -- #
     DefaultDisplay = DISPLAY
-    DISPLAY.fill((0, 2, 19))
+    DISPLAY.fill(ClearColor)
 
     if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
         try:
@@ -131,22 +129,9 @@ def Update():
     global FadeEffectValue
     global FadeEffectState
     global FadeEffectCurrentState
-    global Date_Hour
-    global Date_Minute
-    global Date_Day
-    global Date_Month
-    global Date_Year
-    global Date_Secounds
     global CursorW
     global CursorH
-
-    # -- Update the Date -- #
-    Date_Hour = datetime.now().strftime('%H')
-    Date_Minute = datetime.now().strftime('%M')
-    Date_Secounds = datetime.now().strftime('%S')
-    Date_Month = datetime.now().strftime('%m')
-    Date_Year = datetime.now().strftime('%Y')
-
+    
     # -- Set the Cursor Size -- #
     CursorW = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/w")
     CursorH = reg.ReadKey_int("/CursorSize/" + str(Cursor_CurrentLevel) + "/h")
@@ -173,6 +158,8 @@ CursorX = 0
 CursorY = 0
 
 def ScreensUpdate():
+    if CurrentScreen == -1:
+        ScreenIntro.Update()
     if CurrentScreen == 0:
         ScreenMenu.Update()
     if CurrentScreen == 1:
@@ -181,6 +168,8 @@ def ScreensUpdate():
         ScreenSettings.Update()
 
 def ScreenDraw(DefaultDisplay):
+    if CurrentScreen == -1:
+        ScreenIntro.GameDraw(DefaultDisplay)
     if CurrentScreen == 0:
         ScreenMenu.GameDraw(DefaultDisplay)
     if CurrentScreen == 1:
@@ -189,6 +178,8 @@ def ScreenDraw(DefaultDisplay):
         ScreenSettings.GameDraw(DefaultDisplay)
 
 def ScreenEventUpdate(event):
+    if CurrentScreen == -1:
+        ScreenIntro.EventUpdate(event)
     if CurrentScreen == 0:
         ScreenMenu.EventUpdate(event)
     if CurrentScreen == 1:
@@ -196,9 +187,18 @@ def ScreenEventUpdate(event):
     if CurrentScreen == 2:
         ScreenSettings.EventUpdate(event)
 
+def ScreensInitialize(DISPLAY):
+    if CurrentScreen == -1:
+        ScreenIntro.Initialize(DefaultDisplay)
+    if CurrentScreen == 0:
+        ScreenMenu.Initialize(DefaultDisplay)
+    if CurrentScreen == 1:
+        ScreenGame.Initialize(DefaultDisplay)
+    if CurrentScreen == 2:
+        ScreenSettings.Initialize(DefaultDisplay)
+
 def EventUpdate(event):
     global Cursor_Position
-    global Engine_MouseHeld
     global CursorX
     global CursorY
     global DefaultDisplay
@@ -243,8 +243,9 @@ def LoadOptions():
 
     print("LoadOptions : Data loading complete")
 
-
+    
 def Initialize(DISPLAY):
+    global CurrentScreen
     print("Game Initialization")
 
     # -- Load Engine Options -- #
@@ -253,37 +254,30 @@ def Initialize(DISPLAY):
     # -- Apply Engine Options -- #
     SetWindowParameters()
 
-    try:
-        if CurrentScreen == 0:
-            ScreenMenu.Initialize(DefaultDisplay)
-        if CurrentScreen == 1:
-            ScreenGame.Initialize(DefaultDisplay)
-        if CurrentScreen == 2:
-            ScreenSettings.Initialize(DefaultDisplay)
-    except Exception as ex:
-        WriteErrorLog(ex,"Initialize", True)
+    # -- Set the Default Screen -- #
+    CurrentScreen = reg.ReadKey_int("/props/CurrentScreen")
+
+    if not reg.ReadKey_bool("/OPTIONS/debug_enabled"):
+        try:
+            ScreensInitialize(DISPLAY)
+        except Exception as ex:
+            WriteErrorLog(ex,"Initialize", True)
+    else:
+        ScreensInitialize(DISPLAY)
+    
 
 def SetWindowParameters():
     global DefaultDisplay
-    DefaultDisplay = pygame.Surface((800, 600))
+    DefaultDisplay = pygame.Surface((1024, 640))
 
     Messages.append("SET_FPS:" + str(Engine_MaxFPS))
     Messages.append("RESIZIABLE_WINDOW:True")
+    Messages.append("SET_RESOLUTION:1024:650")
 
     pygame.display.set_caption("Fogoso : Ready!")
     pygame.mouse.set_visible(False)
 
     print("SetWindowParameters : FPS:{0}".format(str(Engine_MaxFPS)))
-
-
-def Event_InGameOverlayOpenned():
-    print("Game : InGameOverlayOpenned")
-
-
-def Event_InGameOverlayClosed():
-    print("Game : InGameOverlayClosed")
-    SetWindowParameters()
-
 
 # -- Send the messages on the Message Quee to the Game Engine -- #
 def ReadCurrentMessages():
@@ -303,12 +297,6 @@ def ReadCurrentMessages():
         return ""
 
 def WriteErrorLog(ex, func, ExitWhenFinished=False):
-    global Date_Hour
-    global Date_Minute
-    global Date_Day
-    global Date_Month
-    global Date_Year
-    global Date_Secounds
     global LastErrorText
     global LastErrorTextEnabled
 
@@ -318,8 +306,7 @@ def WriteErrorLog(ex, func, ExitWhenFinished=False):
     LastErrorTextEnabled = True
 
     if ExitWhenFinished:
-        ErrorLogName = "/LOG/crash_func(" + str(func) + ")_" + str(Date_Year) + "." + str(Date_Day) + "." + str(
-            Date_Month) + ". " + str(Date_Hour) + "," + str(Date_Minute) + "," + str(Date_Secounds)
+        ErrorLogName = "/LOG/crash_func(" + str(func) + ")"
         print("\n\n\n\n\nWriteErrorLog ; Error log file write at:\n" + ErrorLogName)
         reg.WriteKey(ErrorLogName, str(ex))
         print("WriteErrorLog ; Closing Game...\n\n\n\n\n")

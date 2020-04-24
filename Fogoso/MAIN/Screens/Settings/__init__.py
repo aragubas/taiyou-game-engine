@@ -16,14 +16,14 @@
 #
 
 # -- Imports -- #
-import ENGINE.Registry as reg
-import ENGINE.Utils as utils
-import ENGINE.TGE as tge
-import ENGINE.SOUND as sound
-import Fogoso.MAIN.ClassesUtils as gameObjs
-import Fogoso.MAIN as gameMain
+from ENGINE import REGISTRY as reg
+from ENGINE import UTILS as utils
+import ENGINE as tge
+from ENGINE import SOUND as sound
+from Fogoso.MAIN import ClassesUtils as gameObjs
+from Fogoso import MAIN as gameMain
+from ENGINE import SPRITE as sprite
 import pygame, sys
-import ENGINE.SPRITE as sprite
 import importlib
 import time
 from random import randint
@@ -138,7 +138,7 @@ def GameDraw(DISPLAY):
     sprite.RenderRectangle(DISPLAY, (1, 22, 39), (ElementsX, ElementsY, 550, 250))
 
     # -- Render The Title Text -- #
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 28, "-- Options --", (246, 247, 248), ElementsX + 95,
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 28, reg.ReadKey("/strings/settings/title"), (246, 247, 248), ElementsX + 95,
                       ElementsY + 5, reg.ReadKey_bool("/OPTIONS/font_aa"))
     # -- Render Close Button -- #
     OptionsScreen_CloseButton.Render(DISPLAY)
@@ -146,27 +146,27 @@ def GameDraw(DISPLAY):
     OptionsScreen_ChangeFps.Render(DISPLAY)
     OptionsScreen_ChangeFps.Set_X(ElementsX + 20)
     OptionsScreen_ChangeFps.Set_Y(ElementsY + 50)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Max FPS:" + str(gameMain.Engine_MaxFPS),
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/max_fps") + str(gameMain.Engine_MaxFPS),
                       (255, 255, 255), ElementsX + 95, ElementsY + 52, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render Flash Animation Speed -- #
     OptionsScreen_FlashAnimationSpeed.Render(DISPLAY)
     OptionsScreen_FlashAnimationSpeed.Set_X(ElementsX + 20)
     OptionsScreen_FlashAnimationSpeed.Set_Y(ElementsY + 75)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Flash Animation Speed:" + str(gameMain.FadeEffectSpeed),
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_speed") + str(gameMain.FadeEffectSpeed),
                       (255, 255, 255), ElementsX + 95, ElementsY + 77, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render FontAntiAlias -- #
     OptionsScreen_FontAntiAlias.Render(DISPLAY)
     OptionsScreen_FontAntiAlias.Set_X(ElementsX + 20)
     OptionsScreen_FontAntiAlias.Set_Y(ElementsY + 100)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Font AntiAlias: " + str(reg.ReadKey_bool("/OPTIONS/font_aa")), (255, 255, 255),ElementsX + 120,ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/font_aa") + str(reg.ReadKey_bool("/OPTIONS/font_aa")), (255, 255, 255),ElementsX + 120,ElementsY + 102, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     # -- Render FlashAnimStyle -- #
     OptionsScreen_FlashAnimStyle.Render(DISPLAY)
     OptionsScreen_FlashAnimStyle.Set_X(ElementsX + 20)
     OptionsScreen_FlashAnimStyle.Set_Y(ElementsY + 125)
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, "Flash Animation Style: " + str(reg.ReadKey_int("/OPTIONS/fade_flash_style")), (255, 255, 255),ElementsX + 95,ElementsY + 127, reg.ReadKey_bool("/OPTIONS/font_aa"))
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 14, reg.ReadKey("/strings/settings/flash_anim_style") + str(reg.ReadKey_int("/OPTIONS/fade_flash_style")), (255, 255, 255),ElementsX + 95,ElementsY + 127, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
 
 def Initialize():
@@ -176,13 +176,13 @@ def Initialize():
     global OptionsScreen_FontAntiAlias
     global OptionsScreen_FlashAnimStyle
 
-    OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0),"< Back", 14)
+    OptionsScreen_CloseButton = gameObjs.Button(pygame.rect.Rect(0, 5, 0, 0), reg.ReadKey("/strings/settings/back_button"), 14)
     OptionsScreen_ChangeFps = gameObjs.UpDownButton(20, 100, 14)
     OptionsScreen_FlashAnimationSpeed = gameObjs.UpDownButton(20, 160, 14)
-    OptionsScreen_FontAntiAlias = gameObjs.Button(pygame.Rect(0,0,0,0),"Toggle", 14)
+    OptionsScreen_FontAntiAlias = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/settings/toggle_button"), 14)
     OptionsScreen_FlashAnimStyle = gameObjs.UpDownButton(0, 0, 14)
-    gameMain.Cursor_CurrentLevel = 0
-
+    gameMain.ClearColor = (1,24,32)
+    
 
 def EventUpdate(event):
     global OptionsScreen_CloseButton

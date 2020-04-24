@@ -16,7 +16,7 @@
 #
 
 # -- Imports --
-import ENGINE.Utils as utils
+from ENGINE import UTILS as utils
 import pygame
 
 print("TaiyouGameEngine Sprite Utilitary version 1.0")
@@ -193,14 +193,17 @@ def Surface_Pixalizate(surface, amt):
 def RenderRectangle(DISPLAY, Color, Rectangle):
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
+        if len(Color) < 4:
+            Color.append(255)
         if Color[0] <= 0:
             Color[0] = 0
         if Color[1] <= 0:
             Color[1] = 0
         if Color[2] <= 0:
             Color[2] = 0
+        if Color[3] <= 0:
+            Color[3] = 0
         pygame.draw.rect(DISPLAY, Color, Rectangle)
-
 
 def GetText_width(FontFileLocation, FontSize, Text):
     try:

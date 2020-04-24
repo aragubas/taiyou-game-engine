@@ -16,16 +16,16 @@
 #
 
 # -- Imports -- #
-import ENGINE.Registry as reg
-import ENGINE.Utils as utils
-import ENGINE.TGE as tge
-import ENGINE.SOUND as sound
-import Fogoso.MAIN.ClassesUtils as gameObjs
-import Fogoso.MAIN.Screens.Game as ScreenGame
-import Fogoso.MAIN.Screens.Settings as ScreenSettings
-import Fogoso.MAIN as gameMainObj
+from ENGINE import REGISTRY as reg
+from ENGINE import UTILS as utils
+import ENGINE as tge
+from ENGINE import SOUND as sound
+from Fogoso.MAIN import ClassesUtils as gameObjs
+from Fogoso.MAIN.Screens import Game as ScreenGame
+from Fogoso.MAIN.Screens import Settings as ScreenSettings
+from Fogoso import MAIN as gameMainObj
+from ENGINE import SPRITE as sprite
 import pygame, sys
-import ENGINE.SPRITE as sprite
 import importlib
 import time
 from random import randint
@@ -57,12 +57,14 @@ def Initialize(DISPLAY):
     global EverdayMessageWindow
     global EverdayMessage_GenerateNewMessageButton
     print("Menu Initialize")
-    PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), "Start", 18)
-    SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), "Settings", 18)
-    EverdayMessageWindow = gameObjs.Window(pygame.Rect(5, DISPLAY.get_height() - 25, 550, 200), "Message", True)
+    PlayButton = gameObjs.Button(pygame.Rect(50, 50, 0, 0), reg.ReadKey("/strings/main_menu/play_button"), 18)
+    SettingsButton = gameObjs.Button(pygame.Rect(50 ,50 ,0 ,0), reg.ReadKey("/strings/main_menu/settings_button"), 18)
+    EverdayMessageWindow = gameObjs.Window(pygame.Rect(5, DISPLAY.get_height() - 25, 550, 200), reg.ReadKey("/strings/main_menu/message_window/window_title"), True)
     EverdayMessageWindow.ToggleMinimize()
-    EverdayMessage_GenerateNewMessageButton = gameObjs.Button(pygame.Rect(0,0,0,0),"Next",18)
+    EverdayMessage_GenerateNewMessageButton = gameObjs.Button(pygame.Rect(0,0,0,0), reg.ReadKey("/strings/main_menu/message_window/next_button"),18)
     EverdayMessage_GenerateNewMessageButton.CustomColisionRectangle = True
+    gameMainObj.ClearColor = (1, 20, 30)
+    
 
 def EventUpdate(event):
     global PlayButton
@@ -102,7 +104,6 @@ def EverdayMessage(DISPLAY):
     # -- Draw the message on the Message Winow -- #
     EverdayMessageWindow.Render(DISPLAY)
     if not EverdayMessageWindow.WindowMinimized:
-        EverdayMessageWindow.WindowSurface.fill((4, 21, 32))
 
         # -- Render Message -- #
         sprite.RenderRectangle(EverdayMessageWindow.WindowSurface, (56, 65, 74),
@@ -147,16 +148,16 @@ def Update():
 
     if EverdayMessage_UpdateMessage:
         EverdayMessage_UpdateMessage = False
-        if reg.ReadKeyWithTry_bool("/EMW/first_message", True):
+        if reg.ReadKeyWithTry_bool("/strings/main_menu/EMW/first_message", True):
             EverdayMessage_TextTitle = "Welcome!"
-            EverdayMessage_Text = reg.ReadKey("/EMW/first")
-            reg.WriteKey("/EMW/first_message", "False")
-        MessageID = randint(0,reg.ReadKey_int("/EMW/total_messages"))
+            EverdayMessage_Text = reg.ReadKey("/strings/main_menu/EMW/first")
+            reg.WriteKey("/strings/main_menu/EMW/first_message", "False")
+        MessageID = randint(0,reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
         if EverdayMessage_LastMessageID == MessageID:
-            MessageID = randint(MessageID, reg.ReadKey_int("/EMW/total_messages"))
+            MessageID = randint(MessageID, reg.ReadKey_int("/strings/main_menu/EMW/total_messages"))
 
-        EverdayMessage_TextTitle = reg.ReadKey("/EMW/" + str(MessageID) + "_title")
-        EverdayMessage_Text = reg.ReadKey("/EMW/" + str(MessageID))
+        EverdayMessage_TextTitle = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID) + "_title")
+        EverdayMessage_Text = reg.ReadKey("/strings/main_menu/EMW/" + str(MessageID))
         print("EverdayMessage_UpdateMessage : MessageID[" + str(MessageID) + "]")
 
     if Animation_Enabled:

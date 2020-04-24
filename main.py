@@ -16,13 +16,13 @@
 #
 
 # Import some stuff
-import ENGINE.Registry as reg
-import ENGINE.SPRITE as sprite
-import ENGINE.TGE as tge
+from ENGINE import REGISTRY as reg
+from ENGINE import SPRITE as sprite
+import ENGINE as tge
 import pygame, sys, importlib
 
 # The main Entry Point
-print("\n\nTaiyouGameEngine has just started.")
+print("TaiyouGameEngineMainScript version 1.2")
 
 # -- Global Variables -- #
 IsGameRunning = False
@@ -48,39 +48,28 @@ def ReceiveCommand(Command):
     global CurrentRes_H
     global ResiziableWindow
 
-    if Command == "START_GAME_EXECUTION":
-        print("GameEngine.ReceiveCommand : " + Command)
-        IsGameRunning = True
-
-    if Command == "STOP_GAME_EXECUTION":
-        print("GameEngine.ReceiveCommand : " + Command)
-        IsGameRunning = False
-    if Command == "TOGGLE_GAME_START":
-        print("GameEngine.ReceiveCommand : " + Command)
-        ToggleGameStart = False
-
     if Command.startswith("SET_FPS:") if Command else False:
         try:
             splitedArg = Command.split(':')
             FPS = int(splitedArg[1])
-            print("GameEngine.ReceiveComamnd : MaxFPS Setted to:" + str(FPS))
+            print("Taiyou.ReceiveComamnd : MaxFPS Setted to:" + str(FPS))
 
         except:
-            print("GameEngine.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
+            print("Taiyou.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
 
     if Command.startswith("SET_RESOLUTION:") if Command else False:
         try:
             splitedArg = Command.split(':')
-            print("GameEngine.ReceiveComamnd : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
+            print("Taiyou.ReceiveComamnd : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
             CurrentRes_W = int(splitedArg[1])
             CurrentRes_H = int(splitedArg[2])
-            if ResiziableWindow == "True":
+            if ResiziableWindow == True:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.RESIZABLE)
-            if splitedArg == "False":
+            if ResiziableWindow == False:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H))
 
         except:
-            print("GameEngine.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
+            print("Taiyou.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
 
     if Command.startswith("RESIZIABLE_WINDOW:") if Command else False:
         try:
@@ -89,17 +78,17 @@ def ReceiveCommand(Command):
             if splitedArg[1] == "True":
                 DISPLAY = pygame.display.set_mode((CurrentRes_W,CurrentRes_H), pygame.RESIZABLE)
                 ResiziableWindow = True
-                print("GameEngine.ReceiveComamnd : Set RESIZIABLE_WINDOW to: True")
+                print("Taiyou.ReceiveComamnd : Set RESIZIABLE_WINDOW to: True")
 
             if splitedArg[1] == "False":
                 DISPLAY = pygame.display.set_mode((CurrentRes_W,CurrentRes_H))
                 ResiziableWindow = False
-                print("GameEngine.ReceiveComamnd : Set RESIZIABLE_WINDOW to: False")
+                print("Taiyou.ReceiveComamnd : Set RESIZIABLE_WINDOW to: False")
 
 
 
         except Exception as ex:
-            print("GameEngine.ReceiveComamnd_Error : Error, [" + str(ex) + "]")
+            print("Taiyou.ReceiveComamnd_Error : Error, [" + str(ex) + "]")
 
 
 def main():
@@ -110,36 +99,36 @@ def main():
     global IsGameRunning
     global FPS
     global DISPLAY
-    global FillColor
     global ResiziableWindow
 
-    print("GameEngine : Initialize Pygame")
+    print("Taiyou.Initialize : Initialize Pygame")
     pygame.init()
     pygame.font.init()
 
     CurrentGameFolder = open("currentGame", "r")
     CurrentGameFolder = CurrentGameFolder.read().rstrip()
-    print("GameEngine : GameFolder name is " + CurrentGameFolder)
+    print("Taiyou.Initialize : GameFolder name is " + CurrentGameFolder)
 
     # -- Set Variables -- #
     DISPLAY = pygame.display.set_mode((800, 600))
     MainGameModuleName = CurrentGameFolder.replace("/", ".") + ".MAIN"
 
-    print("GameEngine : Set Game Object...")
+    print("Taiyou.Initialize : Set Game Object...")
     UserGameObject = importlib.import_module(MainGameModuleName)
 
-    print("GameEngine : Open Game Folder...")
+    print("Taiyou.Initialize : Open Game Folder...")
     tge.OpenGameFolder(CurrentGameFolder)  # -- Load Game Assets -- #
 
-    print("GameEngine : Load registry keys...")
+    print("Taiyou.Initialize : Load registry keys...")
     reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
 
-    print("GameEngine : Call Game Initialize")
+    print("Taiyou.Initialize : Call Game Initialize")
     UserGameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
 
-    print("GameEngine : Pre-Initialization complete.")
+    print("Taiyou.Initialize : Pre-Initialization complete.")
     while True:
-        clock.tick(FPS)
+        if FPS > 0:
+            clock.tick(FPS)
 
         # -- Update the Game --
         UserGameObject.Update()
