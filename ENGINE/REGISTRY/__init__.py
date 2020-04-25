@@ -40,7 +40,17 @@ def Initialize(reg_dir):
 
         CorrectKeyName = x.replace(reg_dir,"").replace(".data","")
         file = open(x,"r")
-        reg_contents.append(file.read().rstrip().replace("%n", "\n").replace("%t","\t").replace("%s"," "))
+
+        CurrentLine = file.read().splitlines()
+        AllData = ""
+        for x in CurrentLine:
+            if not x.startswith("#"):
+                AllData += x + "\n"
+
+        # -- Format the Text -- #
+        AllData = AllData.rstrip().replace("%n", "\n").replace("%t","\t").replace("%s"," ")
+
+        reg_contents.append(AllData)
         reg_keys.append(CorrectKeyName)
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
 

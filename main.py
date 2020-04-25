@@ -125,7 +125,7 @@ def main():
     print("Taiyou.Initialize : Call Game Initialize")
     UserGameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
 
-    print("Taiyou.Initialize : Pre-Initialization complete.")
+    print("Taiyou.Initialize : Initialization complete, Starting game loop...")
     while True:
         if FPS > 0:
             clock.tick(FPS)

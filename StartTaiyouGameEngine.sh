@@ -1,7 +1,7 @@
 #!/bin/bash
 PYTHON_BIN_NAME=python3.6
 TAIYOU_MAIN=main.py
-GAME_NAME=Fogoso
+GAME_NAME=Example Game
 
 clear
 echo StartTaiyouScript version 1.0
