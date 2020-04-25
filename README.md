@@ -13,6 +13,9 @@ It loades the games importing the python script in: ``/game_name/MAIN/__init__.p
 ## How to Change the Game?
 *Just put the name of the Game Folder on the file ´/currentGame´ on the root folder.*
 
+## What type of games this Game Engine can create?
+*Everthing in 2D Base, but it can do everthing that Pygames does, it is not limited to it's Rendering functions.*
+
 ## Official Discord Servers
 ![Fogoso Discord Server](https://discord.gg/Ek5QmBs)
 ![Fogoso Project](https://github.com/aragubas/fogoso/)
