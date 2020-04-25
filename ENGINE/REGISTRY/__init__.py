@@ -57,6 +57,22 @@ def Initialize(reg_dir):
     print("Taiyou.RegistryManager.Initialize : Operation Completed.")
     print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded.".format(str(len(reg_keys))))
 
+def Reload():
+    CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
+    Unload()
+
+    Initialize(CurrentGameFolder)
+
+def Unload():
+    print("Taiyou.RegistryManager.UnloadRegistry : Unloading Registry...")
+
+    # -- Clear the Registry -- #
+    reg_keys.clear()
+    reg_contents.clear()
+
+    print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
+
+
 # -- Game Keys -- #
 def ReadKey(keyName):
     return reg_contents[reg_keys.index(keyName)]

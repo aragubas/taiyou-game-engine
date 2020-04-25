@@ -209,7 +209,7 @@ def GetText_width(FontFileLocation, FontSize, Text):
     try:
         for i, l in enumerate(Text.splitlines()):
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
-        
+
     except:
         CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))
         CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, FontSize))

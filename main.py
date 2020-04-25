@@ -63,9 +63,9 @@ def ReceiveCommand(Command):
             print("Taiyou.ReceiveComamnd : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
             CurrentRes_W = int(splitedArg[1])
             CurrentRes_H = int(splitedArg[2])
-            if ResiziableWindow == True:
+            if ResiziableWindow:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.RESIZABLE)
-            if ResiziableWindow == False:
+            if not ResiziableWindow:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H))
 
         except:
