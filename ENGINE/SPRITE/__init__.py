@@ -17,6 +17,8 @@
 
 # -- Imports --
 from ENGINE import UTILS as utils
+import ENGINE as tge
+import threading
 import pygame
 
 print("TaiyouGameEngine Sprite Utilitary version 1.0")
@@ -31,20 +33,19 @@ DefaultSprite = pygame.image.load("default.png")
 
 def LoadSpritesInFolder(FolderName):
     pygame.font.init()
-    FontFolderName = FolderName + "/FONT"
-    FolderName = FolderName + "/SPRITE"
+    folder_name = FolderName + "/SPRITE"
     index = -1
 
-    SpriteMetadata = open(utils.GetCurrentSourceFolder() + "/SPRITE/meta.data", "r")
-    SpriteMetaLines = SpriteMetadata.readlines()
+    sprite_metadata = open(utils.GetCurrentSourceFolder() + "/SPRITE/meta.data", "r")
+    sprite_meta_lines = sprite_metadata.readlines()
 
     print("LoadSpritesInFolder : Loading all Sprites...")
 
-    for line in SpriteMetaLines:
+    for line in sprite_meta_lines:
         line = line.rstrip()
         if not line.startswith('#'):
             currentLine = line.split(':')
-            spriteLocation = FolderName + currentLine[0]
+            spriteLocation = folder_name + currentLine[0]
             print("[{0}]".format(spriteLocation))
 
             if currentLine[1] == "True":
@@ -68,6 +69,22 @@ def GetSprite(SpriteResourceName):
     except:
         print("GetSprite : Sprite[" + SpriteResourceName + "] does not exist.")
         return DefaultSprite
+
+def Unload():
+    print("Sprite.Unload : Unloading Sprites...")
+
+    Sprites_Data.clear()
+    Sprites_Name.clear()
+
+    print("Sprite.Unload : Opearation Completed")
+
+def Reload():
+    print("Sprite.Reload : Reloading Sprites...")
+
+    Unload()
+
+    LoadSpritesInFolder(tge.Get_GameSourceFolder + "/SPRITE")
+
 
 
 def UnloadSprite(SpriteResourceName):
@@ -138,6 +155,12 @@ def Chop(spriteName, rectangle):
 TransformedSpriteCache_Name = list()
 TransformedSpriteCache = list()
 def Render(DISPLAY, spriteName, X, Y, Width, Height):
+    RenderProcess = threading.Thread(target=RealRender(DISPLAY, spriteName, X, Y, Width, Height))
+    RenderProcess.daemon = True
+    RenderProcess.run()
+
+
+def RealRender(DISPLAY, spriteName, X, Y, Width, Height):
     try:
         if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
             TransformedID = TransformedSpriteCache_Name.index(spriteName + " [{0},{1}]".format(str(Width), str(Height)))
@@ -150,10 +173,14 @@ def Render(DISPLAY, spriteName, X, Y, Width, Height):
         TransformedSpriteCache.append(pygame.transform.scale(GetSprite(spriteName), (Width, Height)))
         print("Render : Sprite [{0}] added to the Transform Cache.".format(spriteName))
 
-
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
 def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
+    RenderProcess = threading.Thread(target=RealRenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias))
+    RenderProcess.daemon = True
+    RenderProcess.run()
+
+def RealRenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
     try:
         if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
             for i, l in enumerate(Text.splitlines()):
@@ -178,6 +205,8 @@ def Surface_Blur(surface, amt):
     surf = pygame.transform.smoothscale(surf, surf_size)
     return surf
 
+
+
 def Surface_Pixalizate(surface, amt):
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
@@ -191,6 +220,11 @@ def Surface_Pixalizate(surface, amt):
 
 
 def RenderRectangle(DISPLAY, Color, Rectangle):
+    RenderProcess = threading.Thread(target=RealRenderRectangle(DISPLAY, Color, Rectangle))
+    RenderProcess.daemon = True
+    RenderProcess.run()
+
+def RealRenderRectangle(DISPLAY, Color, Rectangle):
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
         if len(Color) < 4:
@@ -204,6 +238,8 @@ def RenderRectangle(DISPLAY, Color, Rectangle):
         if Color[3] <= 0:
             Color[3] = 0
         pygame.draw.rect(DISPLAY, Color, Rectangle)
+
+
 
 def GetText_width(FontFileLocation, FontSize, Text):
     try:

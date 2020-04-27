@@ -17,46 +17,63 @@
 
 # -- Imports --
 from ENGINE import UTILS as utils
+import ENGINE as tge
 import pygame
+import threading
 
-print("Taiyou Sound System version 1.0")
+print("Taiyou Sound System version 1.1")
 
+AllLoadedSounds = {}
 
-
-
-
-
-
-
-
-
-
-AllLoadedSoundsNames = list()
-AllLoadedSounds = list()
 CurrentBGMPlaying = list()
 
 def LoadAllSounds(FolderName):
     FolderName = FolderName + "/SOUND"
-    temp_SoundFiles = utils.GetFileInDir(FolderName)
+    temp_sound_files = utils.GetFileInDir(FolderName)
     index = -1
 
     print("LoadAllSounds : Loading all Sounds...")
-    for x in temp_SoundFiles:
+    for x in temp_sound_files:
         index += 1
         print("\nLoadAllSounds : File[" + x + "] detected; Index[" + str(index) + "]")
 
         CorrectKeyName = x.replace(FolderName, "")
-        AllLoadedSoundsNames.append(CorrectKeyName)
-        AllLoadedSounds.append(pygame.mixer.Sound(open(x,"r")))
+        AllLoadedSounds[CorrectKeyName] = (pygame.mixer.Sound(x))
 
         print("LoadAllSounds : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
 
+def Unload():
+    print("Sound.Unload : Unloading All Sounds...")
+
+    AllLoadedSounds.clear()
+
+    print("Sound.Unload : Operation Completed Sucefully.")
+
+def Reload():
+    print("Sound.Reload : Reloading All Sounds...")
+
+    Unload()
+    LoadAllSounds(tge.Get_GameSourceFolder() + "/SOUND")
+
+    print("Sound.Reload : Opearation Complted.")
+
 def PlaySound(SourceName):
-    AllLoadedSounds[AllLoadedSoundsNames.index(SourceName)].play()
+    RenderProcess = threading.Thread(target=RealPlaySound(SourceName))
+    RenderProcess.daemon = True
+    RenderProcess.run()
+
+def RealPlaySound(SourceName):
+    global AllLoadedSounds
+    sound = AllLoadedSounds.get(SourceName)
+    sound.play()
 
 def StopSound(SourceName):
-    index = AllLoadedSoundsNames.index(SourceName)
-    CurrentMusic = AllLoadedSounds[index]
-    print("StopSound : SoundIndex[" + str(index) + "]")
+    RenderProcess = threading.Thread(target=RealStopSound(SourceName))
+    RenderProcess.daemon = True
+    RenderProcess.run()
 
-    CurrentMusic.stop()
+def RealStopSound(SourceName):
+    global AllLoadedSounds
+    sound = AllLoadedSounds.get(SourceName)
+    sound.stop()
+

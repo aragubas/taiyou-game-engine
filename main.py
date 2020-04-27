@@ -20,6 +20,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
 import ENGINE as tge
 import pygame, sys, importlib
+import threading
 
 # The main Entry Point
 print("TaiyouGameEngineMainScript version 1.2")
@@ -101,8 +102,15 @@ def main():
     global DISPLAY
     global ResiziableWindow
 
+    print("Taiyou.Initialize : Initialize Pygame.Sound")
+    pygame.init()
+    pygame.mixer.quit()
+    pygame.mixer.init(44100, -16, 2, 128)
+
     print("Taiyou.Initialize : Initialize Pygame")
     pygame.init()
+
+    print("Taiyou.Initialize : Initialize Pygame.Font")
     pygame.font.init()
 
     CurrentGameFolder = open("currentGame", "r")
@@ -130,18 +138,25 @@ def main():
         if FPS > 0:
             clock.tick(FPS)
 
-        # -- Update the Game --
-        UserGameObject.Update()
+        UpdateProcess = threading.Thread(target=UserGameObject.Update)
+        UpdateProcess.daemon = True
+        UpdateProcess.run()
+
+        DrawProcess = threading.Thread(target=UserGameObject.GameDraw(DISPLAY))
+        DrawProcess.daemon = True
+        DrawProcess.run()
+
 
         # -- Receive command from the Current Game --
         ReceiveCommand(UserGameObject.ReadCurrentMessages())
 
-        # -- Draws the Game Screen --
-        UserGameObject.GameDraw(DISPLAY)
-
         for event in pygame.event.get():
-            # -- Update Game Pygame Events -- #
-            UserGameObject.EventUpdate(event)
+            # -- Closes the Game when clicking on the X button
+            if event.type == pygame.QUIT:
+                reg.Unload()
+                sprite.Unload()
+                pygame.quit()
+                sys.exit()
 
             # -- Window Resize Event -- #
             if ResiziableWindow:
@@ -152,9 +167,10 @@ def main():
                     else:
                         DISPLAY = pygame.display.set_mode((event.w, event.h))
 
-            # -- Closes the Game when clicking on the X button
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+            # -- Update Game Pygame Events -- #
+            EventUpdateProcess = threading.Thread(target=UserGameObject.EventUpdate(event))
+            EventUpdateProcess.daemon = True
+            EventUpdateProcess.run()
+
 
 main()
