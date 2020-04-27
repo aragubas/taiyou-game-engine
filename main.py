@@ -151,6 +151,7 @@ def main():
         ReceiveCommand(UserGameObject.ReadCurrentMessages())
 
         for event in pygame.event.get():
+            pygame.event.pump()
             # -- Closes the Game when clicking on the X button
             if event.type == pygame.QUIT:
                 reg.Unload()

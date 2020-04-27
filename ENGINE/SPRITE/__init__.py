@@ -75,6 +75,8 @@ def Unload():
 
     Sprites_Data.clear()
     Sprites_Name.clear()
+    CurrentLoadedFonts_Contents.clear()
+    CurrentLoadedFonts_Name.clear()
 
     print("Sprite.Unload : Opearation Completed")
 
@@ -84,8 +86,6 @@ def Reload():
     Unload()
 
     LoadSpritesInFolder(tge.Get_GameSourceFolder + "/SPRITE")
-
-
 
 def UnloadSprite(SpriteResourceName):
     try:
@@ -97,63 +97,6 @@ def UnloadSprite(SpriteResourceName):
     except:
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
-def Flip(spriteName, x_flip,y_flip):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.flip(Sprites_Data[sprite_index], x_flip, y_flip)
-
-    except:
-        print("FlipSprite : Sprite[" + spriteName + "] does not exist.")
-
-
-def Scale(spriteName,width,height):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.scale(Sprites_Data[sprite_index], (width,height))
-
-    except:
-        print("ScaleSprite : Sprite[" + spriteName + "] does not exist.")
-
-def Rotate(spriteName,angle):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.Rotate(Sprites_Data[sprite_index], angle)
-
-    except:
-        print("RotateSprite : Sprite[" + spriteName + "] does not exist.")
-
-def RotoZoom(spriteName, angle, scale):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.rotozoom(Sprites_Data[sprite_index], angle, scale)
-
-    except:
-        print("RotoZoomSprite : Sprite[" + spriteName + "] does not exist.")
-
-def SmoothScale(spriteName, width, height):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.smoothscale(Sprites_Data[sprite_index], (width, height))
-
-    except:
-        print("SmoothScale : Sprite[" + spriteName + "] does not exist.")
-
-def Chop(spriteName, rectangle):
-    try:
-        sprite_index = Sprites_Name.index(spriteName)
-
-        Sprites_Data[sprite_index] = pygame.transform.chop(Sprites_Data[sprite_index], rectangle)
-
-    except:
-        print("ChopSprite : Sprite[" + spriteName + "] does not exist.")
-
-TransformedSpriteCache_Name = list()
-TransformedSpriteCache = list()
 def Render(DISPLAY, spriteName, X, Y, Width, Height):
     RenderProcess = threading.Thread(target=RealRender(DISPLAY, spriteName, X, Y, Width, Height))
     RenderProcess.daemon = True
@@ -161,17 +104,10 @@ def Render(DISPLAY, spriteName, X, Y, Width, Height):
 
 
 def RealRender(DISPLAY, spriteName, X, Y, Width, Height):
-    try:
-        if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
-            TransformedID = TransformedSpriteCache_Name.index(spriteName + " [{0},{1}]".format(str(Width), str(Height)))
-            DISPLAY.blit(TransformedSpriteCache[TransformedID], (X, Y))
-        else:
-            return
-
-    except:
-        TransformedSpriteCache_Name.append(spriteName + " [{0},{1}]".format(str(Width),str(Height)))
-        TransformedSpriteCache.append(pygame.transform.scale(GetSprite(spriteName), (Width, Height)))
-        print("Render : Sprite [{0}] added to the Transform Cache.".format(spriteName))
+    if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
+        DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+    else:
+        return
 
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
@@ -205,8 +141,6 @@ def Surface_Blur(surface, amt):
     surf = pygame.transform.smoothscale(surf, surf_size)
     return surf
 
-
-
 def Surface_Pixalizate(surface, amt):
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
@@ -217,7 +151,6 @@ def Surface_Pixalizate(surface, amt):
     surf = pygame.transform.scale(surface, scale_size)
     surf = pygame.transform.scale(surf, surf_size)
     return surf
-
 
 def RenderRectangle(DISPLAY, Color, Rectangle):
     RenderProcess = threading.Thread(target=RealRenderRectangle(DISPLAY, Color, Rectangle))

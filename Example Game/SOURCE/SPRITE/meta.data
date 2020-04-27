@@ -5,3 +5,8 @@
 # [sprite_location]:[True or False, transparency]
 #
 /0.png:True
+# -- Tileset 0 -- #
+/0/0.png:False
+/0/1.png:False
+/0/border.png:False
+/0/edge.png:False
