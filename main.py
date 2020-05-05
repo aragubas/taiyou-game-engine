@@ -16,14 +16,17 @@
 #
 
 # Import some stuff
+import os
+
 from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
+from ENGINE import SOUND as sound
 import ENGINE as tge
 import pygame, sys, importlib
 import threading
 
 # The main Entry Point
-print("TaiyouGameEngineMainScript version 1.2")
+print("TaiyouGameEngineMainScript version 1.3")
 
 # -- Global Variables -- #
 IsGameRunning = False
@@ -37,6 +40,7 @@ DISPLAY = pygame.display
 IsFullscreen = False
 CurrentRes_W = 0
 CurrentRes_H = 0
+
 
 # -- Receives command from the Game -- #
 def ReceiveCommand(Command):
@@ -53,15 +57,15 @@ def ReceiveCommand(Command):
         try:
             splitedArg = Command.split(':')
             FPS = int(splitedArg[1])
-            print("Taiyou.ReceiveComamnd : MaxFPS Setted to:" + str(FPS))
+            print("Taiyou.ReceiveCommand : MaxFPS Set to:" + str(FPS))
 
         except:
-            print("Taiyou.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
+            print("Taiyou.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
 
     if Command.startswith("SET_RESOLUTION:") if Command else False:
         try:
             splitedArg = Command.split(':')
-            print("Taiyou.ReceiveComamnd : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
+            print("Taiyou.ReceiveCommand : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
             CurrentRes_W = int(splitedArg[1])
             CurrentRes_H = int(splitedArg[2])
             if ResiziableWindow:
@@ -70,7 +74,7 @@ def ReceiveCommand(Command):
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H))
 
         except:
-            print("Taiyou.ReceiveComamnd_Error : Invalid Argument, [" + Command + "]")
+            print("Taiyou.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
 
     if Command.startswith("RESIZIABLE_WINDOW:") if Command else False:
         try:
@@ -79,99 +83,95 @@ def ReceiveCommand(Command):
             if splitedArg[1] == "True":
                 DISPLAY = pygame.display.set_mode((CurrentRes_W,CurrentRes_H), pygame.RESIZABLE)
                 ResiziableWindow = True
-                print("Taiyou.ReceiveComamnd : Set RESIZIABLE_WINDOW to: True")
+                print("Taiyou.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
             if splitedArg[1] == "False":
                 DISPLAY = pygame.display.set_mode((CurrentRes_W,CurrentRes_H))
                 ResiziableWindow = False
-                print("Taiyou.ReceiveComamnd : Set RESIZIABLE_WINDOW to: False")
+                print("Taiyou.ReceiveCommand_Error : Set RESIZIABLE_WINDOW to: False")
 
 
 
         except Exception as ex:
-            print("Taiyou.ReceiveComamnd_Error : Error, [" + str(ex) + "]")
+            print("Taiyou.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
 
-def main():
-    # Global Variables
-    global ToggleGameStart
-    global GameStarted
-    global GameDrawAllowed
-    global IsGameRunning
-    global FPS
-    global DISPLAY
-    global ResiziableWindow
+class GameInstance:
+    def __init__(self, CurrentGameFolder):
+        global DISPLAY
+        print("Taiyou.Initialize : Initializing Sound System")
+        pygame.init()
+        pygame.mixer.quit()
+        pygame.mixer.init(44100, -16, 2, 128)
 
-    print("Taiyou.Initialize : Initialize Pygame.Sound")
-    pygame.init()
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 128)
+        print("Taiyou.Initialize : Initialize Font")
+        pygame.font.init()
 
-    print("Taiyou.Initialize : Initialize Pygame")
-    pygame.init()
+        print("Taiyou.Initialize : GameFolder name is " + CurrentGameFolder)
 
-    print("Taiyou.Initialize : Initialize Pygame.Font")
-    pygame.font.init()
+        # -- Set Variables -- #
+        self.DISPLAY = pygame.display.set_mode((800, 600), pygame.HWSURFACE)
+        MainGameModuleName = CurrentGameFolder.replace("/", ".") + ".MAIN"
 
-    CurrentGameFolder = open("currentGame", "r")
-    CurrentGameFolder = CurrentGameFolder.read().rstrip()
-    print("Taiyou.Initialize : GameFolder name is " + CurrentGameFolder)
+        print("Taiyou.Initialize : Set Game Object")
+        self.GameObject = importlib.import_module(MainGameModuleName)
 
-    # -- Set Variables -- #
-    DISPLAY = pygame.display.set_mode((800, 600))
-    MainGameModuleName = CurrentGameFolder.replace("/", ".") + ".MAIN"
+        print("Taiyou.Initialize : Open Game Folder")
+        tge.OpenGameFolder(CurrentGameFolder)  # -- Load Game Assets -- #
 
-    print("Taiyou.Initialize : Set Game Object...")
-    UserGameObject = importlib.import_module(MainGameModuleName)
+        print("Taiyou.Initialize : Load registry keys")
+        reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
 
-    print("Taiyou.Initialize : Open Game Folder...")
-    tge.OpenGameFolder(CurrentGameFolder)  # -- Load Game Assets -- #
+        print("Taiyou.Initialize : Initialize Game")
+        self.GameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
 
-    print("Taiyou.Initialize : Load registry keys...")
-    reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
+        print("Taiyou.Initialize : Initialization complete.")
 
-    print("Taiyou.Initialize : Call Game Initialize")
-    UserGameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
-
-    print("Taiyou.Initialize : Initialization complete, Starting game loop...")
-    while True:
+    def run(self):
         if FPS > 0:
             clock.tick(FPS)
 
-        UpdateProcess = threading.Thread(target=UserGameObject.Update)
+        UpdateProcess = threading.Thread(target=self.GameObject.Update)
         UpdateProcess.daemon = True
         UpdateProcess.run()
 
-        DrawProcess = threading.Thread(target=UserGameObject.GameDraw(DISPLAY))
-        DrawProcess.daemon = True
-        DrawProcess.run()
-
+        self.GameObject.GameDraw(self.DISPLAY)
 
         # -- Receive command from the Current Game --
-        ReceiveCommand(UserGameObject.ReadCurrentMessages())
+        ReceiveCommand(self.GameObject.ReadCurrentMessages())
 
         for event in pygame.event.get():
-            pygame.event.pump()
             # -- Closes the Game when clicking on the X button
             if event.type == pygame.QUIT:
                 reg.Unload()
                 sprite.Unload()
+                sound.Unload()
                 pygame.quit()
                 sys.exit()
 
-            # -- Window Resize Event -- #
+            # -- Resize Window Event -- #
             if ResiziableWindow:
                 if event.type == pygame.VIDEORESIZE:
                     # Resize the Window
                     if ResiziableWindow:
-                        DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-                    else:
-                        DISPLAY = pygame.display.set_mode((event.w, event.h))
+                        self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
             # -- Update Game Pygame Events -- #
-            EventUpdateProcess = threading.Thread(target=UserGameObject.EventUpdate(event))
+            EventUpdateProcess = threading.Thread(target=self.GameObject.EventUpdate(event))
             EventUpdateProcess.daemon = True
             EventUpdateProcess.run()
 
 
-main()
+# -- Create Game Instance -- #
+GameFolderName = open("currentGame", "r")
+GameFolderName = GameFolderName.read().rstrip()
+if os.path.exists(GameFolderName):
+    print("Taiyou.InitScript : Game Folder does exist, Continuing...")
+else:
+    print("Taiyou.InitScript : Game Folder does not exist, Exiting...")
+    sys.exit()
+
+Instance = GameInstance(GameFolderName)
+
+while True:
+    Instance.run()

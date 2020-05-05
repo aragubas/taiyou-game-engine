@@ -20,8 +20,9 @@ from ENGINE import UTILS as utils
 import ENGINE as tge
 import threading
 import pygame
+import sys
 
-print("TaiyouGameEngine Sprite Utilitary version 1.0")
+print("TaiyouGameEngine Sprite Utilitary version 1.1")
 
 # -- Variables --
 Sprites_Name = list()
@@ -30,6 +31,11 @@ Fonts_Name = list()
 Fonts_Data = list()
 
 DefaultSprite = pygame.image.load("default.png")
+
+FontRenderingDisabled = False
+SpriteRenderingDisabled = False
+RectangleRenderingDisabled = False
+SpriteTransparency = False
 
 def LoadSpritesInFolder(FolderName):
     pygame.font.init()
@@ -41,27 +47,33 @@ def LoadSpritesInFolder(FolderName):
 
     print("LoadSpritesInFolder : Loading all Sprites...")
 
-    for line in sprite_meta_lines:
-        line = line.rstrip()
-        if not line.startswith('#'):
-            currentLine = line.split(':')
-            spriteLocation = folder_name + currentLine[0]
-            print("[{0}]".format(spriteLocation))
+    try:
+        for line in sprite_meta_lines:
+            line = line.rstrip()
+            if not line.startswith('#'):
+                currentLine = line.split(':')
+                spriteLocation = folder_name + currentLine[0]
+                print("[{0}]".format(spriteLocation))
 
-            if currentLine[1] == "True":
-                Sprites_Name.append(currentLine[0])
-                Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
-                print("LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                if currentLine[1] == "True":
+                    Sprites_Name.append(currentLine[0])
+                    if not SpriteTransparency:
+                        Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
+                    else:
+                        Sprites_Data.append(pygame.image.load(spriteLocation).convert())
+                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
 
-            elif currentLine[1] == "False":
-                Sprites_Name.append(currentLine[0])
-                Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                print("LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
-            else:
-                print("LoadSpritesInFolder : MetadataFileError!, Value[" + line + "] is invalid.")
+                elif currentLine[1] == "False":
+                    Sprites_Name.append(currentLine[0])
+                    Sprites_Data.append(pygame.image.load(spriteLocation).convert())
+                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                else:
+                    print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
+    except Exception as ex:
+        print("\n\nSprite.LoadFolder : FATAL ERROR : Sprite Metadata file is corrupted.\n" + str(ex))
+        sys.exit()
 
-
-    print("LoadSpritesInFolder : Operation Completed.")
+    print("Sprite.LoadFolder : Operation Completed.")
 
 def GetSprite(SpriteResourceName):
     try:
@@ -85,7 +97,7 @@ def Reload():
 
     Unload()
 
-    LoadSpritesInFolder(tge.Get_GameSourceFolder + "/SPRITE")
+    LoadSpritesInFolder(tge.Get_GameSourceFolder())
 
 def UnloadSprite(SpriteResourceName):
     try:
@@ -98,12 +110,8 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 def Render(DISPLAY, spriteName, X, Y, Width, Height):
-    RenderProcess = threading.Thread(target=RealRender(DISPLAY, spriteName, X, Y, Width, Height))
-    RenderProcess.daemon = True
-    RenderProcess.run()
-
-
-def RealRender(DISPLAY, spriteName, X, Y, Width, Height):
+    if SpriteRenderingDisabled:
+        return
     if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
         DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
     else:
@@ -112,11 +120,8 @@ def RealRender(DISPLAY, spriteName, X, Y, Width, Height):
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
 def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
-    RenderProcess = threading.Thread(target=RealRenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias))
-    RenderProcess.daemon = True
-    RenderProcess.run()
-
-def RealRenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
+    if FontRenderingDisabled:
+        return
     try:
         if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
             for i, l in enumerate(Text.splitlines()):
@@ -153,11 +158,8 @@ def Surface_Pixalizate(surface, amt):
     return surf
 
 def RenderRectangle(DISPLAY, Color, Rectangle):
-    RenderProcess = threading.Thread(target=RealRenderRectangle(DISPLAY, Color, Rectangle))
-    RenderProcess.daemon = True
-    RenderProcess.run()
-
-def RealRenderRectangle(DISPLAY, Color, Rectangle):
+    if RectangleRenderingDisabled:
+        return
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
         if len(Color) < 4:

@@ -103,6 +103,24 @@ def OpenGameFolder(GameFolderDir):
             sprite.RectangleRenderingDisabled = Value
             print("Taiyou.Runtime.OpenGameFolder : Disable rectangle rendering set to:" + str(Value))
 
+        if SplitedParms[0] == "DisableSpriteTransparency":
+            if SplitedParms[1] == "True":
+                Value = True
+            else:
+                Value = False
+
+            sprite.SpriteTransparency = Value
+            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(Value))
+
+        if SplitedParms[0] == "DisableSoundSystem":
+            if SplitedParms[1] == "True":
+                Value = True
+            else:
+                Value = False
+
+            sound.DisableSoundSystem = Value
+            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(Value))
+
 # -- Return Infos -- #
 def Get_GameTitle():
     global CurrentGame_Title

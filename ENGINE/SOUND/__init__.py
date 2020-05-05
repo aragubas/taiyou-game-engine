@@ -21,13 +21,17 @@ import ENGINE as tge
 import pygame
 import threading
 
-print("Taiyou Sound System version 1.1")
+print("Taiyou Sound System version 1.2")
 
 AllLoadedSounds = {}
 
 CurrentBGMPlaying = list()
 
+DisableSoundSystem = False
+
 def LoadAllSounds(FolderName):
+    if DisableSoundSystem:
+        return
     FolderName = FolderName + "/SOUND"
     temp_sound_files = utils.GetFileInDir(FolderName)
     index = -1
@@ -43,6 +47,8 @@ def LoadAllSounds(FolderName):
         print("LoadAllSounds : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
 
 def Unload():
+    if DisableSoundSystem:
+        return
     print("Sound.Unload : Unloading All Sounds...")
 
     AllLoadedSounds.clear()
@@ -50,6 +56,8 @@ def Unload():
     print("Sound.Unload : Operation Completed Sucefully.")
 
 def Reload():
+    if DisableSoundSystem:
+        return
     print("Sound.Reload : Reloading All Sounds...")
 
     Unload()
@@ -58,21 +66,15 @@ def Reload():
     print("Sound.Reload : Opearation Complted.")
 
 def PlaySound(SourceName):
-    RenderProcess = threading.Thread(target=RealPlaySound(SourceName))
-    RenderProcess.daemon = True
-    RenderProcess.run()
-
-def RealPlaySound(SourceName):
+    if DisableSoundSystem:
+        return
     global AllLoadedSounds
     sound = AllLoadedSounds.get(SourceName)
     sound.play()
 
 def StopSound(SourceName):
-    RenderProcess = threading.Thread(target=RealStopSound(SourceName))
-    RenderProcess.daemon = True
-    RenderProcess.run()
-
-def RealStopSound(SourceName):
+    if DisableSoundSystem:
+        return
     global AllLoadedSounds
     sound = AllLoadedSounds.get(SourceName)
     sound.stop()

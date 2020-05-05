@@ -1,7 +1,7 @@
 #!/bin/bash
 PYTHON_BIN_NAME=python3.7
 TAIYOU_MAIN=main.py
-GAME_NAME="TileEditor"
+GAME_NAME=$1
 
 clear
 echo StartTaiyouScript version 1.0

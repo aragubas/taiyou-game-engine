@@ -19,6 +19,7 @@ def Initialize(DISPLAY):
     # -- Initialize Screens -- #
     menuScreen.Initialize(DISPLAY)
     Messages.append("SET_FPS:60")
+    Messages.append("RESIZIABLE_WINDOW:True")
 
 def GameDraw(DISPLAY):
     global CurrentScreen
@@ -40,6 +41,9 @@ def EventUpdate(event):
     # -- Detect Mouse Motion -- #
     if event.type == pygame.MOUSEMOTION:
         Cursor_Position = pygame.mouse.get_pos()
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_F5:
+        sprite.Reload()
 
 
     if CurrentScreen == 0:

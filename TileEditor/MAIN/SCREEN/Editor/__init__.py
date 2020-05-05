@@ -19,6 +19,7 @@ CurrentSelectedTile = 0
 CurrentTileSet = 0
 MouseIsHeldDown = False
 CurrentMessage = "Ready!"
+MapTilesOffset = 0
 
 def LoadMapData():
     global MapData
@@ -26,54 +27,58 @@ def LoadMapData():
     global Map_TileSize
     global Map_SizeW
     global Map_SizeH
+    global CurrentMessage
 
-    f = open(mainScript.CurrentFileName, "r")
+    try:
+        f = open(mainScript.CurrentFileName, "r")
 
-    IsInitializationLines = True
-    InfosLoaded = 0
-    for line in f:
-        line = line.rstrip()
-        print(line)
+        IsInitializationLines = True
+        InfosLoaded = 0
+        for line in f:
+            line = line.rstrip()
+            print(line)
 
-        if line.startswith(";"):
-            IsInitializationLines = True
+            if line.startswith(";"):
+                IsInitializationLines = True
 
-        if not IsInitializationLines:
-            if not line.startswith("#"):
-                SplitedData = line.split(',')
-                print("Fill Map Data:")
-                MapData[int(SplitedData[0])][int(SplitedData[1])] = int(SplitedData[2])
+            if not IsInitializationLines:
+                if not line.startswith("#"):
+                    SplitedData = line.split(',')
+                    print("Fill Map Data:")
+                    MapData[int(SplitedData[0])][int(SplitedData[1])] = int(SplitedData[2])
 
-        if IsInitializationLines:
-            SplitedParameters = line.split(':')
+            if IsInitializationLines:
+                SplitedParameters = line.split(':')
 
-            if SplitedParameters[0] == "tileset":
-                InfosLoaded += 1
-                CurrentTileSet = int(SplitedParameters[1])
-                print("Tileset set to: [{0}].".format(CurrentTileSet))
+                if SplitedParameters[0] == "tileset":
+                    InfosLoaded += 1
+                    CurrentTileSet = int(SplitedParameters[1])
+                    print("Tileset set to: [{0}].".format(CurrentTileSet))
 
-            if SplitedParameters[0] == "tile_size":
-                InfosLoaded += 1
-                Map_TileSize = int(SplitedParameters[1])
-                print("Tilesize set to: [{0}].".format(Map_TileSize))
+                if SplitedParameters[0] == "tile_size":
+                    InfosLoaded += 1
+                    Map_TileSize = int(SplitedParameters[1])
+                    print("Tilesize set to: [{0}].".format(Map_TileSize))
 
-            if SplitedParameters[0] == "map_width":
-                InfosLoaded += 1
-                Map_SizeW = int(SplitedParameters[1])
-                print("Map Width set to: [{0}].".format(Map_SizeW))
+                if SplitedParameters[0] == "map_width":
+                    InfosLoaded += 1
+                    Map_SizeW = int(SplitedParameters[1])
+                    print("Map Width set to: [{0}].".format(Map_SizeW))
 
-            if SplitedParameters[0] == "map_height":
-                InfosLoaded += 1
-                Map_SizeH = int(SplitedParameters[1])
-                print("Map Height set to: [{0}].".format(Map_SizeH))
+                if SplitedParameters[0] == "map_height":
+                    InfosLoaded += 1
+                    Map_SizeH = int(SplitedParameters[1])
+                    print("Map Height set to: [{0}].".format(Map_SizeH))
 
-            if InfosLoaded >= 4:
-                IsInitializationLines = False
-                w, h = Map_SizeW, Map_SizeH
-                MapData = [[0 for x in range(w)] for y in range(h)]
+                if InfosLoaded >= 4:
+                    IsInitializationLines = False
+                    w, h = Map_SizeW, Map_SizeH
+                    MapData = [[0 for x in range(w)] for y in range(h)]
 
-                print("Map Info Loaded, Loading Map Data...")
-
+                    print("Map Info Loaded, Loading Map Data...")
+    except Exception as ex:
+        CurrentMessage = str(ex)
+        print("Error while loading map-data:\n" + str(ex))
 
 def SaveMapData():
     global MapData
@@ -82,23 +87,27 @@ def SaveMapData():
     global Map_SizeW
     global Map_SizeH
     global CurrentMessage
-    f = open(mainScript.CurrentFileName, 'w')
-    f.write("; -- MAP INFO -- ;\ntileset:" + str(CurrentTileSet) + "\n")
-    f.write("tile_size:" + str(Map_TileSize) + "\n")
-    f.write("map_width:" + str(Map_SizeW) + "\n")
-    f.write("map_height:" + str(Map_SizeH) + "\n")
 
-    f.write("# -- BEGIN MAP DATA -- #\n")
+    try:
+        f = open(mainScript.CurrentFileName, 'w')
+        f.write("; -- MAP INFO -- ;\ntileset:" + str(CurrentTileSet) + "\n")
+        f.write("tile_size:" + str(Map_TileSize) + "\n")
+        f.write("map_width:" + str(Map_SizeW) + "\n")
+        f.write("map_height:" + str(Map_SizeH) + "\n")
 
-    for xData in range(0, Map_SizeW):
-        for yData in range(0, Map_SizeH):
-            f.write(str(xData) + "," + str(yData) + "," + str(MapData[xData][yData]) + "\n")  # python will convert \n to os.linesep
+        f.write("# -- BEGIN MAP DATA -- #\n")
 
-    f.write("# - END MAP DATA -- #")
+        for xData in range(0, Map_SizeW):
+            for yData in range(0, Map_SizeH):
+                f.write(str(xData) + "," + str(yData) + "," + str(MapData[xData][yData]) + "\n")  # python will convert \n to os.linesep
 
-    f.close()  # you can omit in most cases as the destructor will call it
-    CurrentMessage = "Map Saved."
+        f.write("# - END MAP DATA -- #")
 
+        f.close()  # you can omit in most cases as the destructor will call it
+        CurrentMessage = "Map Saved."
+    except Exception as ex:
+        CurrentMessage = str(ex)
+        print("Error while saving Map-Data:\n" + str(ex))
 def GameDraw(DISPLAY):
     global MapData
     global Map_SizeH
@@ -106,25 +115,23 @@ def GameDraw(DISPLAY):
     global Map_TileSize
     global Viewport_TilesW
     global Viewport_TilesH
+    global MapTilesOffset
 
     for x in range(Viewport_TilesW):
         for y in range(Viewport_TilesH):
             try:
-                sprite.Render(DISPLAY, "/{0}/{1}.png".format(str(CurrentTileSet), MapData[Map_X + x][Map_Y + y]), x * Map_TileSize,y * Map_TileSize,Map_TileSize,Map_TileSize)
+                sprite.Render(DISPLAY, "/{0}/{1}.png".format(str(CurrentTileSet), MapData[Map_X + x][Map_Y + y]), x * Map_TileSize,y * Map_TileSize,Map_TileSize - MapTilesOffset,Map_TileSize - MapTilesOffset)
             except:
                 sprite.RenderRectangle(DISPLAY, (0,0,0), (x * Map_TileSize, y * Map_TileSize, Map_TileSize, Map_TileSize))
 
-    HUD_Selector = pygame.Surface((Map_TileSize, Map_TileSize), pygame.SRCALPHA)
-    sprite.RenderRectangle(HUD_Selector, (255, 255, 255, 100), (0,0, Map_TileSize, Map_TileSize))
-
-    DISPLAY.blit(HUD_Selector, (floor(mainScript.Cursor_Position[0] / Map_TileSize) * Map_TileSize, floor(mainScript.Cursor_Position[1] / Map_TileSize) * Map_TileSize))
+    # -- Draw the Selector -- #
+    hud.Draw_Panel(DISPLAY, (floor(mainScript.Cursor_Position[0] / Map_TileSize) * Map_TileSize, floor(mainScript.Cursor_Position[1] / Map_TileSize) * Map_TileSize, Map_TileSize, Map_TileSize), (0,0,0,20))
 
     RenderHUD(DISPLAY)
 
 def RenderHUD(DISPLAY):
-    HUD_Surface = pygame.Surface((DISPLAY.get_width(), 55), pygame.SRCALPHA)
-    sprite.RenderRectangle(HUD_Surface, (0,0,0,150), (0,0,HUD_Surface.get_width(), HUD_Surface.get_height()))
-    DISPLAY.blit(HUD_Surface, (0, DISPLAY.get_height() - 55))
+    # -- Draw the Background -- #$
+    hud.Draw_Panel(DISPLAY, (0, DISPLAY.get_height() - 55, DISPLAY.get_width(), 55))
 
     HUD_Y = DISPLAY.get_height() - 55
 
@@ -132,7 +139,7 @@ def RenderHUD(DISPLAY):
     sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 10, "Cursor[{0}, {1}]\nMap[{2}, {3}, {5}, {6}]\nTile[Tile:{4}]".format(str(Cursor_MapX), str(Cursor_MapY), str(Map_X), str(Map_Y), str(Map_TileSize), str(Map_SizeW), str(Map_SizeH)), (255, 255, 255), 10, HUD_Y + 5, True)
 
     # -- Render Selected Tile Number
-    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 10, "Tile: {0}\nTileset{1}".format(str(CurrentSelectedTile), str(CurrentTileSet)), (255, 255, 255), 280, HUD_Y + 5, True)
+    sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 10, "Tile: {0}\nSet: {1}".format(str(CurrentSelectedTile), str(CurrentTileSet)), (255, 255, 255), 280, HUD_Y + 5, True)
     # -- Render Selected Tile Text
     sprite.Render(DISPLAY, "/{0}/{1}.png".format(CurrentTileSet, CurrentSelectedTile), 380, HUD_Y + 2, 32, 32)
 
@@ -140,7 +147,7 @@ def RenderHUD(DISPLAY):
     sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 10, CurrentMessage, (240, 240, 240), DISPLAY.get_width() - sprite.GetText_width("/PressStart2P.ttf", 10, CurrentMessage) - 10, HUD_Y + 5)
 
     # -- Render Tips Text
-    TipsText = "W,A,S,D Move; Q,E Tile; Z,C Tileset, X,N Save/New, I,J,K,L Change Viewport Size"
+    TipsText = "W,A,S,D Move; Q,E Tile; Z,C Tileset; X,N Save/New, I,J,K,L Viewport Size; V Grid; MouseWheel Tilesize; ESC Back"
     sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 7, TipsText, (240, 240, 240), DISPLAY.get_width() - sprite.GetText_width("/PressStart2P.ttf", 7, TipsText) - 10, HUD_Y + 45)
 
 
@@ -157,6 +164,7 @@ def EventUpdate(event):
     global MouseIsHeldDown
     global MapData
     global CurrentMessage
+    global MapTilesOffset
 
     # -- Change the Selected Tile -- #
     if event.type == pygame.KEYUP and event.key == pygame.K_q:
@@ -200,9 +208,27 @@ def EventUpdate(event):
     if event.type == pygame.KEYUP and event.key == pygame.K_n:
         NewMap()
 
+    if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+        mainScript.CurrentScreen = 0
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_v:
+        if MapTilesOffset == 0:
+            MapTilesOffset = 2
+        else:
+            MapTilesOffset = 0
+
+    # -- Detect Mouse Scroll -- #
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.button == 4:
+            if Map_TileSize > 1:
+                Map_TileSize -= 1
+        if event.button == 5:
+            Map_TileSize += 1
+
     # -- Detect Mouse Down -- #
     if event.type == pygame.MOUSEBUTTONDOWN:
-        MouseIsHeldDown = True
+        if event.button == 1:
+            MouseIsHeldDown = True
     if event.type == pygame.MOUSEBUTTONUP:
         MouseIsHeldDown = False
 
@@ -211,7 +237,6 @@ def NewMap():
     global CurrentMessage
     w, h = Map_SizeW, Map_SizeH;
     MapData = [[0 for x in range(w)] for y in range(h)]
-
     CurrentMessage = "New Map"
 
 def Update():
@@ -232,12 +257,7 @@ def Update():
 
     # -- Key Events -- #
     PressedKeys = pygame.key.get_pressed()
-    # -- Change Zoom
-    if PressedKeys[pygame.K_3]:
-        if Map_TileSize > 1:
-            Map_TileSize -= 1
-    if PressedKeys[pygame.K_1]:
-        Map_TileSize += 1
+
     # -- Move the Map
     if PressedKeys[pygame.K_w]:
         if Map_Y >= 1:
