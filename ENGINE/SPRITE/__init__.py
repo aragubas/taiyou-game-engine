@@ -134,6 +134,47 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
         print("RenderFont ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
         print("RenderFont ; Detailed Error: " + str(ex))
 
+def GetFontObject(FontFileLocation, Size):
+    if FontRenderingDisabled:
+        return
+
+    try:
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))]
+    except Exception as ex:
+        CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, Size))
+        print("RenderFont ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
+        print("RenderFont ; Detailed Error: " + str(ex))
+
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))]
+
+def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
+    words = text.split()
+    lines = []
+    while len(words) > 0:
+        # get as many words as will fit within allowed_width
+        line_words = []
+        while len(words) > 0:
+            line_words.append(words.pop(0))
+            fw, fh = font.size(' '.join(line_words + words[:1]))
+            if fw > allowed_width:
+                break
+
+        # add a line consisting of those words
+        line = ' '.join(line_words)
+        lines.append(line)
+
+    y_offset = 0
+    for line in lines:
+        fw, fh = font.size(line)
+        ty = y + y_offset
+
+        font_surface = font.render(line, True, colour)
+        screen.blit(font_surface, (x, ty))
+
+        y_offset += fh
+
+
 def Surface_Blur(surface, amt):
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
@@ -172,8 +213,6 @@ def RenderRectangle(DISPLAY, Color, Rectangle):
         if Color[3] <= 0:
             Color[3] = 0
         pygame.draw.rect(DISPLAY, Color, Rectangle)
-
-
 
 def GetText_width(FontFileLocation, FontSize, Text):
     try:

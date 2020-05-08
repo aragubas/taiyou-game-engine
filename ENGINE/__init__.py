@@ -26,6 +26,8 @@ def Get_RegistryVersion():
     return "1.3"
 def Get_UtilsVersion():
     return "1.2"
+def Get_GameObjVersion():
+    return "1.2"
 
 # -- Print Runtime Version -- #
 print("TaiyouGameEngineRuntime version " + Get_Version())
@@ -33,7 +35,7 @@ print("TaiyouGameEngineRuntime version " + Get_Version())
 # -- Imports --
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
-
+import os
 
 # -- Variables --
 CurrentGame_Title = ""
@@ -142,6 +144,7 @@ def OpenGameFolder(GameFolderDir):
 
             print("Taiyou.Runtime.OpenGameFolde : TaiyouAppDataFolder set to:" + str(Value))
 
+        # -- Create Temporary Files -- #
         f = open(".AppDataPath", "w")
         f.write(str(TaiyouAppDataFolder))
         f.close()
@@ -153,6 +156,10 @@ def OpenGameFolder(GameFolderDir):
         f.write(str(CurrentGame_Version))
         f.write(str(CurrentGame_SourceFolder))
         f.close()
+
+        # -- Make Directories -- #
+        if not os.path.exists(Get_GlobalAppDataFolder()):
+            os.makedirs(Get_GlobalAppDataFolder())
 
 # -- Return Infos -- #
 def Get_GameTitle():
