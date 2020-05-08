@@ -20,3 +20,4 @@ It loades the games importing the python script in: ``/game_name/MAIN/__init__.p
 ![Fogoso Discord Server](https://discord.gg/Ek5QmBs)
 ![Fogoso Project](https://github.com/aragubas/fogoso/)
 ![Taiyou Game Engine Server](https://discord.gg/RGhzjHU)
+![Sample Games](https://github.com/aragubas/taiyou-samples-games)
