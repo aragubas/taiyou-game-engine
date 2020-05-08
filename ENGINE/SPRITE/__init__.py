@@ -18,11 +18,10 @@
 # -- Imports --
 from ENGINE import UTILS as utils
 import ENGINE as tge
-import threading
 import pygame
 import sys
 
-print("TaiyouGameEngine Sprite Utilitary version 1.1")
+print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
 
 # -- Variables --
 Sprites_Name = list()

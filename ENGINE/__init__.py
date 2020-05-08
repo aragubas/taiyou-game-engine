@@ -15,11 +15,25 @@
 #
 #
 
+# -- Modules Versions -- #
+def Get_Version():
+    return "1.3"
+def Get_SpriteVersion():
+    return "1.2"
+def Get_SoundVersion():
+    return "1.3"
+def Get_RegistryVersion():
+    return "1.3"
+def Get_UtilsVersion():
+    return "1.2"
+
+# -- Print Runtime Version -- #
+print("TaiyouGameEngineRuntime version " + Get_Version())
+
 # -- Imports --
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 
-print("TaiyouGameEngineRuntime version 1.1")
 
 # -- Variables --
 CurrentGame_Title = ""
@@ -28,6 +42,7 @@ CurrentGame_Version = ""
 CurrentGame_SourceFolder = ""
 CurrentGame_Folder = ""
 
+TaiyouAppDataFolder = "AppData/"
 
 def OpenGameFolder(GameFolderDir):
     global CurrentGame_Title
@@ -35,8 +50,9 @@ def OpenGameFolder(GameFolderDir):
     global CurrentGame_Version
     global CurrentGame_SourceFolder
     global CurrentGame_Folder
+    global TaiyouAppDataFolder
 
-    print("Taiyou.Runtime.OpenGameFolder : Loading inf file...")
+    print("Taiyou.Runtime.OpenGameFolder : Loading Taiyou Options file...")
     InfFileLocation = GameFolderDir + "/meta.data"
 
     inf_file = open(InfFileLocation,"r")
@@ -61,7 +77,7 @@ def OpenGameFolder(GameFolderDir):
         if LineIndex == 4:
             CurrentGame_SourceFolder = GameFolderDir + "/" +  x.rstrip()
             print("Taiyou.Runtime.OpenGameFolder : GameSourceFolder[" + CurrentGame_SourceFolder + "]")
-        
+
 
     print("Taiyou.Runtime.OpenGameFolder : inf file loading complete, Loading Assets...")
 
@@ -121,6 +137,23 @@ def OpenGameFolder(GameFolderDir):
             sound.DisableSoundSystem = Value
             print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(Value))
 
+        if SplitedParms[0] == "AppDataFolder":
+            TaiyouAppDataFolder = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolde : TaiyouAppDataFolder set to:" + str(Value))
+
+        f = open(".AppDataPath", "w")
+        f.write(str(TaiyouAppDataFolder))
+        f.close()
+
+        f = open(".OpenedGameInfos", "w")
+        f.write(str(CurrentGame_ID))
+        f.write(str(CurrentGame_Folder))
+        f.write(str(CurrentGame_Title))
+        f.write(str(CurrentGame_Version))
+        f.write(str(CurrentGame_SourceFolder))
+        f.close()
+
 # -- Return Infos -- #
 def Get_GameTitle():
     global CurrentGame_Title
@@ -142,3 +175,14 @@ def Get_GameFolder():
     global CurrentGame_Folder
     return CurrentGame_Folder
 
+def Get_GlobalAppDataFolder():
+    global CurrentGame_ID
+    global CurrentGame_Version
+    global TaiyouAppDataFolder
+    return TaiyouAppDataFolder + "{0}/{1}/".format(str(CurrentGame_ID), str(CurrentGame_Version))
+
+def Get_IsSoundEnabled():
+    return sound.DisableSoundSystem
+
+def Get_IsFontRenderingEnabled():
+    return sprite.FontRenderingDisabled

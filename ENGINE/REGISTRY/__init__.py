@@ -20,7 +20,7 @@ import glob
 from ENGINE import UTILS as utils
 import ENGINE as tge
 import os
-print("TaiyouRegistryManager version 1.1")
+print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
 
 
 # Variables
@@ -74,22 +74,29 @@ def Unload():
 
 
 # -- Game Keys -- #
+def CorrectKeyName(keyEntred):
+    if not keyEntred.startswith("/"):
+        return "/" + keyEntred
+    else:
+        return keyEntred
+
 def ReadKey(keyName):
-    return reg_contents[reg_keys.index(keyName)]
+    return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
 
 def ReadKey_int(keyName):
-    return int(reg_contents[reg_keys.index(keyName)])
+    return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
 
 def ReadKey_float(keyName):
-    return float(reg_contents[reg_keys.index(keyName)])
+    return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
 
 def ReadKey_bool(keyName):
-    if reg_contents[reg_keys.index(keyName)] == "True":
+    if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
         return True
     else:
         return False
 
 def WriteKey(keyName, keyValue):
+    keyName = CorrectKeyName(keyName)
     FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
     BarraSplit = keyName.split('/')
     CorrectDir = tge.Get_GameSourceFolder() + "/REG/" + BarraSplit[len(BarraSplit) - 2]
@@ -115,7 +122,7 @@ def WriteKey(keyName, keyValue):
 
 def KeyExists(keyName):
     try:
-        Test = reg_contents[reg_keys.index(keyName)]
+        Test = reg_contents[reg_keys.index(CorrectKeyName(keyName))]
         return True
     except:
         return False
@@ -124,35 +131,35 @@ def KeyExists(keyName):
 # -- Read key with Try -- #
 def ReadKeyWithTry(keyName,defaultValue):
     try:
-        return reg_contents[reg_keys.index(keyName)]
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     except:
-        WriteKey(keyName,defaultValue)
+        WriteKey(CorrectKeyName(keyName),defaultValue)
         return defaultValue
 
 def ReadKeyWithTry_int(keyName,defaultValue):
     try:
-        return int(reg_contents[reg_keys.index(keyName)])
+        return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
-        WriteKey(keyName,str(defaultValue))
+        WriteKey(CorrectKeyName(keyName),str(defaultValue))
         return int(defaultValue)
 
 def ReadKeyWithTry_float(keyName,defaultValue):
     try:
-        return float(reg_contents[reg_keys.index(keyName)])
+        return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
-        WriteKey(keyName,str(defaultValue))
+        WriteKey(CorrectKeyName(keyName),str(defaultValue))
         return float(defaultValue)
 
 def ReadKeyWithTry_bool(keyName,defaultValue):
     try:
-        if reg_contents[reg_keys.index(keyName)] == "True":
+        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
             return True
         else:
             return False
 
     except:
         WriteKey(keyName,str(defaultValue))
-        if reg_contents[reg_keys.index(keyName)] == "True":
+        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
             return True
         else:
             return False

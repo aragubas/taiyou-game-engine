@@ -21,7 +21,7 @@ import ENGINE as tge
 import pygame
 import threading
 
-print("Taiyou Sound System version 1.2")
+print("Taiyou Sound System version " + tge.Get_SoundVersion())
 
 AllLoadedSounds = {}
 

@@ -19,7 +19,7 @@
 import ENGINE as tge
 import os
 
-print("TaiyouGameEngine Utils version 1.1")
+print("TaiyouGameEngine Utils version " + tge.Get_UtilsVersion())
 
 
 def GetFileInDir(dirName):
