@@ -15,24 +15,26 @@
 #
 #
 
+# -- Set Console Color -- #
+print("\033[95m")
+
 # Import some stuff
 import os
-
 import ENGINE as tge
 from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
+from ENGINE import UTILS as utils
 import pygame, sys, importlib
 import threading
 
 # The main Entry Point
-print("TaiyouGameEngineMainScript version 1.4")
+print("TaiyouGameEngineMainScript version " + tge.Get_GameObjVersion())
 
 class GameInstance:
     def __init__(self, CurrentGameFolder):
-        print("TaiyouGameObject version 1.1")
+        print("TaiyouGameObject version " + tge.Get_GameObjVersion())
         self.GameUpdateEnabled = True
-        self.GameDrawEnabled = True
         self.GameEventEnabled = True
         self.ResiziableWindow = False
         self.clock = pygame.time.Clock()
@@ -43,6 +45,7 @@ class GameInstance:
         self.IsFullscreen = False
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
+        self.WindowTitle = "Taiyou Game Engine"
         # -- Initialize Pygame -- #
         pygame.init()
 
@@ -85,15 +88,15 @@ class GameInstance:
             try:
                 splitedArg = Command.split(':')
                 self.FPS = int(splitedArg[1])
-                print("Taiyou.ReceiveCommand : MaxFPS Set to:" + str(self.FPS))
+                print("Taiyou.GameObject.ReceiveCommand : MaxFPS Set to:" + str(self.FPS))
 
             except:
-                print("Taiyou.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
+                print("Taiyou.GameObject.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
 
         if Command.startswith("SET_RESOLUTION:") if Command else False:
             try:
                 splitedArg = Command.split(':')
-                print("Taiyou.ReceiveCommand : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
+                print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
                 self.CurrentRes_W = int(splitedArg[1])
                 self.CurrentRes_H = int(splitedArg[2])
                 if self.ResiziableWindow:
@@ -103,7 +106,7 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
             except:
-                print("Taiyou.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
+                print("Taiyou.GameObject.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
 
         if Command.startswith("RESIZIABLE_WINDOW:") if Command else False:
             try:
@@ -113,17 +116,17 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
                                                       pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                     self.ResiziableWindow = True
-                    print("Taiyou.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
+                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
                 if splitedArg[1] == "False":
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.HWSURFACE | pygame.DOUBLEBUF)
                     self.ResiziableWindow = False
-                    print("Taiyou.ReceiveCommand_Error : Set RESIZIABLE_WINDOW to: False")
+                    print("Taiyou.GameObject.ReceiveCommand_Error : Set RESIZIABLE_WINDOW to: False")
 
 
 
             except Exception as ex:
-                print("Taiyou.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
     def clear_console(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -132,14 +135,17 @@ class GameInstance:
         self.clear_console()
         InputLoopEnabled = True
 
+        self.WindowTitle = pygame.display.get_caption()
+        pygame.display.set_caption("Taiyou.DeveloperConsole : Developer Console was enabled.")
+
         while InputLoopEnabled:
-            CurrentInput = input("$: ")
             print("\033[95m")
+            CurrentInput = input("$: ")
             SplitedComma = CurrentInput.split(' ')
 
             if SplitedComma[0] == "help" or SplitedComma[0] == "hlp":
                 self.clear_console()
-                print("Taiyou DC [Developer Console] version 1.0")
+                print("Taiyou DC [Developer Console] version " + tge.Get_GameObjVersion())
                 print("RuntimeVersion: " + tge.Get_Version())
                 print("Template: [Command][ShortName] [ARGUMENTS] - [Description]")
                 print("\n\n")
@@ -181,7 +187,7 @@ class GameInstance:
 
                 # -- Get Flag Command -- #
                 if SplitedComma[0] == "getFlags" or SplitedComma[0] == "gfl":
-                    VarsList = "GAME_DRAW[BOOL], GAME_UPDATE[BOOL], GAME_EVENTS[BOOL], FPS[INT]"
+                    VarsList = "GAME_UPDATE[BOOL], GAME_EVENTS[BOOL], FPS[INT]"
                     print("GetVars\n" + VarsList)
 
                 # -- Set Flag Command -- #
@@ -195,22 +201,8 @@ class GameInstance:
                     if FlagName == "FPS":
                         self.FPS = int(FlagValue)
 
-                    # -- Set Game Draw Flag -- #
-                    if FlagName == "GAME_DRAW":
-                        Value = False
-                        if FlagValue == "True":
-                            Value = True
-                            FlagValue = "TRUE"
-                        elif FlagValue == "False":
-                            Value = False
-                            FlagValue = "FALSE"
-                        else:
-                            raise TypeError("[" + FlagValue + "] is not a valid BOOLEAN")
-                        self.GameDrawEnabled = Value
-
-
                     # -- Set Game Events Flag -- #
-                    if FlagName == "GAME_EVENTS":
+                    elif FlagName == "GAME_EVENTS":
                         Value = False
                         if FlagValue == "True":
                             Value = True
@@ -223,7 +215,7 @@ class GameInstance:
                         self.GameEventEnabled = Value
 
                     # -- Set Game Update Flag -- #
-                    if FlagName == "GAME_UPDATE":
+                    elif FlagName == "GAME_UPDATE":
                         Value = False
                         if FlagValue == "True":
                             Value = True
@@ -235,6 +227,9 @@ class GameInstance:
                             raise TypeError("[" + FlagValue + "] is not a valid BOOLEAN")
                         self.GameUpdateEnabled = Value
 
+                    else:
+                        raise TypeError("The flag [{0}] is invalid.".format(str(SplitedComma[1])))
+
                     # -- Print Flag Assingment -- #
                     print("Flag [{0}] was set to [{1}]".format(str(FlagName), str(FlagValue)))
 
@@ -242,6 +237,7 @@ class GameInstance:
                 if SplitedComma[0] == "continue" or SplitedComma[0] == "cnt":
                     print("Continue game execution...")
                     InputLoopEnabled = False
+                    pygame.display.set_caption(str(self.WindowTitle))
 
                 # -- Clear Command -- #
                 if SplitedComma[0] == "clear" or SplitedComma[0] == "cls":
@@ -249,16 +245,20 @@ class GameInstance:
 
                 # -- Clear Command -- #
                 if SplitedComma[0] == "versions" or SplitedComma[0] == "ver":
-                    print("Taiyou Developer Console [DC] Version 1.0")
+                    print("Taiyou Developer Console [DC] Version " + tge.Get_GameObjVersion())
                     print("Taiyou Runtime Version " + tge.Get_Version())
                     print("Taiyou Sprite/Font Version " + tge.Get_SpriteVersion())
                     print("Taiyou Sound System Version " + tge.Get_SoundVersion())
-                    print("Taiyou Sound System Version " + tge.Get_SoundVersion())
+                    print("Taiyou Registry Version " + tge.Get_RegistryVersion())
+                    print("Taiyou Game Object Version " + tge.Get_GameObjVersion())
+                    print("General Taiyou Version " + utils.FormatNumber(tge.TaiyouGeneralVersion))
 
             except IndexError:
                 print("\033[91mARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
+                print("\033[95m")
             except TypeError as ex:
                 print("\033[91mTYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+                print("\033[95m")
 
     def run(self):
         if self.FPS > 0:
@@ -271,8 +271,7 @@ class GameInstance:
             UpdateProcess.run()
 
         # -- Do Game Draw -- #
-        if self.GameDrawEnabled:
-            self.GameObject.GameDraw(self.DISPLAY)
+        self.GameObject.GameDraw(self.DISPLAY)
 
         # -- Receive command from the Current Game --
         self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
@@ -302,6 +301,8 @@ class GameInstance:
         sprite.Unload()
         sound.Unload()
         pygame.quit()
+        print("Taiyou.GameObject.Destroy : Destroy Game Object")
+        self.GameObject = 42
         # -- Remove Temporary Files -- #
         os.remove(".AppDataPath")
         os.remove(".OpenedGameInfos")
@@ -313,9 +314,9 @@ class GameInstance:
 GameFolderName = open("currentGame", "r")
 GameFolderName = GameFolderName.read().rstrip()
 if os.path.exists(GameFolderName):
-    print("\n\nTaiyou.InitScript : Game Folder does exist, Continuing...")
+    print("\n\nTaiyou.Initialize : Game Folder does exist, Continuing...")
 else:
-    print("Taiyou.InitScript : Game Folder does not exist, Exiting...")
+    print("Taiyou.Initialize : Game Folder does not exist, Exiting...")
     sys.exit()
 
 Instance = GameInstance(GameFolderName)

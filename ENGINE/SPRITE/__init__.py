@@ -29,7 +29,7 @@ Sprites_Data = list()
 Fonts_Name = list()
 Fonts_Data = list()
 
-DefaultSprite = pygame.image.load("default.png")
+DefaultSprite = pygame.image.load(".default.png")
 
 FontRenderingDisabled = False
 SpriteRenderingDisabled = False

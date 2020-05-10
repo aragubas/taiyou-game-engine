@@ -42,3 +42,7 @@ def GetFileInDir(dirName):
 
 def GetCurrentSourceFolder():
     return tge.Get_GameSourceFolder()
+
+def FormatNumber(num, precision=2, suffixes=['', 'K', 'M', 'G', 'T', 'P']):
+    m = sum([abs(num/1000.0**x) >= 1 for x in range(1, len(suffixes))])
+    return f'{num/1000.0**m:.{precision}f}{suffixes[m]}'
