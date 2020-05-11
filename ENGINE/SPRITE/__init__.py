@@ -29,7 +29,7 @@ Sprites_Data = list()
 Fonts_Name = list()
 Fonts_Data = list()
 
-DefaultSprite = pygame.image.load(".default.png")
+DefaultSprite = pygame.image.load("Taiyou/HOME/SOURCE/SPRITE/default.png")
 
 FontRenderingDisabled = False
 SpriteRenderingDisabled = False
@@ -41,7 +41,7 @@ def LoadSpritesInFolder(FolderName):
     folder_name = FolderName + "/SPRITE"
     index = -1
 
-    sprite_metadata = open(utils.GetCurrentSourceFolder() + "/SPRITE/meta.data", "r")
+    sprite_metadata = open(FolderName + "/SPRITE/meta.data", "r")
     sprite_meta_lines = sprite_metadata.readlines()
 
     print("LoadSpritesInFolder : Loading all Sprites...")
@@ -68,8 +68,38 @@ def LoadSpritesInFolder(FolderName):
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
                 else:
                     print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
-    except Exception as ex:
-        print("\n\nSprite.LoadFolder : FATAL ERROR : Sprite Metadata file is corrupted.\n" + str(ex))
+
+        # -- Install Font Files to the Shared Resources Path -- #
+        if utils.Directory_Exists(FolderName + "/FONT_PACKS"):
+            print("Sprite.LoadFolder : Directory have Font Packs to be installed.")
+            fontInstall_metadata = open(FolderName + "/FONT_PACKS/meta.data", "r")
+            fontInstall_meta_lines = fontInstall_metadata.readlines()
+
+            for font in fontInstall_meta_lines:
+                font = font.rstrip()
+
+                if not font.startswith("#"):
+                    CurrentFileName = FolderName + "/FONT_PACKS" + font
+                    DestinationDir = "Taiyou/HOME/SOURCE/FONT" + font
+
+                    if utils.File_Exists(DestinationDir):
+                        print("Sprite.LoadFolder.CopyFontFile : FontFile [" + CurrentFileName + "] already exists.")
+                    else:
+                        if not utils.File_Exists(CurrentFileName):
+                            raise FileNotFoundError("The listed Font-Pack [" + CurrentFileName + "] does not exist.")
+
+                        utils.FileCopy(CurrentFileName, DestinationDir)
+
+                        if not utils.File_Exists(DestinationDir):
+                            raise FileNotFoundError("An error occoured while copying the [" + CurrentFileName + "] font file.")
+                        else:
+                            print("Sprite.LoadFolder.CopyFontFile : Font[" + CurrentFileName + "] copied sucefully.")
+
+        else:
+            print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
+
+    except FileNotFoundError as ex:
+        print("\n\nFILE_NOT_FOUND_ERROR:\n" + str(ex))
         sys.exit()
 
     print("Sprite.LoadFolder : Operation Completed.")
@@ -124,14 +154,14 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
     try:
         if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
             for i, l in enumerate(Text.splitlines()):
-                DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
+                DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
         else:
             return
 
     except Exception as ex:
-        CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, Size))
-        print("RenderFont ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
+        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
+        print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
         print("RenderFont ; Detailed Error: " + str(ex))
 
 def GetFontObject(FontFileLocation, Size):
@@ -139,14 +169,14 @@ def GetFontObject(FontFileLocation, Size):
         return
 
     try:
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))]
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
     except Exception as ex:
-        CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, Size))
-        print("RenderFont ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))
+        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
+        print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
         print("RenderFont ; Detailed Error: " + str(ex))
 
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(Size))]
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 
 def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
     words = text.split()
@@ -217,20 +247,20 @@ def RenderRectangle(DISPLAY, Color, Rectangle):
 def GetText_width(FontFileLocation, FontSize, Text):
     try:
         for i, l in enumerate(Text.splitlines()):
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
 
     except:
-        CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, FontSize))
-        print("GetText_width ; LoadedFont: " + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, FontSize))
+        print("GetText_width ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
         return 0
 
 
 def GetText_height(FontFileLocation, FontSize, Text):
     try:
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(Text, True, (255,255,255)).get_height() * len(Text.splitlines())
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(Text, True, (255,255,255)).get_height() * len(Text.splitlines())
     except:
-        CurrentLoadedFonts_Name.append(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font(utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation, FontSize))
-        print("GetText_height ; LoadedFont:" + utils.GetCurrentSourceFolder() + "/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, FontSize))
+        print("GetText_height ; LoadedFont:" + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
         return 0

@@ -32,8 +32,6 @@ def GameDraw(DISPLAY):
     if CurrentScreen == 1:
         editorScreen.GameDraw(DISPLAY)
 
-    pygame.display.update()
-
 def EventUpdate(event):
     global Cursor_Position
     global CurrentScreen

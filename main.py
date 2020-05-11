@@ -25,6 +25,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
+from ENGINE import TaiyouUI as SystemUI
 import pygame, sys, importlib
 import threading
 
@@ -35,7 +36,6 @@ class GameInstance:
     def __init__(self, CurrentGameFolder):
         print("TaiyouGameObject version " + tge.Get_GameObjVersion())
         self.GameUpdateEnabled = True
-        self.GameEventEnabled = True
         self.ResiziableWindow = False
         self.clock = pygame.time.Clock()
         self.FPS = 75
@@ -81,6 +81,12 @@ class GameInstance:
         print("Taiyou.GameObject.Initialize : Call Initialize Game")
         self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
 
+        print("Taiyou.GameObject.Initialize : Loading Default Assets")
+        sprite.LoadSpritesInFolder("Taiyou/HOME/SOURCE")
+
+        print("Taiyou.GameObject.Initialize : Initialize SystemUI")
+        SystemUI.Initialize()
+
         print("Taiyou.GameObject.Initialize : Initialization complete.")
 
     def ReceiveCommand(self, Command):
@@ -91,7 +97,7 @@ class GameInstance:
                 print("Taiyou.GameObject.ReceiveCommand : MaxFPS Set to:" + str(self.FPS))
 
             except:
-                print("Taiyou.GameObject.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
+                print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
 
         if Command.startswith("SET_RESOLUTION:") if Command else False:
             try:
@@ -106,7 +112,7 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
             except:
-                print("Taiyou.GameObject.ReceiveCommand_Error : Invalid Argument, [" + Command + "]")
+                print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
 
         if Command.startswith("RESIZIABLE_WINDOW:") if Command else False:
             try:
@@ -114,16 +120,30 @@ class GameInstance:
 
                 if splitedArg[1] == "True":
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
-                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                                                           pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                     self.ResiziableWindow = True
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
                 if splitedArg[1] == "False":
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.HWSURFACE | pygame.DOUBLEBUF)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
+                                                           pygame.HWSURFACE | pygame.DOUBLEBUF)
                     self.ResiziableWindow = False
-                    print("Taiyou.GameObject.ReceiveCommand_Error : Set RESIZIABLE_WINDOW to: False")
+                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
 
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
+        if Command.startswith("GAME_UPDATE:") if Command else False:
+            try:
+                splitedArg = Command.split(':')
+
+                if splitedArg[1] == "True":
+                    self.GameUpdateEnabled = True
+                    print("Taiyou.GameObject.ReceiveCommand : Set GAME_UPDATE to: True")
+
+                if splitedArg[1] == "False":
+                    self.GameUpdateEnabled = False
+                    print("Taiyou.GameObject.ReceiveCommand : Set GAME_UPDATE to: False")
 
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
@@ -150,11 +170,9 @@ class GameInstance:
                 print("Template: [Command][ShortName] [ARGUMENTS] - [Description]")
                 print("\n\n")
                 print("help{hlp} - This list of commands")
-                print("setFlag{sfl} [FLAG_NAME] [VALUE] - Set flag value")
                 print("destroy{des} - Kill the current game")
                 print("reload{rel} [REGISTRY,SPRITE/FONT,SOUND] - Reload")
                 print("clear{cls} - Clear the Screen")
-                print("getFlags{gfl} - Get all changeable flags.")
                 print("continue{cnt} - Continue game execution")
                 print("versions{ver} - Print all Taiyou Game Engine components versions")
                 print("gameData{gmd} - Print loaded game data")
@@ -184,54 +202,6 @@ class GameInstance:
 
                     else:
                         raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
-
-                # -- Get Flag Command -- #
-                if SplitedComma[0] == "getFlags" or SplitedComma[0] == "gfl":
-                    VarsList = "GAME_UPDATE[BOOL], GAME_EVENTS[BOOL], FPS[INT]"
-                    print("GetVars\n" + VarsList)
-
-                # -- Set Flag Command -- #
-                if SplitedComma[0] == "setFlag" or SplitedComma[0] == "sfl":
-                    print("SetFlag\n")
-
-                    FlagName = SplitedComma[1]
-                    FlagValue = SplitedComma[2]
-
-                    # -- Set FPS Flag -- #
-                    if FlagName == "FPS":
-                        self.FPS = int(FlagValue)
-
-                    # -- Set Game Events Flag -- #
-                    elif FlagName == "GAME_EVENTS":
-                        Value = False
-                        if FlagValue == "True":
-                            Value = True
-                            FlagValue = "TRUE"
-                        elif FlagValue == "False":
-                            Value = False
-                            FlagValue = "FALSE"
-                        else:
-                            raise TypeError("[" + FlagValue + "] is not a valid BOOLEAN")
-                        self.GameEventEnabled = Value
-
-                    # -- Set Game Update Flag -- #
-                    elif FlagName == "GAME_UPDATE":
-                        Value = False
-                        if FlagValue == "True":
-                            Value = True
-                            FlagValue = "TRUE"
-                        elif FlagValue == "False":
-                            Value = False
-                            FlagValue = "FALSE"
-                        else:
-                            raise TypeError("[" + FlagValue + "] is not a valid BOOLEAN")
-                        self.GameUpdateEnabled = Value
-
-                    else:
-                        raise TypeError("The flag [{0}] is invalid.".format(str(SplitedComma[1])))
-
-                    # -- Print Flag Assingment -- #
-                    print("Flag [{0}] was set to [{1}]".format(str(FlagName), str(FlagValue)))
 
                 # -- Continue Command -- #
                 if SplitedComma[0] == "continue" or SplitedComma[0] == "cnt":
@@ -266,15 +236,22 @@ class GameInstance:
 
         # -- Do Game Update -- #
         if self.GameUpdateEnabled:
-            UpdateProcess = threading.Thread(target=self.GameObject.Update)
-            UpdateProcess.daemon = True
-            UpdateProcess.run()
+            self.GameObject.Update()
+        SystemUI.Update()
 
         # -- Do Game Draw -- #
-        self.GameObject.GameDraw(self.DISPLAY)
+        if self.GameUpdateEnabled:
+            self.GameObject.GameDraw(self.DISPLAY)
+        SystemUI.Draw(self.DISPLAY)
+        pygame.display.flip()
 
         # -- Receive command from the Current Game --
-        self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
+        if self.GameUpdateEnabled:
+            if len(self.GameObject.Messages) >= 1:
+                self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
+        # -- Only Receive Command when it is Enabled -- #
+        if len(SystemUI.Messages) >= 1:
+            self.ReceiveCommand(SystemUI.ReadCurrentMessages())
 
         for event in pygame.event.get():
             # -- Closes the Game when clicking on the X button
@@ -282,7 +259,11 @@ class GameInstance:
                 self.destroy()
 
             if event.type == pygame.KEYUP and event.key == pygame.K_F12:
-                self.taiyou_dc()
+                if not SystemUI.SystemMenuEnabled:
+                    SystemUI.SystemMenuEnabled = True
+                    SystemUI.UIOpacityAnimEnabled = True
+                else:
+                    SystemUI.UIOpacityAnimEnabled = False
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow:
@@ -291,8 +272,10 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
 
             # -- Do Game Events -- #
-            if self.GameEventEnabled:
+            if self.GameUpdateEnabled:
                 self.GameObject.EventUpdate(event)
+            SystemUI.EventUpdate(event)
+            pygame.event.pump()
 
     def destroy(self):
         print("Taiyou.GameObject.Destroy : Closing [" + tge.Get_GameTitle() + "]...")

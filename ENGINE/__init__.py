@@ -17,15 +17,15 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "1.4"
+    return "1.5"
 def Get_SpriteVersion():
-    return "1.2"
+    return "1.3"
 def Get_SoundVersion():
     return "1.3"
 def Get_RegistryVersion():
     return "1.3"
 def Get_UtilsVersion():
-    return "1.3"
+    return "1.4"
 def Get_GameObjVersion():
     return "1.3"
 
@@ -56,6 +56,10 @@ def OpenGameFolder(GameFolderDir):
     global CurrentGame_Folder
     global TaiyouAppDataFolder
     global TaiyouGeneralVersion
+    TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) - 6.0
+
+    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
+
     print("Taiyou.Runtime.OpenGameFolder : Loading Taiyou Options file...")
     InfFileLocation = GameFolderDir + "/meta.data"
 
@@ -144,7 +148,7 @@ def OpenGameFolder(GameFolderDir):
         if SplitedParms[0] == "AppDataFolder":
             TaiyouAppDataFolder = SplitedParms[1].rstrip()
 
-            print("Taiyou.Runtime.OpenGameFolder : TaiyouAppDataFolder set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : TaiyouAppDataFolder set to:" + str(SplitedParms[1].rstrip()))
 
     # -- Create Temporary Files -- #
     f = open(".AppDataPath", "w")
@@ -162,10 +166,6 @@ def OpenGameFolder(GameFolderDir):
     # -- Make Directories -- #
     if not os.path.exists(Get_GlobalAppDataFolder()):
         os.makedirs(Get_GlobalAppDataFolder())
-
-    TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) - 6.0
-
-    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
 
 # -- Return Infos -- #
 def Get_GameTitle():

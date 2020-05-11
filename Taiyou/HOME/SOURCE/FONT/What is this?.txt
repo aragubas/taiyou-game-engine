@@ -1,0 +1,15 @@
+##############################################################
+#             -- Taiyou Shared Font Directory --             #
+#------------------------------------------------------------#
+# Since a Font File can be used in more than one game        #
+# on Taiyou Game Engine it is considerated a Shared Resource #
+# and can be used by Every Game installed.                   #
+#------------------------------------------------------------#
+# /How the fonts is copied over here?                        #
+#____________________________________________________________#
+#  All games have the FONT_PACKS directory, the Game Engine  #
+#  Searches for the file meta.data inside that directory.    #
+#  That file contains all the fonts that need to be copied   #
+#  Over here, Simples huh?                                   #
+##############################################################
+

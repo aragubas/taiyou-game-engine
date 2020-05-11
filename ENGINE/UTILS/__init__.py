@@ -17,22 +17,19 @@
 
 # -- Imports -- #
 import ENGINE as tge
+import shutil
 import os
 
-print("TaiyouGameEngine Utils version " + tge.Get_UtilsVersion())
+print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
 
 def GetFileInDir(dirName):
-    # create a list of file and sub directories 
-    # names in the given directory 
+    # -- Create a list with all files in Directory -- #
     listOfFile = os.listdir(dirName)
     allFiles = list()
-    # Iterate over all the entries
+
     for entry in listOfFile:
-        
-        # Create full path
         fullPath = os.path.join(dirName, entry)
-        # If entry is a directory then get the list of files in this directory 
         if os.path.isdir(fullPath):
             allFiles = allFiles + GetFileInDir(fullPath)
         else:
@@ -46,3 +43,12 @@ def GetCurrentSourceFolder():
 def FormatNumber(num, precision=2, suffixes=['', 'K', 'M', 'G', 'T', 'P']):
     m = sum([abs(num/1000.0**x) >= 1 for x in range(1, len(suffixes))])
     return f'{num/1000.0**m:.{precision}f}{suffixes[m]}'
+
+def File_Exists(path):
+    return os.path.isfile(path)
+
+def Directory_Exists(path):
+    return os.path.exists(path)
+
+def FileCopy(path, destinationPath):
+    shutil.copy(path, destinationPath)
