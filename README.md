@@ -2,10 +2,7 @@
 
 *Taiyou game engine is a Game Engine made in Python using the Pygame Library!*
 
--Features **current version**
-1. Sprite Loading/Unloading Functions
-2. Registry System
-
+The Game Engine was made to run on Every Device and Every System, so it will have many, many Built-In Functions to work on All Systems
 
 ## How game it loads games?
 It loades the games importing the python script in: ``/game_name/MAIN/__init__.py``
