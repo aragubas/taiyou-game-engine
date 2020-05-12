@@ -19,7 +19,7 @@
 def Get_Version():
     return "1.5"
 def Get_SpriteVersion():
-    return "1.3"
+    return "1.4"
 def Get_SoundVersion():
     return "1.3"
 def Get_RegistryVersion():
@@ -27,7 +27,12 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
+    return "1.5"
+def Get_DeveloperConsole():
     return "1.3"
+
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsole()) - 7.0
+
 
 # -- Print Runtime Version -- #
 print("TaiyouGameEngineRuntime version " + Get_Version())
@@ -46,7 +51,6 @@ CurrentGame_SourceFolder = ""
 CurrentGame_Folder = ""
 
 TaiyouAppDataFolder = "AppData/"
-TaiyouGeneralVersion = 0.0
 
 def OpenGameFolder(GameFolderDir):
     global CurrentGame_Title
@@ -56,7 +60,6 @@ def OpenGameFolder(GameFolderDir):
     global CurrentGame_Folder
     global TaiyouAppDataFolder
     global TaiyouGeneralVersion
-    TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) - 6.0
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
 

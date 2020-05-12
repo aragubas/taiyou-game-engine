@@ -66,7 +66,7 @@ class GameInstance:
 
         # -- Set Variables -- #
         print("Taiyou.GameObject.Initialize : Set Variables")
-        self.DISPLAY = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF)
         MainGameModuleName = CurrentGameFolder.replace("/", ".") + ".MAIN"
 
         print("Taiyou.GameObject.Initialize : Set Game Object")
@@ -106,10 +106,9 @@ class GameInstance:
                 self.CurrentRes_W = int(splitedArg[1])
                 self.CurrentRes_H = int(splitedArg[2])
                 if self.ResiziableWindow:
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
-                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE)
                 if not self.ResiziableWindow:
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.HWSURFACE | pygame.DOUBLEBUF)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF)
 
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
@@ -119,14 +118,12 @@ class GameInstance:
                 splitedArg = Command.split(':')
 
                 if splitedArg[1] == "True":
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
-                                                           pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE)
                     self.ResiziableWindow = True
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
                 if splitedArg[1] == "False":
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H),
-                                                           pygame.HWSURFACE | pygame.DOUBLEBUF)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF)
                     self.ResiziableWindow = False
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
 
@@ -151,88 +148,10 @@ class GameInstance:
     def clear_console(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def taiyou_dc(self):
-        self.clear_console()
-        InputLoopEnabled = True
-
-        self.WindowTitle = pygame.display.get_caption()
-        pygame.display.set_caption("Taiyou.DeveloperConsole : Developer Console was enabled.")
-
-        while InputLoopEnabled:
-            print("\033[95m")
-            CurrentInput = input("$: ")
-            SplitedComma = CurrentInput.split(' ')
-
-            if SplitedComma[0] == "help" or SplitedComma[0] == "hlp":
-                self.clear_console()
-                print("Taiyou DC [Developer Console] version " + tge.Get_GameObjVersion())
-                print("RuntimeVersion: " + tge.Get_Version())
-                print("Template: [Command][ShortName] [ARGUMENTS] - [Description]")
-                print("\n\n")
-                print("help{hlp} - This list of commands")
-                print("destroy{des} - Kill the current game")
-                print("reload{rel} [REGISTRY,SPRITE/FONT,SOUND] - Reload")
-                print("clear{cls} - Clear the Screen")
-                print("continue{cnt} - Continue game execution")
-                print("versions{ver} - Print all Taiyou Game Engine components versions")
-                print("gameData{gmd} - Print loaded game data")
-
-            try:
-                # -- Destroy Command -- #
-                if SplitedComma[0] == "destroy" or SplitedComma[0] == "des":
-                    self.destroy()
-
-                # -- Reload Command -- #
-                if SplitedComma[0] == "reload" or SplitedComma[0] == "rel":
-                    print("Reload")
-
-                    if SplitedComma[1] == "REGISTRY":
-                        print("Reloading Registry...")
-                        reg.Reload()
-                        print("Done!")
-                    elif SplitedComma[1] == "SPRITE":
-                        print("Reloading Sprites...")
-                        sprite.Reload()
-                        print("Done!")
-
-                    elif SplitedComma[1] == "SOUND":
-                        print("Reloading Sound...")
-                        sound.Reload()
-                        print("Done!")
-
-                    else:
-                        raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
-
-                # -- Continue Command -- #
-                if SplitedComma[0] == "continue" or SplitedComma[0] == "cnt":
-                    print("Continue game execution...")
-                    InputLoopEnabled = False
-                    pygame.display.set_caption(str(self.WindowTitle))
-
-                # -- Clear Command -- #
-                if SplitedComma[0] == "clear" or SplitedComma[0] == "cls":
-                    self.clear_console()
-
-                # -- Clear Command -- #
-                if SplitedComma[0] == "versions" or SplitedComma[0] == "ver":
-                    print("Taiyou Developer Console [DC] Version " + tge.Get_GameObjVersion())
-                    print("Taiyou Runtime Version " + tge.Get_Version())
-                    print("Taiyou Sprite/Font Version " + tge.Get_SpriteVersion())
-                    print("Taiyou Sound System Version " + tge.Get_SoundVersion())
-                    print("Taiyou Registry Version " + tge.Get_RegistryVersion())
-                    print("Taiyou Game Object Version " + tge.Get_GameObjVersion())
-                    print("General Taiyou Version " + utils.FormatNumber(tge.TaiyouGeneralVersion))
-
-            except IndexError:
-                print("\033[91mARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
-                print("\033[95m")
-            except TypeError as ex:
-                print("\033[91mTYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
-                print("\033[95m")
-
     def run(self):
         if self.FPS > 0:
             self.clock.tick(self.FPS)
+            pygame.display.set_caption(str(self.FPS) + "/" + str(utils.FormatNumber(self.clock.get_fps())))
 
         # -- Do Game Update -- #
         if self.GameUpdateEnabled:
@@ -269,7 +188,7 @@ class GameInstance:
             if self.ResiziableWindow:
                 if event.type == pygame.VIDEORESIZE:
                     # Resize the Window
-                    self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE)
 
             # -- Do Game Events -- #
             if self.GameUpdateEnabled:

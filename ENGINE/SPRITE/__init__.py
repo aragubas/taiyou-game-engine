@@ -121,12 +121,19 @@ def Unload():
 
     print("Sprite.Unload : Opearation Completed")
 
+    # -- Reload Menu Sprites -- #
+    LoadSpritesInFolder("Taiyou/HOME/SOURCE")
+
+
 def Reload():
     print("Sprite.Reload : Reloading Sprites...")
 
     Unload()
 
     LoadSpritesInFolder(tge.Get_GameSourceFolder())
+
+    # -- Reload Menu Sprites -- #
+    LoadSpritesInFolder("Taiyou/HOME/SOURCE")
 
 def UnloadSprite(SpriteResourceName):
     try:

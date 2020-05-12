@@ -18,8 +18,11 @@ import pygame
 from ENGINE import SPRITE as sprite
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import DeveloperConsole as developWindow
+import ENGINE as tge
+from ENGINE import UTILS as utils
 
 TopBarRectangle = pygame.Rect(0,0,0,0)
+DownBarRectangle = pygame.Rect(0,0,0,0)
 UIObjectsSurface = pygame.Surface((5,5))
 DarkerBackgroundSurface = pygame.Surface((5,5))
 CopyOfTheScreen = pygame.Surface((5,5))
@@ -43,9 +46,9 @@ def Initialize():
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
     global TopMenu_RestartGame
-    TopMenu_BackToGame_Button = gtk.Button((3,1,5,5), "Back", 18)
-    TopMenu_DeveloperConsoleButton = gtk.Button((3,1,5,5), "Console", 18)
-    TopMenu_RestartGame = gtk.Button((3,1,3,3), "Restart", 18)
+    TopMenu_BackToGame_Button = gtk.Button((3,1,5,5), "Back", 14)
+    TopMenu_DeveloperConsoleButton = gtk.Button((3,1,5,5), "Console", 14)
+    TopMenu_RestartGame = gtk.Button((3,1,3,3), "Restart", 14)
     developWindow.Initialize()
 
 def Draw(Display):
@@ -61,6 +64,8 @@ def Draw(Display):
     global DarkerBackgroundSurface
     global DISPLAYObject
     global CopyOfTheScreen
+    global DownBarRectangle
+
     DISPLAYObject = Display
     if SystemMenuEnabled:
         # -- Draw the Dark Background -- #
@@ -74,10 +79,16 @@ def Draw(Display):
         # -- Render the Top Bar -- #
         gtk.Draw_Panel(UIObjectsSurface, TopBarRectangle, "DOWN")
 
+        # -- Render the Down Bar -- #
+        gtk.Draw_Panel(UIObjectsSurface, DownBarRectangle, "UP")
+
         # -- Render Buttons -- #
         TopMenu_BackToGame_Button.Render(UIObjectsSurface)
         TopMenu_DeveloperConsoleButton.Render(UIObjectsSurface)
         TopMenu_RestartGame.Render(UIObjectsSurface)
+
+        # -- Render Taiyou Version -- #
+        sprite.RenderFont(UIObjectsSurface, "/PressStart2P.ttf", 16, "v" + str(utils.FormatNumber(tge.TaiyouGeneralVersion)), (240,240,240), 5, DownBarRectangle[1] + 7, False)
 
         # -- Draw the Developer Console -- #
         developWindow.Draw(UIObjectsSurface)
@@ -98,17 +109,19 @@ def Update():
     global AnimationNumb
     global UIOpacityAnimSpeed
     global TopMenu_RestartGame
+    global DownBarRectangle
 
     if SystemMenuEnabled:
         AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
         TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 25)
+        DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 25)
 
         TopMenu_DeveloperConsoleButton.Set_X(TopMenu_BackToGame_Button.Rectangle[0] + TopMenu_BackToGame_Button.Rectangle[2] + 2)
         TopMenu_RestartGame.Set_X(TopMenu_DeveloperConsoleButton.Rectangle[0] + TopMenu_DeveloperConsoleButton.Rectangle[2] + 2)
-        TopMenu_DeveloperConsoleButton.Set_Y(AnimationNumb + 2)
-        TopMenu_BackToGame_Button.Set_Y(AnimationNumb + 2)
-        TopMenu_RestartGame.Set_Y(AnimationNumb + 2)
+        TopMenu_DeveloperConsoleButton.Set_Y(AnimationNumb + 3)
+        TopMenu_BackToGame_Button.Set_Y(AnimationNumb + 3)
+        TopMenu_RestartGame.Set_Y(AnimationNumb + 3)
 
         if TopMenu_BackToGame_Button.ButtonState == "UP":
             if not UIOpacityAnimEnabled:
