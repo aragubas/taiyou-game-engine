@@ -16,6 +16,7 @@
 #
 import pygame
 from ENGINE import SPRITE as sprite
+from ENGINE import SOUND as sound
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import TaiyouUI as taiyouUI
 import ENGINE as tge
@@ -128,7 +129,7 @@ def ReadCommand(Input):
         # -- Help Command -- #
         if SplitedComma[0] == "help" or SplitedComma[0] == "hlp":
             CommandWasValid = True
-            PrintToTerminalBuffer("Taiyou DC [Developer Console] version " + tge.Get_DeveloperConsole())
+            PrintToTerminalBuffer("Taiyou DC [Developer Console] version " + tge.Get_DeveloperConsoleVersion())
             PrintToTerminalBuffer("RuntimeVersion: " + tge.Get_Version())
             PrintToTerminalBuffer("Template: [Command][ShortName] [ARGUMENTS] - [Description]")
             PrintToTerminalBuffer("\n\n")
@@ -223,7 +224,7 @@ def ReadCommand(Input):
         # -- Versions Command -- #
         if SplitedComma[0] == "versions" or SplitedComma[0] == "ver":
             CommandWasValid = True
-            PrintToTerminalBuffer("Taiyou Developer Console [DC] Version " + tge.Get_DeveloperConsole())
+            PrintToTerminalBuffer("Taiyou Developer Console [DC] Version " + tge.Get_DeveloperConsoleVersion())
             PrintToTerminalBuffer("Taiyou Runtime Version " + tge.Get_Version())
             PrintToTerminalBuffer("Taiyou Sprite/Font Version " + tge.Get_SpriteVersion())
             PrintToTerminalBuffer("Taiyou Sound System Version " + tge.Get_SoundVersion())
@@ -233,7 +234,14 @@ def ReadCommand(Input):
 
         if not CommandWasValid:
             raise TypeError("Command was not valid\nWrite 'help' to see the list of commands.")
+        else:
+            sound.PlaySound("/TAIYOU_UI/HUD_Click.ogg")
     except IndexError:
         PrintToTerminalBuffer("ARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
+        sound.PlaySound("/TAIYOU_UI/HUD_Notify.ogg")
     except TypeError as ex:
         PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+        sound.PlaySound("/TAIYOU_UI/HUD_Notify.ogg")
+    except Exception as ex:
+        PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+        sound.PlaySound("/TAIYOU_UI/HUD_Error.ogg")

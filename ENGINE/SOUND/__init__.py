@@ -36,15 +36,16 @@ def LoadAllSounds(FolderName):
     temp_sound_files = utils.GetFileInDir(FolderName)
     index = -1
 
-    print("LoadAllSounds : Loading all Sounds...")
+    print("Sound.LoadAllSounds : Loading Sounds")
     for x in temp_sound_files:
         index += 1
-        print("\nLoadAllSounds : File[" + x + "] detected; Index[" + str(index) + "]")
+        print("\nSound.LoadAllSounds : File[" + x + "] detected; Index[" + str(index) + "]")
 
         CorrectKeyName = x.replace(FolderName, "")
         AllLoadedSounds[CorrectKeyName] = (pygame.mixer.Sound(x))
 
-        print("LoadAllSounds : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
+        print("Sound.LoadAllSounds : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
+    print("Sound.LoadAllSounds : Operation Completed")
 
 def Unload():
     if DisableSoundSystem:
@@ -55,29 +56,38 @@ def Unload():
     AllLoadedSounds.clear()
 
     print("Sound.Unload : Operation Completed Sucefully.")
-    tge.devel.PrintToTerminalBuffer("Sound.Unload : Complete.")
+
+    tge.devel.PrintToTerminalBuffer("Sound.Unload :\nRe-Loading HUD Sounds...")
+    LoadAllSounds("Taiyou/HOME/SOURCE")
+
+    tge.devel.PrintToTerminalBuffer("Sound.Unload :\nOperation Complted.")
 
 def Reload():
-    if DisableSoundSystem:
-        return
-    print("Sound.Reload : Reloading All Sounds...")
+    if not DisableSoundSystem:
+        print("Sound.Reload : Reloading All Sounds...")
+        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nRealoading all sounds...")
 
-    Unload()
-    LoadAllSounds(tge.Get_GameSourceFolder() + "/SOUND")
+        Unload()
+        LoadAllSounds(tge.Get_GameSourceFolder() + "/SOUND")
 
-    print("Sound.Reload : Opearation Complted.")
+        print("Sound.Reload : Opearation Completed.")
+        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nRe-Loading HUD Sounds...")
+        LoadAllSounds("Taiyou/HOME/SOURCE")
+
+        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nOperation Complted.")
+
 
 def PlaySound(SourceName):
-    if DisableSoundSystem:
-        return
-    global AllLoadedSounds
-    sound = AllLoadedSounds.get(SourceName)
-    sound.play()
+    if not DisableSoundSystem:
+        global AllLoadedSounds
+
+        sound = AllLoadedSounds.get(SourceName)
+        sound.play()
+
 
 def StopSound(SourceName):
-    if DisableSoundSystem:
-        return
-    global AllLoadedSounds
-    sound = AllLoadedSounds.get(SourceName)
-    sound.stop()
+    if not DisableSoundSystem:
+        global AllLoadedSounds
+        sound = AllLoadedSounds.get(SourceName)
+        sound.stop()
 

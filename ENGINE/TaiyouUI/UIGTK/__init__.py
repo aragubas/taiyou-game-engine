@@ -16,6 +16,7 @@
 #
 from ENGINE import SPRITE as sprite
 from ENGINE import TaiyouUI as mainScript
+from ENGINE import SOUND as sound
 import pygame, sys
 
 PANELS_BACKGROUND_COLOR = (4,21,32)
@@ -82,6 +83,7 @@ class Button:
 
         else:
             self.ButtonState = "INATIVE"
+
 
         self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
                                           sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
@@ -155,6 +157,7 @@ class Button:
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
+            sound.PlaySound("/TAIYOU_UI/HUD_Click.ogg")
 
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):

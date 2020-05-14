@@ -21,17 +21,19 @@ def Get_Version():
 def Get_SpriteVersion():
     return "1.5"
 def Get_SoundVersion():
-    return "1.3"
+    return "1.4"
 def Get_RegistryVersion():
     return "1.3"
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
-    return "1.6"
-def Get_DeveloperConsole():
+    return "1.7"
+def Get_DeveloperConsoleVersion():
     return "1.4"
+def Get_TaiyouUIVersion():
+    return "1.2"
 
-TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsole()) - 7.0
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
 
 # -- Print Runtime Version -- #
