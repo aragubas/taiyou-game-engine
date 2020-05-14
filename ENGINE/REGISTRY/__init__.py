@@ -32,6 +32,8 @@ reg_contents = list()
 
 def Initialize(reg_dir):
     print("\nTaiyou.RegistryManager.Initialize : Loading Registry...")
+    tge.devel.PrintToTerminalBuffer("Registry.Initialize : Loading Registry")
+
     temp_reg_keys = utils.GetFileInDir(reg_dir)
     index = -1
 
@@ -53,24 +55,30 @@ def Initialize(reg_dir):
         reg_contents.append(AllData)
         reg_keys.append(CorrectKeyName)
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
+        tge.devel.PrintToTerminalBuffer("Registry.Initialize : KeyLoaded\n" + CorrectKeyName)
 
     print("Taiyou.RegistryManager.Initialize : Operation Completed.")
     print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded.".format(str(len(reg_keys))))
 
 def Reload():
     CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
-    Unload()
+    tge.devel.PrintToTerminalBuffer("Registry.Reload : Started")
 
+    Unload()
     Initialize(CurrentGameFolder)
+
+    tge.devel.PrintToTerminalBuffer("Registry.Reload : Registry re-loaded sucefully.")
 
 def Unload():
     print("Taiyou.RegistryManager.UnloadRegistry : Unloading Registry...")
+    tge.devel.PrintToTerminalBuffer("Registry.UnloadRegistry : Started")
 
     # -- Clear the Registry -- #
     reg_keys.clear()
     reg_contents.clear()
 
     print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
+    tge.devel.PrintToTerminalBuffer("Registry.UnloadRegistry : Operation Completed.")
 
 
 # -- Game Keys -- #
@@ -103,8 +111,11 @@ def WriteKey(keyName, keyValue):
     if not os.path.exists(CorrectDir):
         os.makedirs(CorrectDir)
         print("Taiyou.RegistryManager.WriteKey : Directory[" + CorrectDir + "]created.")
+        tge.devel.PrintToTerminalBuffer("Registry.WriteKey : Directory[" + CorrectDir + "]created.")
+
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Location;" + FileLocation)
+    tge.devel.PrintToTerminalBuffer("Registry.WriteKey : Registry File Location\n" + FileLocation)
 
     f = open(FileLocation, "w+")
     f.write(keyValue)
@@ -119,6 +130,8 @@ def WriteKey(keyName, keyValue):
         reg_contents.append(keyValue)
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Writed.")
+    tge.devel.PrintToTerminalBuffer("Registry.WriteKey : Registry File Writed.")
+
 
 def KeyExists(keyName):
     try:

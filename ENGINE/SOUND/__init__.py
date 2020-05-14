@@ -50,10 +50,12 @@ def Unload():
     if DisableSoundSystem:
         return
     print("Sound.Unload : Unloading All Sounds...")
+    tge.devel.PrintToTerminalBuffer("Sound.Unload : Started")
 
     AllLoadedSounds.clear()
 
     print("Sound.Unload : Operation Completed Sucefully.")
+    tge.devel.PrintToTerminalBuffer("Sound.Unload : Complete.")
 
 def Reload():
     if DisableSoundSystem:

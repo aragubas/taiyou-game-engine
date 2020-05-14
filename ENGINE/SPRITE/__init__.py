@@ -45,6 +45,7 @@ def LoadSpritesInFolder(FolderName):
     sprite_meta_lines = sprite_metadata.readlines()
 
     print("LoadSpritesInFolder : Loading all Sprites...")
+    tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : Started")
 
     try:
         for line in sprite_meta_lines:
@@ -61,17 +62,20 @@ def LoadSpritesInFolder(FolderName):
                     else:
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                    tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : Sprite Found\n[{0}]\nTransparency: True".format(currentLine[0]))
 
                 elif currentLine[1] == "False":
                     Sprites_Name.append(currentLine[0])
                     Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                    tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : Sprite Found\n[{0}]\nTransparency: False".format(currentLine[0]))
                 else:
                     print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
 
         # -- Install Font Files to the Shared Resources Path -- #
         if utils.Directory_Exists(FolderName + "/FONT_PACKS"):
             print("Sprite.LoadFolder : Directory have Font Packs to be installed.")
+            tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : Copying Fontpacks...")
             fontInstall_metadata = open(FolderName + "/FONT_PACKS/meta.data", "r")
             fontInstall_meta_lines = fontInstall_metadata.readlines()
 
@@ -83,20 +87,25 @@ def LoadSpritesInFolder(FolderName):
                     DestinationDir = "Taiyou/HOME/SOURCE/FONT" + font
 
                     if utils.File_Exists(DestinationDir):
-                        print("Sprite.LoadFolder.CopyFontFile : FontFile [" + CurrentFileName + "] already exists.")
+                        print("Sprite.LoadFolder.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
+                        tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : FontpackInstaller \n[" + CurrentFileName + "] already exists.")
                     else:
                         if not utils.File_Exists(CurrentFileName):
-                            raise FileNotFoundError("The listed Font-Pack [" + CurrentFileName + "] does not exist.")
+                            tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : ERROR in FontpackInstaller [" + CurrentFileName + "] does not exist.")
+                            raise FileNotFoundError("The listed Font-Pack \n[" + CurrentFileName + "] does not exist.")
 
                         utils.FileCopy(CurrentFileName, DestinationDir)
 
                         if not utils.File_Exists(DestinationDir):
-                            raise FileNotFoundError("An error occoured while copying the [" + CurrentFileName + "] font file.")
+                            tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : An error occoured while copying the [" + CurrentFileName + "] font pack.")
+                            raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
                         else:
-                            print("Sprite.LoadFolder.CopyFontFile : Font[" + CurrentFileName + "] copied sucefully.")
+                            print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
+                            tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : \nFont [" + CurrentFileName + "] installed Sucefully.")
 
         else:
             print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
+            tge.devel.PrintToTerminalBuffer("Sprite.LoadSprites : FontpackInstalled ; Directory has no fontpack\n to be installed.")
 
     except FileNotFoundError as ex:
         print("\n\nFILE_NOT_FOUND_ERROR:\n" + str(ex))
@@ -113,16 +122,23 @@ def GetSprite(SpriteResourceName):
 
 def Unload():
     print("Sprite.Unload : Unloading Sprites...")
+    tge.devel.PrintToTerminalBuffer("Sprite.Unload : Started.")
 
     Sprites_Data.clear()
     Sprites_Name.clear()
+    tge.devel.PrintToTerminalBuffer("Sprite.Unload : Unloading Fonts...")
+
     CurrentLoadedFonts_Contents.clear()
     CurrentLoadedFonts_Name.clear()
 
     print("Sprite.Unload : Opearation Completed")
+    tge.devel.PrintToTerminalBuffer("Sprite.Unload : Complete.")
 
     # -- Reload Menu Sprites -- #
     LoadSpritesInFolder("Taiyou/HOME/SOURCE")
+    tge.devel.PrintToTerminalBuffer("Sprite.Unload : Reloading TaiyouUI Sprites...")
+
+    tge.devel.PrintToTerminalBuffer("Sprite.Unload : Operation Completed.")
 
 
 def Reload():
@@ -145,71 +161,74 @@ def UnloadSprite(SpriteResourceName):
     except:
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
-def Render(DISPLAY, spriteName, X, Y, Width, Height):
-    if SpriteRenderingDisabled:
-        return
-    if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
-        DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
-    else:
-        return
+def GetSprite_Width(spriteName):
+    return
+
+def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0):
+    if not SpriteRenderingDisabled:
+        try:
+            if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
+                if Width == 0:
+                    DISPLAY.blit(GetSprite(spriteName), (X, Y))
+                else:
+                    DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+        except Exception as ex:
+            print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
+            tge.devel.PrintToTerminalBuffer("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
 def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
-    if FontRenderingDisabled:
-        return
-    try:
-        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
-            for i, l in enumerate(Text.splitlines()):
-                DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
-        else:
-            return
+    if not FontRenderingDisabled:
+        try:
+            if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
+                for i, l in enumerate(Text.splitlines()):
+                    DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
 
-    except Exception as ex:
-        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-        print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-        print("RenderFont ; Detailed Error: " + str(ex))
+        except Exception as ex:
+            CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
+            print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            print("RenderFont ; Detailed Error: " + str(ex))
 
 def GetFontObject(FontFileLocation, Size):
-    if FontRenderingDisabled:
-        return
-
-    try:
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
-    except Exception as ex:
-        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-        print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-        print("RenderFont ; Detailed Error: " + str(ex))
-
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
+    if not FontRenderingDisabled:
+        try:
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
+        except Exception as ex:
+            CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
+            print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            print("RenderFont ; Detailed Error: " + str(ex))
+            tge.devel.PrintToTerminalBuffer("Sprite.RenderFont")
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 
 def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
-    words = text.split()
-    lines = []
-    while len(words) > 0:
-        # get as many words as will fit within allowed_width
-        line_words = []
+    if not FontRenderingDisabled:
+        words = text.split()
+        lines = []
         while len(words) > 0:
-            line_words.append(words.pop(0))
-            fw, fh = font.size(' '.join(line_words + words[:1]))
-            if fw > allowed_width:
-                break
+            # get as many words as will fit within allowed_width
+            line_words = []
+            while len(words) > 0:
+                line_words.append(words.pop(0))
+                fw, fh = font.size(' '.join(line_words + words[:1]))
+                if fw > allowed_width:
+                    break
 
-        # add a line consisting of those words
-        line = ' '.join(line_words)
-        lines.append(line)
+            # add a line consisting of those words
+            line = ' '.join(line_words)
+            lines.append(line)
 
-    y_offset = 0
-    for line in lines:
-        fw, fh = font.size(line)
-        ty = y + y_offset
+        y_offset = 0
+        for line in lines:
+            fw, fh = font.size(line)
+            ty = y + y_offset
 
-        font_surface = font.render(line, True, colour)
-        screen.blit(font_surface, (x, ty))
+            font_surface = font.render(line, True, colour)
+            screen.blit(font_surface, (x, ty))
 
-        y_offset += fh
+            y_offset += fh
 
 
 def Surface_Blur(surface, amt):

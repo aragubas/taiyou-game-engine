@@ -38,18 +38,41 @@ UIOpacityAnimEnabled = True
 UIOpacityAnimState = 0
 UIOpacityScreenCopyied = False
 SystemMenuEnabled = True
-
-
+ConsoleWindowEnabled = False
+IsFirstOpening = True
+UIObjectsSurfaceUpdated = False
+ExitToInitializeGame = False
 AnimationNumb = 0
 
+RestartGameConfirm_Enabled = False
+RestartGame_Surface = pygame.Surface
+RestartGameConfirm_AnimMode = 0
+RestartGameConfirm_AnimEnabled = False
+RestartGameConfirm_AnimOpacity = 0
+RestartGameConfirm_Rectangle = pygame.Rect(0,0,0,0)
+RestartGameConfirm_YesButton = gtk.Button
+RestartGameConfirm_NoButton = gtk.Button
+
 def Initialize():
+    print("TaiyouUI.Initialize : Started")
+
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
     global TopMenu_RestartGame
-    TopMenu_BackToGame_Button = gtk.Button((3,1,5,5), "Back", 14)
-    TopMenu_DeveloperConsoleButton = gtk.Button((3,1,5,5), "Console", 14)
-    TopMenu_RestartGame = gtk.Button((3,1,3,3), "Restart", 14)
+    global RestartGameConfirm_YesButton
+    global RestartGameConfirm_NoButton
+
     developWindow.Initialize()
+    TopMenu_BackToGame_Button = gtk.Button(pygame.Rect(3, 1, 5, 5), "Start Game", 14)
+    TopMenu_DeveloperConsoleButton = gtk.Button(pygame.Rect(3, 1, 5, 5), "Console", 14)
+    TopMenu_RestartGame = gtk.Button(pygame.Rect(3,1,3,3), "Restart", 14)
+    RestartGameConfirm_YesButton = gtk.Button(pygame.Rect(3,1,3,3), "Yes", 28)
+    RestartGameConfirm_NoButton = gtk.Button(pygame.Rect(3,1,3,3), "No", 28)
+
+    RestartGameConfirm_YesButton.CustomColisionRectangle = True
+    RestartGameConfirm_NoButton.CustomColisionRectangle = True
+
+    print("TaiyouUI.Initialize : Initialization Complete.")
 
 def Draw(Display):
     global UIObjectsSurface
@@ -65,15 +88,24 @@ def Draw(Display):
     global DISPLAYObject
     global CopyOfTheScreen
     global DownBarRectangle
+    global ConsoleWindowEnabled
+    global AnimationNumb
+    global UIObjectsSurfaceUpdated
+    global RestartGameConfirm_Enabled
+    global RestartGameConfirm_YesButton
+    global RestartGameConfirm_NoButton
+    global RestartGameConfirm_Rectangle
+    global RestartGame_Surface
 
     DISPLAYObject = Display
     if SystemMenuEnabled:
         # -- Draw the Dark Background -- #
         Display.blit(CopyOfTheScreen, (0,0))
-        UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
+        if not UIObjectsSurfaceUpdated:
+            UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
+            UIObjectsSurfaceUpdated = True
 
 
-        #UIObjectsSurface.fill((0,0,0, UIOpacity))
         sprite.RenderRectangle(UIObjectsSurface, (0,0,0, UIOpacity), (0,0, UIObjectsSurface.get_width(), UIObjectsSurface.get_height()))
 
         # -- Render the Top Bar -- #
@@ -91,12 +123,30 @@ def Draw(Display):
         sprite.RenderFont(UIObjectsSurface, "/PressStart2P.ttf", 16, "v" + str(utils.FormatNumber(tge.TaiyouGeneralVersion)), (240,240,240), 5, DownBarRectangle[1] + 7, False)
 
         # -- Draw the Developer Console -- #
-        developWindow.Draw(UIObjectsSurface)
+        if ConsoleWindowEnabled:
+            developWindow.Draw(UIObjectsSurface)
+
+        # -- Restart Game -- #
+        if RestartGameConfirm_Enabled:
+            # -- Render the Background -- #
+            RestartGame_Surface = pygame.Surface((RestartGameConfirm_Rectangle[2] + 2, RestartGameConfirm_Rectangle[3] + 2), pygame.SRCALPHA)
+
+            gtk.Draw_Panel(RestartGame_Surface, (0, 0, RestartGameConfirm_Rectangle[2], RestartGameConfirm_Rectangle[3]), "BORDER")
+
+            sprite.RenderRectangle(RestartGame_Surface, gtk.PANELS_INDICATOR_COLOR, (0, 0, RestartGameConfirm_Rectangle[2], 30))
+            sprite.RenderFont(RestartGame_Surface, "/PressStart2P.ttf", 18, "Are you sure?", (230,230,230), sprite.GetText_width("/PressStart2P.ttf", 18, "Are you sure?") / 2 - 18, 5)
+
+            sprite.RenderFont(RestartGame_Surface, "/PressStart2P.ttf", 14, "Did you want to really restart?\nAny unsaved data will be lost", (230,230,230), 4, 35)
+
+            # -- Render OK Button -- #
+            RestartGameConfirm_YesButton.Render(RestartGame_Surface)
+            RestartGameConfirm_NoButton.Render(RestartGame_Surface)
+
+            UIObjectsSurface.blit(RestartGame_Surface, (RestartGameConfirm_Rectangle[0], RestartGameConfirm_Rectangle[1]))
 
         sprite.Render(UIObjectsSurface, "/TAIYOU_UI/Cursor/0.png", Cursor_Position[0],Cursor_Position[1], 15,22)
 
         Display.blit(UIObjectsSurface, (0,0))
-
 
 def Update():
     global Cursor_Position
@@ -110,27 +160,82 @@ def Update():
     global UIOpacityAnimSpeed
     global TopMenu_RestartGame
     global DownBarRectangle
+    global ConsoleWindowEnabled
+    global IsFirstOpening
+    global ExitToInitializeGame
+    global RestartGameConfirm_Enabled
+    global RestartGameConfirm_YesButton
+    global RestartGameConfirm_NoButton
+    global RestartGameConfirm_Rectangle
+    global RestartGameConfirm_AnimEnabled
+    global RestartGameConfirm_AnimMode
 
     if SystemMenuEnabled:
+        # -- Restart Game Dialog -- #
+        if RestartGameConfirm_Enabled:
+            RestartGameConfirm_Rectangle = pygame.Rect((UIObjectsSurface.get_width() / 2 - 440 / 2,UIObjectsSurface.get_height() / 2 - 150 / 2, 440, 150))
+
+            RestartGameConfirm_YesButton.Set_X(110)
+            RestartGameConfirm_NoButton.Set_X(RestartGameConfirm_YesButton.Rectangle[0] + RestartGameConfirm_YesButton.Rectangle[2] + 50)
+
+            RestartGameConfirm_YesButton.Set_Y(RestartGameConfirm_Rectangle[3] - RestartGameConfirm_YesButton.Rectangle[3] + 2)
+            RestartGameConfirm_NoButton.Set_Y(RestartGameConfirm_YesButton.Rectangle[1])
+
+            RestartGameConfirm_YesButton.ColisionRectangle = pygame.Rect(RestartGameConfirm_Rectangle[0] + 110, RestartGameConfirm_Rectangle[1] + RestartGameConfirm_Rectangle[3] - RestartGameConfirm_YesButton.Rectangle[3] + 2, RestartGameConfirm_YesButton.Rectangle[2], RestartGameConfirm_YesButton.Rectangle[3])
+            RestartGameConfirm_NoButton.ColisionRectangle = pygame.Rect(RestartGameConfirm_YesButton.ColisionRectangle[0] + RestartGameConfirm_YesButton.Rectangle[2] + 50, RestartGameConfirm_Rectangle[1] + RestartGameConfirm_Rectangle[3] - RestartGameConfirm_YesButton.Rectangle[3] + 2, RestartGameConfirm_NoButton.Rectangle[2], RestartGameConfirm_NoButton.Rectangle[3])
+
+            if RestartGameConfirm_YesButton.ButtonState == "UP":
+                Messages.append("RESTART_GAME")
+                IsFirstOpening = True
+                ExitToInitializeGame = True
+                tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\nRestart Game")
+                RestartGameConfirm_Enabled = False
+
+            if RestartGameConfirm_NoButton.ButtonState == "UP":
+                RestartGameConfirm_Enabled = False
+
         AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+
+        if IsFirstOpening:
+            TopMenu_BackToGame_Button.Set_Text("Start Game")
+        else:
+            TopMenu_BackToGame_Button.Set_Text("Back")
 
         TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 25)
         DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 25)
 
+        # -- Set Objects X -- #
         TopMenu_DeveloperConsoleButton.Set_X(TopMenu_BackToGame_Button.Rectangle[0] + TopMenu_BackToGame_Button.Rectangle[2] + 2)
         TopMenu_RestartGame.Set_X(TopMenu_DeveloperConsoleButton.Rectangle[0] + TopMenu_DeveloperConsoleButton.Rectangle[2] + 2)
-        TopMenu_DeveloperConsoleButton.Set_Y(AnimationNumb + 3)
+        TopMenu_BackToGame_Button.Set_X(3)
+        # -- Set Objects Y -- #
         TopMenu_BackToGame_Button.Set_Y(AnimationNumb + 3)
-        TopMenu_RestartGame.Set_Y(AnimationNumb + 3)
+        TopMenu_DeveloperConsoleButton.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
+        TopMenu_RestartGame.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
 
         if TopMenu_BackToGame_Button.ButtonState == "UP":
             if not UIOpacityAnimEnabled:
                 UIOpacityAnimEnabled = True
+                tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToGame_function)[Back to Game]")
+                if IsFirstOpening and not ExitToInitializeGame:
+                    ExitToInitializeGame = True
+                    tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToGame_function)[Start Game]")
+
+        if TopMenu_DeveloperConsoleButton.ButtonState == "UP":
+            if ConsoleWindowEnabled:
+                ConsoleWindowEnabled = False
+            else:
+                ConsoleWindowEnabled = True
+
+        if TopMenu_RestartGame.ButtonState == "UP":
+            # -- Alert to Restart -- #
+            RestartGameConfirm_Enabled = True
 
         UpdateOpacityAnim()
 
         # -- Update Developer Console Windows -- #
-        developWindow.Update()
+        if ConsoleWindowEnabled:
+            developWindow.Update()
 
         # -- Set Cursor Position -- #
         Cursor_Position = pygame.mouse.get_pos()
@@ -147,9 +252,13 @@ def UpdateOpacityAnim():
     global DarkerBackgroundSurface
     global UIObjectsSurface
     global UIOpacityScreenCopyied
+    global ConsoleWindowEnabled
+    global IsFirstOpening
+    global UIObjectsSurfaceUpdated
+    global ExitToInitializeGame
 
     if UIOpacityAnimEnabled:
-        if UIOpacityAnimState == 0:
+        if UIOpacityAnimState == 0: # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 
             # -- Copy the Screen Surface -- #
@@ -160,28 +269,39 @@ def UpdateOpacityAnim():
                 print("Taiyou.SystemUI.AnimationTrigger : Screen Copied.")
                 Messages.append("GAME_UPDATE:False")
 
-            if UIOpacity >= 255:
+            if UIOpacity >= 255: # <- Triggers Animation End
                 UIOpacity = 255
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 1
                 print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
 
-
-
-        if UIOpacityAnimState == 1:
+        if UIOpacityAnimState == 1: # <- Exit Animation
             UIOpacity -= UIOpacityAnimSpeed
 
-            if UIOpacity <= 0:
+            # -- Close Windows -- #
+            ConsoleWindowEnabled = False
+
+            if UIOpacity <= 0: # <- Triggers Animation End
                 UIOpacity = 0
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
                 Messages.append("GAME_UPDATE:True")
                 print("Taiyou.SystemUI.AnimationTrigger : Animation End.")
                 # -- Unload the Surfaces -- #
-                CopyOfTheScreen = pygame.Surface((5,5))
-                DarkerBackgroundSurface = pygame.Surface((5,5))
-                UIObjectsSurface = pygame.Surface((5,5))
+                CopyOfTheScreen = pygame.Surface((0,0), pygame.SRCALPHA)
+                DarkerBackgroundSurface = pygame.Surface((0,0), pygame.SRCALPHA)
+                UIObjectsSurface = pygame.Surface((0,0), pygame.SRCALPHA)
                 UIOpacityScreenCopyied = False
+                UIObjectsSurfaceUpdated = False
+
+                # -- Initialize the Game when exiting -- #
+                if ExitToInitializeGame and IsFirstOpening:
+                    ExitToInitializeGame = False
+                    print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize")
+                    Messages.append("TOGGLE_GAME_START")
+                    print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize, complete.")
+
+                IsFirstOpening = False
                 SystemMenuEnabled = False
 
 def EventUpdate(event):
@@ -189,13 +309,31 @@ def EventUpdate(event):
     global TopMenu_DeveloperConsoleButton
     global SystemMenuEnabled
     global TopMenu_RestartGame
+    global ConsoleWindowEnabled
+    global UIObjectsSurfaceUpdated
+    global RestartGameConfirm_Enabled
+    global RestartGameConfirm_YesButton
+    global RestartGameConfirm_NoButton
 
+    # -- The Menu will be only updated when Enabled -- #
     if SystemMenuEnabled:
+        # -- Update Buttons Events -- #
         TopMenu_BackToGame_Button.Update(event)
         TopMenu_DeveloperConsoleButton.Update(event)
         TopMenu_RestartGame.Update(event)
 
-        developWindow.EventUpdate(event)
+        # -- Update the Surface when Window Size Changes -- #
+        if event.type == pygame.VIDEORESIZE:
+            UIObjectsSurfaceUpdated = False
+
+        # -- Update the OK Button on Notification -- #
+        if RestartGameConfirm_Enabled:
+            RestartGameConfirm_YesButton.Update(event)
+            RestartGameConfirm_NoButton.Update(event)
+
+        # -- Update the Console only when it is Enabled -- #
+        if ConsoleWindowEnabled:
+            developWindow.EventUpdate(event)
 
 Messages = list()
 # -- Send the messages on the Message Quee to the Game Engine -- #

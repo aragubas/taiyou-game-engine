@@ -38,14 +38,16 @@ class GameInstance:
         self.GameUpdateEnabled = True
         self.ResiziableWindow = False
         self.clock = pygame.time.Clock()
-        self.FPS = 75
-        self.ToggleGameStart = True
+        self.FPS = 60
+        self.ToggleGameStart = False
         self.GameStarted = False
         self.DISPLAY = pygame.display
         self.IsFullscreen = False
+        self.GameReloadCalled = False
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
         self.WindowTitle = "Taiyou Game Engine"
+        self.OverlayLevel = -1
         # -- Initialize Pygame -- #
         pygame.init()
 
@@ -68,6 +70,8 @@ class GameInstance:
         print("Taiyou.GameObject.Initialize : Set Variables")
         self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF)
         MainGameModuleName = CurrentGameFolder.replace("/", ".") + ".MAIN"
+        pygame.mouse.set_visible(False)
+        pygame.display.set_caption("Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
 
         print("Taiyou.GameObject.Initialize : Set Game Object")
         self.GameObject = importlib.import_module(MainGameModuleName)
@@ -77,9 +81,6 @@ class GameInstance:
 
         print("Taiyou.GameObject.Initialize : Load registry keys")
         reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
-
-        print("Taiyou.GameObject.Initialize : Call Initialize Game")
-        self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
 
         print("Taiyou.GameObject.Initialize : Loading Default Assets")
         sprite.LoadSpritesInFolder("Taiyou/HOME/SOURCE")
@@ -145,27 +146,78 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-    def clear_console(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+        if Command.startswith("KILL") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Killing Game Process")
+
+                self.destroy()
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("OVERLAY_LEVEL:") if Command else False:
+            try:
+                splitedArg = Command.split(':')
+                self.OverlayLevel = int(splitedArg[1])
+
+                print("Taiyou.GameObject.ReceiveCommand : Set OVERLAY_LEVEL to " + splitedArg[1])
+
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("TOGGLE_GAME_START") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Toggle Game Start")
+
+                self.ToggleGameStart = True
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("RELOAD_GAME") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Reload Game")
+
+                self.GameReloadCalled = True
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+    def render_overlay(self):
+        if self.OverlayLevel == 0:
+            sprite.RenderFont(self.DISPLAY, "/PressStart2P.ttf", 12, "FPS {0}/{1}".format(str(self.FPS), utils.FormatNumber(self.clock.get_fps(), 3)), (10,10,10), 17,17, False)
+            sprite.RenderFont(self.DISPLAY, "/PressStart2P.ttf", 12, "FPS {0}/{1}".format(str(self.FPS), utils.FormatNumber(self.clock.get_fps(), 3)), (240,240,240), 15,15, False)
 
     def run(self):
         if self.FPS > 0:
             self.clock.tick(self.FPS)
-            pygame.display.set_caption(str(self.FPS) + "/" + str(utils.FormatNumber(self.clock.get_fps())))
+
+        # -- Toggle Game Start -- #
+        if self.ToggleGameStart:
+            self.ToggleGameStart = False
+            self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
+            print("Taiyou.GameObject.Run : Initialized Called")
+            self.GameStarted = True
+
+        # -- Reload Game Object -- #
+        if self.GameReloadCalled:
+            importlib.reload(self.GameObject)
+            print("Taiyou.GameObject.Run : Reload Game Object")
 
         # -- Do Game Update -- #
-        if self.GameUpdateEnabled:
+        if self.GameUpdateEnabled and self.GameStarted:
             self.GameObject.Update()
         SystemUI.Update()
 
         # -- Do Game Draw -- #
-        if self.GameUpdateEnabled:
+        if self.GameUpdateEnabled and self.GameStarted:
             self.GameObject.GameDraw(self.DISPLAY)
         SystemUI.Draw(self.DISPLAY)
+
+        if not self.OverlayLevel == -1:
+            self.render_overlay()
+
         pygame.display.flip()
 
         # -- Receive command from the Current Game --
-        if self.GameUpdateEnabled:
+        if self.GameUpdateEnabled and self.GameStarted:
             if len(self.GameObject.Messages) >= 1:
                 self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
         # -- Only Receive Command when it is Enabled -- #
@@ -181,8 +233,6 @@ class GameInstance:
                 if not SystemUI.SystemMenuEnabled:
                     SystemUI.SystemMenuEnabled = True
                     SystemUI.UIOpacityAnimEnabled = True
-                else:
-                    SystemUI.UIOpacityAnimEnabled = False
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow:
@@ -191,7 +241,7 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE)
 
             # -- Do Game Events -- #
-            if self.GameUpdateEnabled:
+            if self.GameUpdateEnabled and self.GameStarted:
                 self.GameObject.EventUpdate(event)
             SystemUI.EventUpdate(event)
             pygame.event.pump()

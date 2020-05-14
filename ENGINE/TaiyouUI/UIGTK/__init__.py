@@ -16,10 +16,10 @@
 #
 from ENGINE import SPRITE as sprite
 from ENGINE import TaiyouUI as mainScript
-import pygame
+import pygame, sys
 
-PANELS_BACKGROUND_COLOR = (64,78,124)
-PANELS_INDICATOR_COLOR = (37,31,72)
+PANELS_BACKGROUND_COLOR = (4,21,32)
+PANELS_INDICATOR_COLOR = (13,10,13)
 PANELS_INDICATOR_SIZE = 2
 
 def Draw_Panel(DISPLAY, Rectangle, IndicatorPosition="UP"):
@@ -46,23 +46,19 @@ class Button:
                                           sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
                                                                self.ButtonText) + 5,
                                           sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
-                                                                self.ButtonText) + 50)
+                                                                self.ButtonText) + 6)
         self.CursorSettedToggle = False
         self.ButtonDowed = False
         self.ColisionRectangle = self.Rectangle
         self.CustomColisionRectangle = False
         self.BackgroundColor = (1, 22, 39)
-        self.ButtonSurface = pygame.Surface((0,0), pygame.SRCALPHA)
+        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
         self.SurfaceUpdated = False
+
 
     def Update(self, event):
         if not self.CustomColisionRectangle:
             self.ColisionRectangle = self.Rectangle
-
-        if not self.SurfaceUpdated:
-            self.SurfaceUpdated = True
-            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
-            print()
 
         if self.IsButtonEnabled:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -87,12 +83,14 @@ class Button:
         else:
             self.ButtonState = "INATIVE"
 
-        if not self.WhiteButton:
-            self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                              sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
-                                                                   self.ButtonText) + 5,
-                                              sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
-                                                                    self.ButtonText) + 6)
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
+                                          sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
+                                                               self.ButtonText) + 5,
+                                          sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
+                                                                self.ButtonText) + 6)
+        if not self.SurfaceUpdated:
+            self.SurfaceUpdated = True
+            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value
@@ -208,22 +206,16 @@ class Window:
         if not self.WindowMinimized:
             self.WindowSurface_Dest = self.WindowRectangle[0], self.WindowRectangle[1] + 20
 
-        # -- Update Window Border -- #
-        if not self.Resiziable:
-            WindowBorderRectangle = (
-                self.WindowRectangle[0] - 2, self.WindowRectangle[1] - 2, self.WindowRectangle[2] + 4,
-                self.WindowRectangle[3] + 4)
-        else:
-            WindowBorderRectangle = (
-                self.WindowRectangle[0] - 2, self.WindowRectangle[1] - 2, self.WindowRectangle[2] + 4,
-                self.WindowRectangle[3] + 12)
+        # -- Clear Window Surface when is Minimized -- #
+        if self.WindowMinimized:
+            self.WindowSurface = pygame.Surface((0, 0))
 
         # -- Draw the Window Blurred Background -- #
         if not self.Window_IsBeingGrabbed:
             IndicatorLineColor = (32, 164, 243)
         else:
             IndicatorLineColor = (255, 51, 102)
-        Draw_Panel(DISPLAY, self.WindowRectangle, (6, 27, 45))
+        Draw_Panel(DISPLAY, self.WindowRectangle, "BORDER")
 
         pygame.draw.line(DISPLAY, IndicatorLineColor, (self.TitleBarRectangle[0], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), (self.TitleBarRectangle[0] + self.TitleBarRectangle[2], self.TitleBarRectangle[1] - 2 + self.TitleBarRectangle[3]), 2)
 
@@ -287,8 +279,6 @@ class Window:
                 self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
                 self.UpdateSurface()
 
-            print("Window is being resized")
-
         if self.WindowRectangle[2] < self.Window_MinimunW:
             self.WindowRectangle[2] = self.Window_MinimunW
             self.UpdateSurface()
@@ -300,8 +290,8 @@ class Window:
 
 
     def UpdateSurface(self):
-        self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
-        print("Surface updated")
+        if not self.WindowMinimized:
+            self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
 
     def ToggleMinimize(self):
         if self.WindowMinimized:
@@ -309,6 +299,7 @@ class Window:
             self.WindowRectangle = self.WindowOriginalRect
             self.Window_MinimunH = self.OriginalMinumunHeight
             self.Resiziable = self.OriginalResiziable
+            self.UpdateSurface()
         else:
             self.WindowMinimized = True
             self.WindowOriginalRect = self.WindowRectangle

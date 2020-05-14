@@ -19,7 +19,7 @@
 def Get_Version():
     return "1.5"
 def Get_SpriteVersion():
-    return "1.4"
+    return "1.5"
 def Get_SoundVersion():
     return "1.3"
 def Get_RegistryVersion():
@@ -27,9 +27,9 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
-    return "1.5"
+    return "1.6"
 def Get_DeveloperConsole():
-    return "1.3"
+    return "1.4"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsole()) - 7.0
 
@@ -41,6 +41,7 @@ print("TaiyouGameEngineRuntime version " + Get_Version())
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
+from ENGINE.TaiyouUI import DeveloperConsole as devel
 import os
 
 # -- Variables --
