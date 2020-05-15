@@ -181,15 +181,15 @@ CurrentLoadedFonts_Contents = list()
 def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
     if not FontRenderingDisabled:
         try:
-            if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text):
+            if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text) and not Text == "" or not Text == " ":
                 for i, l in enumerate(Text.splitlines()):
                     DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
 
         except Exception as ex:
             CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
             CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-            print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            print("RenderFont ; Detailed Error: " + str(ex))
+            print("Sprite.RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            print("Sprite.RenderFont ; Detailed Error: " + str(ex))
 
 def GetFontObject(FontFileLocation, Size):
     if not FontRenderingDisabled:
@@ -198,8 +198,8 @@ def GetFontObject(FontFileLocation, Size):
         except Exception as ex:
             CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
             CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-            print("RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            print("RenderFont ; Detailed Error: " + str(ex))
+            print("Sprite.GetFontObject ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            print("Sprite.GetFontObject ; Detailed Error: " + str(ex))
             tge.devel.PrintToTerminalBuffer("Sprite.RenderFont")
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 

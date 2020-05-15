@@ -27,11 +27,11 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
-    return "1.7"
+    return "1.8"
 def Get_DeveloperConsoleVersion():
     return "1.4"
 def Get_TaiyouUIVersion():
-    return "1.2"
+    return "1.4"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -43,6 +43,7 @@ print("TaiyouGameEngineRuntime version " + Get_Version())
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
+from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 import os
 
@@ -97,6 +98,10 @@ def OpenGameFolder(GameFolderDir):
 
     sprite.LoadSpritesInFolder(CurrentGame_SourceFolder)
     sound.LoadAllSounds(CurrentGame_SourceFolder)
+    print("Taiyou.Runtime.OpenGameFolder : ")
+    reg.Initialize("Taiyou/HOME/SOURCE/REG")
+
+
     print("Taiyou.Runtime.OpenGameFolder : Game Loading complete, Loading Engine Configuration...")
 
     conf_file = open("Taiyou.config","r")

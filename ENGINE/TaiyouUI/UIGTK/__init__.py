@@ -128,7 +128,7 @@ class Button:
 
                 # -- Text -- #
                 sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (200, 200, 200),
-                                  3, 3, False)
+                                  3, 3)
 
             else:
                 # -- Background -- #
@@ -138,7 +138,7 @@ class Button:
 
                 # -- Text -- #
                 sprite.RenderFont(self.ButtonSurface, "/PressStart2P.ttf", self.TextSize, self.ButtonText, (255, 255, 255),
-                                  3, 3, False)
+                                  3, 3)
         else:
             if self.ButtonState == "INATIVE":
                 # -- Background -- #
@@ -234,7 +234,7 @@ class Window:
         # -- Draw the window title -- #
         sprite.RenderFont(DISPLAY, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255),
                           self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetText_width(
-                              "/PressStart2P.ttf", 18, self.Title) / 2, self.TitleBarRectangle[1] + 1, False)
+                              "/PressStart2P.ttf", 18, self.Title) / 2, self.TitleBarRectangle[1] + 1)
 
 
     def EventUpdate(self, event):
@@ -325,8 +325,9 @@ class InputBox:
         self.text = text
         self.active = False
         self.DefaultText = text
-        self.LastHeight = 0
+        self.LastHeight = 1
         self.CustomWidth = False
+        self.width = 1
 
     def Set_X(self, Value):
         self.rect = pygame.Rect(Value, self.rect[1], self.rect[2], self.rect[3])
@@ -372,13 +373,13 @@ class InputBox:
             self.colisionRect = self.rect
 
         # Blit the rect.
-        sprite.RenderRectangle(screen, self.color, self.rect)
-        sprite.RenderRectangle(screen, self.color, self.rect)
+        Draw_Panel(screen, self.rect, "UP")
 
         if self.text == self.DefaultText:
             sprite.RenderFont(screen, "/PressStart2P.ttf", 10, self.text, (140,140,140), self.rect[0],self.rect[1])
         else:
-            sprite.RenderFont(screen, "/PressStart2P.ttf", 10, self.text, (240, 240, 240), self.rect[0], self.rect[1])
+            if not self.text == "":
+                sprite.RenderFont(screen, "/PressStart2P.ttf", 10, self.text, (240, 240, 240), self.rect[0], self.rect[1])
 
         if not self.active:
             sprite.RenderRectangle(screen, (255, 51, 102), (self.rect[0],self.rect[1] - 1,self.rect[2], 1))

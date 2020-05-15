@@ -27,7 +27,7 @@ from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import TaiyouUI as SystemUI
 import pygame, sys, importlib
-import threading
+import traceback
 
 # The main Entry Point
 print("TaiyouGameEngineMainScript version " + tge.Get_GameObjVersion())
@@ -44,6 +44,7 @@ class GameInstance:
         self.DISPLAY = pygame.display
         self.IsFullscreen = False
         self.GameReloadCalled = False
+        self.IsMenuMode = False
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
         self.WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
@@ -52,7 +53,7 @@ class GameInstance:
         Frequency = 22050
         Size = -16
         Channels = 2
-        BufferSize = 700
+        BufferSize = 500
         pygame.mixer.pre_init(Frequency, Size, Channels, BufferSize)
         pygame.init()
         pygame.mixer.quit()
@@ -90,6 +91,8 @@ class GameInstance:
         sound.LoadAllSounds("Taiyou/HOME/SOURCE")
 
         print("Taiyou.GameObject.Initialize : Initialization complete.")
+
+
 
     def ReceiveCommand(self, Command):
         if Command.startswith("SET_FPS:") if Command else False:
@@ -180,6 +183,34 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
+        if Command.startswith("SET_MENU_MODE") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Set Menu Mode")
+
+                self.IsMenuMode = True
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("SET_GAME_MODE") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Set Game Mode")
+
+                self.IsMenuMode = False
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("REMOVE_GAME") if Command else False:
+            try:
+                print("Taiyou.GameObject.ReceiveCommand : Remove Game Object, and unload all data related to it")
+
+                self.GameObject = 43
+                sprite.Unload()
+                sound.Unload()
+                reg.Unload()
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+
     def render_overlay(self):
         if self.OverlayLevel == 0:
             sprite.RenderFont(self.DISPLAY, "/PressStart2P.ttf", 12, "FPS {0}/{1}".format(str(self.FPS), utils.FormatNumber(self.clock.get_fps(), 3)), (10,10,10), 17,17, False)
@@ -209,12 +240,12 @@ class GameInstance:
                 self.reload_game()
 
             # -- Do Game Update -- #
-            if self.GameUpdateEnabled and self.GameStarted:
+            if self.GameUpdateEnabled and self.GameStarted and not self.IsMenuMode:
                 self.GameObject.Update()
             SystemUI.Update()
 
             # -- Do Game Draw -- #
-            if self.GameUpdateEnabled and self.GameStarted:
+            if self.GameUpdateEnabled and self.GameStarted and not self.IsMenuMode:
                 self.GameObject.GameDraw(self.DISPLAY)
             SystemUI.Draw(self.DISPLAY)
 
@@ -224,7 +255,7 @@ class GameInstance:
             pygame.display.flip()
 
             # -- Receive command from the Current Game --
-            if self.GameUpdateEnabled and self.GameStarted:
+            if self.GameUpdateEnabled and self.GameStarted and not self.IsMenuMode:
                 if len(self.GameObject.Messages) >= 1:
                     self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
             # -- Only Receive Command when it is Enabled -- #
@@ -236,10 +267,10 @@ class GameInstance:
                 if event.type == pygame.QUIT:
                     self.destroy()
 
-                if event.type == pygame.KEYUP and event.key == pygame.K_F12:
+                if event.type == pygame.KEYUP and event.key == pygame.K_F12 and self.IsMenuMode == False:
                     if not SystemUI.SystemMenuEnabled:
                         SystemUI.SystemMenuEnabled = True
-                        SystemUI.UIOpacityAnimEnabled = True
+                        SystemUI.gameOverlay.UIOpacityAnimEnabled = True
 
                 # -- Resize Window Event -- #
                 if self.ResiziableWindow:
@@ -253,15 +284,16 @@ class GameInstance:
                 SystemUI.EventUpdate(event)
             pygame.event.pump()
 
-        except Exception as ex:
-            ExcError = "\n\n\n\n\n\nTaiyou.GameObject.Run : Fatal Error!\nIn game[" + tge.Get_GameTitle() + "]\n\n{\n" + str(ex) + "\n}\n\nAn detailed excepion file will be\ncreated at [Taiyou/OPT/EXC].\n\n"
+        except:
+            ExcError = "\n\n\n\n\n\nTaiyou.GameObject.Run : Fatal Error!\nIn game[" + tge.Get_GameTitle() + "]\n\n{\n" + traceback.format_exc() + "\n}\n\nAn detailed excepion file will be\ncreated at [Taiyou/OPT/EXC].\n\n"
             # -- Print Error Details -- #
             tge.devel.PrintToTerminalBuffer(ExcError)
             print(ExcError)
             self.GameUpdateEnabled = False
             SystemUI.SystemMenuEnabled = True
-            SystemUI.UIOpacityAnimEnabled = True
-            SystemUI.OpenedInGameError = True
+            if SystemUI.CurrentMenuScreen == 0:
+                SystemUI.UIOpacityAnimEnabled = True
+                SystemUI.OpenedInGameError = True
 
     def destroy(self):
         print("Taiyou.GameObject.Destroy : Closing [" + tge.Get_GameTitle() + "]...")
