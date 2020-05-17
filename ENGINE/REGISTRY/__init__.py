@@ -68,7 +68,7 @@ def Reload():
     Initialize(CurrentGameFolder)
     print("Taiyou.RegistryManager.UnloadRegistry : Re-Loading System Registry...")
 
-    Initialize("Taiyou/HOME/SOURCE/REG")
+    Initialize("Taiyou/SYSTEM/SOURCE/REG")
 
     tge.devel.PrintToTerminalBuffer("Registry.Reload : Registry re-loaded sucefully.")
 
@@ -82,7 +82,7 @@ def Unload():
 
     print("Taiyou.RegistryManager.UnloadRegistry : Re-Loading System Registry...")
 
-    Initialize("Taiyou/HOME/SOURCE/REG")
+    Initialize("Taiyou/SYSTEM/SOURCE/REG")
 
     print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
     tge.devel.PrintToTerminalBuffer("Registry.UnloadRegistry : Operation Completed.")

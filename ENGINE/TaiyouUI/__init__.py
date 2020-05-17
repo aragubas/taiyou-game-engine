@@ -20,9 +20,10 @@ from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
+from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 import ENGINE as tge
 
-CurrentMenuScreen = 0 # 0 = Game Overlay, 1 = Main Menu, 2 = Options, 3 = License
+CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = License
 SystemMenuEnabled = True
 Cursor_Position = (0,0)
 
@@ -30,6 +31,7 @@ def Initialize():
     print("TaiyouUI.Initialize : Started")
 
     gameOverlay.Initialize()
+    seletorScreen.Initialize()
 
     print("TaiyouUI.Initialize : Initialization Complete.")
 
@@ -40,6 +42,8 @@ def Draw(Display):
     if SystemMenuEnabled:
         if CurrentMenuScreen == 3:
             licenseScreen.Draw(Display)
+        if CurrentMenuScreen == 2:
+            seletorScreen.Draw(Display)
         if CurrentMenuScreen == 0:
             gameOverlay.Draw(Display)
 
@@ -53,6 +57,8 @@ def Update():
     if SystemMenuEnabled:
         if CurrentMenuScreen == 3:
             licenseScreen.Update()
+        if CurrentMenuScreen == 2:
+            seletorScreen.Update()
         if CurrentMenuScreen == 0:
             gameOverlay.Update()
 
@@ -66,6 +72,8 @@ def EventUpdate(event):
     if SystemMenuEnabled:
         if CurrentMenuScreen == 3:
             licenseScreen.EventUpdate(event)
+        if CurrentMenuScreen == 2:
+            seletorScreen.EventUpdate(event)
         if CurrentMenuScreen == 0:
             gameOverlay.EventUpdate(event)
 

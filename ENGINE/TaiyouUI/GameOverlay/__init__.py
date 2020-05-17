@@ -90,6 +90,7 @@ def Initialize():
     TopMenu_MainMenu = gtk.Button(pygame.Rect(3,1,1,3), "Exit", 14)
     RestartGameConfirm_YesButton.CustomColisionRectangle = True
     RestartGameConfirm_NoButton.CustomColisionRectangle = True
+    print("TaiyouUI.GameOverlay.Initialize : Operation Completed.")
 
 def Draw(Display):
     global UIObjectsSurface
@@ -159,7 +160,8 @@ def Draw(Display):
         ExitToMainMenuOpacityAnimBG.set_alpha(ExitToMainMenuAnimOpacity * 2)
 
         Display.blit(ExitToMainMenuOpacityAnimBG, (0,0))
-2
+
+
 def Update():
     global TopBarRectangle
     global UIObjectsSurface
@@ -217,11 +219,11 @@ def Update():
             elif RestartGameConfirm_ActionType == 1:
                 ExitToMainMenuAnim = True
 
-            sound.PlaySound("/TAIYOU_UI/HUD_Confirm.ogg")
+            sound.PlaySound("/TAIYOU_UI/HUD_Confirm.wav")
 
         if RestartGameConfirm_NoButton.ButtonState == "UP":
             RestartGameConfirm_AnimEnabled = True
-            sound.PlaySound("/TAIYOU_UI/HUD_Out.ogg")
+            sound.PlaySound("/TAIYOU_UI/HUD_Out.wav")
 
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
@@ -295,7 +297,7 @@ def ShowRestartConfirm(Title, Text, ActionType):
     RestartGameConfirm_Enabled = True
     RestartGameConfirm_AnimEnabled = True
     ConsoleWindowEnabled = False
-    sound.PlaySound("/TAIYOU_UI/HUD_Notify.ogg")
+    sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")
 
 def RenderRestartGameConfirm(UIObjectsSurface):
     global RestartGameConfirm_Surface
@@ -391,11 +393,11 @@ def UpdateOpacityAnim():
 
             if OpenedInGameError:
                 ConsoleWindowEnabled = True
-                sound.PlaySound("/TAIYOU_UI/HUD_Error.ogg")
+                sound.PlaySound("/TAIYOU_UI/HUD_Error.wav")
 
             # -- Play the In Sound -- #
             if not UIOpacityAnim_InSoundPlayed:
-                sound.PlaySound("/TAIYOU_UI/HUD_In.ogg")
+                sound.PlaySound("/TAIYOU_UI/HUD_In.wav")
                 UIOpacityAnim_InSoundPlayed = True
 
             if UIOpacity >= 255: # <- Triggers Animation End
@@ -415,7 +417,7 @@ def UpdateOpacityAnim():
 
             # -- Play the Out Sound -- #
             if not UIOpacityAnim_OutSoundPlayed:
-                sound.PlaySound("/TAIYOU_UI/HUD_Out.ogg")
+                sound.PlaySound("/TAIYOU_UI/HUD_Out.wav")
                 UIOpacityAnim_OutSoundPlayed = True
 
 
@@ -432,18 +434,23 @@ def UpdateOpacityAnim():
                 UIOpacityScreenCopyied = False
                 UIObjectsSurfaceUpdated = False
                 RestartGameConfirm_SurfacesUpdated = False
+                ConsoleWindowEnabled = False
 
                 # -- Initialize the Game when exiting -- #
                 if ExitToInitializeGame and IsFirstOpening:
                     ExitToInitializeGame = False
                     print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize")
                     UiHandler.Messages.append("TOGGLE_GAME_START")
+                    UiHandler.Messages.append("GAME_UPDATE:True")
+                    UiHandler.Messages.append("SET_GAME_MODE")
                     print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize, complete.")
 
                 IsFirstOpening = False
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
                 OpenedInGameError = False
+                UiHandler.Messages.append("GAME_UPDATE:True")
+                UiHandler.Messages.append("SET_GAME_MODE")
                 UiHandler.SystemMenuEnabled = False
 
 def ExitToMainMenu_UpdateAnim():
@@ -456,6 +463,14 @@ def ExitToMainMenu_UpdateAnim():
     global RestartGameConfirm_AnimNumb
     global RestartGameConfirm_AnimEnabled
     global IsFirstOpening
+    global UIObjectsSurfaceUpdated
+    global RestartGameConfirm_SurfacesUpdated
+    global CopyOfTheScreen
+    global UIOpacity
+    global UIOpacityAnimEnabled
+    global UIOpacityAnim_InSoundPlayed
+    global UIOpacityAnim_OutSoundPlayed
+    global UIOpacityAnimState
 
     if ExitToMainMenuAnim:
         ExitToMainMenuAnimOpacity += 5
@@ -470,12 +485,23 @@ def ExitToMainMenu_UpdateAnim():
             RestartGameConfirm_Enabled = False
             ExitToMainMenuAnim = False
             ExitToMainMenuAnimOpacity = 0
-
+            UIObjectsSurfaceUpdated = False
+            RestartGameConfirm_SurfacesUpdated = False
+            CopyOfTheScreen.fill((0,0,0))
             IsFirstOpening = True
+
+            # -- Restart Animation -- #
+            UIOpacity = 0
+            UIOpacityAnimEnabled = True
+            UIOpacityAnim_InSoundPlayed = False
+            UIOpacityAnim_OutSoundPlayed = False
+            UIOpacityAnimState = 0
+
 
             # -- Update the Main Menu Shenageins -- #
             UiHandler.Messages.append("SET_MENU_MODE")
             UiHandler.Messages.append("REMOVE_GAME")
+            UiHandler.Messages.append("GAME_UPDATE:False")
 
             UiHandler.SetMenuMode_Changes()
 

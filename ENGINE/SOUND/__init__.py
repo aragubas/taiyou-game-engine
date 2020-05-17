@@ -58,7 +58,7 @@ def Unload():
     print("Sound.Unload : Operation Completed Sucefully.")
 
     tge.devel.PrintToTerminalBuffer("Sound.Unload :\nRe-Loading HUD Sounds...")
-    LoadAllSounds("Taiyou/HOME/SOURCE")
+    LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
     tge.devel.PrintToTerminalBuffer("Sound.Unload :\nOperation Complted.")
 
@@ -72,7 +72,7 @@ def Reload():
 
         print("Sound.Reload : Opearation Completed.")
         tge.devel.PrintToTerminalBuffer("Sound.Reload :\nRe-Loading HUD Sounds...")
-        LoadAllSounds("Taiyou/HOME/SOURCE")
+        LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
         tge.devel.PrintToTerminalBuffer("Sound.Reload :\nOperation Complted.")
 

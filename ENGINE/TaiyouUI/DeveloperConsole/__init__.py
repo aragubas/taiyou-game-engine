@@ -235,13 +235,13 @@ def ReadCommand(Input):
         if not CommandWasValid:
             raise TypeError("Command was not valid\nWrite 'help' to see the list of commands.")
         else:
-            sound.PlaySound("/TAIYOU_UI/HUD_Click.ogg")
+            sound.PlaySound("/TAIYOU_UI/HUD_Click.wav")
     except IndexError:
         PrintToTerminalBuffer("ARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
-        sound.PlaySound("/TAIYOU_UI/HUD_Notify.ogg")
+        sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")
     except TypeError as ex:
         PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
-        sound.PlaySound("/TAIYOU_UI/HUD_Notify.ogg")
+        sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")
     except Exception as ex:
         PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
-        sound.PlaySound("/TAIYOU_UI/HUD_Error.ogg")
+        sound.PlaySound("/TAIYOU_UI/HUD_Error.wav")

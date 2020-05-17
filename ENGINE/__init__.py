@@ -27,11 +27,11 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
-    return "1.8"
+    return "1.9"
 def Get_DeveloperConsoleVersion():
     return "1.4"
 def Get_TaiyouUIVersion():
-    return "1.4"
+    return "1.6"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -53,6 +53,7 @@ CurrentGame_ID = ""
 CurrentGame_Version = ""
 CurrentGame_SourceFolder = ""
 CurrentGame_Folder = ""
+IsGameRunning = False
 
 TaiyouAppDataFolder = "AppData/"
 
@@ -88,7 +89,7 @@ def OpenGameFolder(GameFolderDir):
         if LineIndex == 3:
             CurrentGame_Version = x.rstrip()
             print("Taiyou.Runtime.OpenGameFolder : GameVersion[" + CurrentGame_Version + "]")
-        
+
         if LineIndex == 4:
             CurrentGame_SourceFolder = GameFolderDir + "/" +  x.rstrip()
             print("Taiyou.Runtime.OpenGameFolder : GameSourceFolder[" + CurrentGame_SourceFolder + "]")
@@ -98,9 +99,7 @@ def OpenGameFolder(GameFolderDir):
 
     sprite.LoadSpritesInFolder(CurrentGame_SourceFolder)
     sound.LoadAllSounds(CurrentGame_SourceFolder)
-    print("Taiyou.Runtime.OpenGameFolder : ")
-    reg.Initialize("Taiyou/HOME/SOURCE/REG")
-
+    print("Taiyou.Runtime.OpenGameFolder : " + str(GameFolderDir))
 
     print("Taiyou.Runtime.OpenGameFolder : Game Loading complete, Loading Engine Configuration...")
 
@@ -210,3 +209,16 @@ def Get_IsSoundEnabled():
 
 def Get_IsFontRenderingEnabled():
     return sprite.FontRenderingDisabled
+
+# -- User System -- #
+CurrentUserName = "none"
+CurrentUserKey = "none"
+
+def Get_CurrentUserName():
+    return CurrentUserName
+
+def Get_CurrentUserPassword():
+    return CurrentUserKey
+
+def CreateUser(userName, userKey):
+    UserDir = "Taiyou/USERS/"

@@ -29,7 +29,7 @@ Sprites_Data = list()
 Fonts_Name = list()
 Fonts_Data = list()
 
-DefaultSprite = pygame.image.load("Taiyou/HOME/SOURCE/SPRITE/default.png")
+DefaultSprite = pygame.image.load("Taiyou/SYSTEM/SOURCE/SPRITE/default.png")
 
 FontRenderingDisabled = False
 SpriteRenderingDisabled = False
@@ -84,7 +84,7 @@ def LoadSpritesInFolder(FolderName):
 
                 if not font.startswith("#"):
                     CurrentFileName = FolderName + "/FONT_PACKS" + font
-                    DestinationDir = "Taiyou/HOME/SOURCE/FONT" + font
+                    DestinationDir = "Taiyou/SYSTEM/SOURCE/FONT" + font
 
                     if utils.File_Exists(DestinationDir):
                         print("Sprite.LoadFolder.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
@@ -135,7 +135,7 @@ def Unload():
     tge.devel.PrintToTerminalBuffer("Sprite.Unload : Complete.")
 
     # -- Reload Menu Sprites -- #
-    LoadSpritesInFolder("Taiyou/HOME/SOURCE")
+    LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
     tge.devel.PrintToTerminalBuffer("Sprite.Unload : Reloading TaiyouUI Sprites...")
 
     tge.devel.PrintToTerminalBuffer("Sprite.Unload : Operation Completed.")
@@ -149,7 +149,7 @@ def Reload():
     LoadSpritesInFolder(tge.Get_GameSourceFolder())
 
     # -- Reload Menu Sprites -- #
-    LoadSpritesInFolder("Taiyou/HOME/SOURCE")
+    LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
 
 def UnloadSprite(SpriteResourceName):
     try:
@@ -161,8 +161,6 @@ def UnloadSprite(SpriteResourceName):
     except:
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
-def GetSprite_Width(spriteName):
-    return
 
 def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0):
     if not SpriteRenderingDisabled:
@@ -183,25 +181,25 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
         try:
             if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text) and not Text == "" or not Text == " ":
                 for i, l in enumerate(Text.splitlines()):
-                    DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
+                    DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
 
         except Exception as ex:
-            CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-            print("Sprite.RenderFont ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size))
+            print("Sprite.RenderFont ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
             print("Sprite.RenderFont ; Detailed Error: " + str(ex))
 
 def GetFontObject(FontFileLocation, Size):
     if not FontRenderingDisabled:
         try:
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
         except Exception as ex:
-            CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, Size))
-            print("Sprite.GetFontObject ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size))
+            print("Sprite.GetFontObject ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
             print("Sprite.GetFontObject ; Detailed Error: " + str(ex))
             tge.devel.PrintToTerminalBuffer("Sprite.RenderFont")
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 
 def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
     if not FontRenderingDisabled:
@@ -273,20 +271,20 @@ def RenderRectangle(DISPLAY, Color, Rectangle):
 def GetText_width(FontFileLocation, FontSize, Text):
     try:
         for i, l in enumerate(Text.splitlines()):
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
 
     except:
-        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, FontSize))
-        print("GetText_width ; LoadedFont: " + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, FontSize))
+        print("GetText_width ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
         return 0
 
 
 def GetText_height(FontFileLocation, FontSize, Text):
     try:
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(Text, True, (255,255,255)).get_height() * len(Text.splitlines())
+        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(Text, True, (255,255,255)).get_height() * len(Text.splitlines())
     except:
-        CurrentLoadedFonts_Name.append("Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/HOME/SOURCE/FONT" + FontFileLocation, FontSize))
-        print("GetText_height ; LoadedFont:" + "Taiyou/HOME/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
+        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, FontSize))
+        print("GetText_height ; LoadedFont:" + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
         return 0

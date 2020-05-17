@@ -17,12 +17,13 @@
 import pygame
 from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
+from ENGINE import TaiyouUI as SystemUIHandler
 
 LicenseText = "Lorem ipsum dolor sit amet"
 AragubasLogoRect = pygame.Rect(0,0,0,0)
 
 DISPLAY = pygame.Surface
-
+SurfaceCreated = False
 Animation_Enabled = True
 Animation_Mode = 0
 Animation_Opacity = 0
@@ -33,13 +34,15 @@ def Draw(Display):
     global LicenseText
     global AragubasLogoRect
     global DISPLAY
+    global SurfaceCreated
     # -- Set the Display Global Variable -- #
     DISPLAY = Display
     Display.fill((0,0,0))
 
-    sprite.RenderFont(Display, "/PressStart2P.ttf", 18, LicenseText, (Animation_Opacity, Animation_Opacity, Animation_Opacity), 5,5)
+    if len(LicenseText) > 0:
+        sprite.RenderFont(Display, "/PressStart2P.ttf", 18, LicenseText, (Animation_Opacity, Animation_Opacity, Animation_Opacity), 5,5)
 
-    sprite.Render(Display, "/TAIYOU_UI/aragubas.png", AragubasLogoRect[0], AragubasLogoRect[1], AragubasLogoRect[2], AragubasLogoRect[3])
+    SurfaceCreated = True
 
 def Update():
     global AragubasLogoRect
@@ -49,9 +52,11 @@ def Update():
     global Animation_Mode
     global Animation_StartDelay
     global LicenseText
-    LicenseText = reg.ReadKey("/licenseText.data")
 
-    AragubasLogoRect = pygame.Rect(5, DISPLAY.get_height() - 69, 64, 64)
+    if SurfaceCreated:
+        AragubasLogoRect = pygame.Rect(5, DISPLAY.get_height() - 69, 64, 64)
+
+    LicenseText = reg.ReadKey("/TaiyouSystem/licenseText")
 
     if Animation_Enabled:
         if Animation_StartDelay < 50:
@@ -70,12 +75,20 @@ def Update():
         if Animation_Mode == 1 and Animation_StartDelay >= 50:
             Animation_Opacity -= 15
 
-            if Animation_Opacity <= 0:
+            if Animation_Opacity <= -50:
                 Animation_Opacity = 0
                 Animation_Mode = 0
-                Animation_Enabled = False
+                Animation_Enabled = True
                 Animation_StartDelay = 0
+
+                SystemUIHandler.CurrentMenuScreen = 2
+
+
                 print("TaiyouUI.LicenseScreen.AnimationTrigger : Animation End")
 
 def EventUpdate(event):
     global DISPLAY
+    global Animation_Enabled
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+        Animation_Enabled = True

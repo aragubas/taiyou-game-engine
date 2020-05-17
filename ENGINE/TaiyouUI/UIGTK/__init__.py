@@ -157,7 +157,7 @@ class Button:
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
-            sound.PlaySound("/TAIYOU_UI/HUD_Click.ogg")
+            sound.PlaySound("/TAIYOU_UI/HUD_Click.wav")
 
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):
@@ -385,3 +385,151 @@ class InputBox:
             sprite.RenderRectangle(screen, (255, 51, 102), (self.rect[0],self.rect[1] - 1,self.rect[2], 1))
         else:
             sprite.RenderRectangle(screen, (46, 196, 182), (self.rect[0],self.rect[1] - 1,self.rect[2], 1))
+
+class HorizontalItemsView:
+    def __init__(self, Rectangle):
+        self.Rectangle = Rectangle
+        # -- Selected item Vars -- #
+        self.GameName = list()
+        self.GameID = list()
+        self.GameVersion = list()
+        self.GameSourceFolder = list()
+        self.GameBanner = list()
+        self.GameFolderName = list()
+
+        self.ItemSelected = list()
+        self.SelectedItem = "Select a game below"
+        self.SelectedGameID = ""
+        self.SelectedGameFolderName = ""
+        self.SelectedItemIndex = -1
+
+        self.ScrollX = 0
+        self.ListSurface = pygame.Surface
+        self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
+        self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
+        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        self.ListSurfaceUpdated = False
+        self.SurfaceOpacity = 255
+
+    def Render(self, DISPLAY):
+        if not self.ListSurfaceUpdated:
+            self.ListSurfaceUpdated = True
+            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        self.ListSurface.set_alpha(self.SurfaceOpacity)
+
+        # -- Render the Selected Item text -- #
+        sprite.RenderFont(self.ListSurface, "/PressStart2P.ttf", 12, self.SelectedItem, (250, 250, 250), 5, 5)
+
+        for i, itemNam in enumerate(self.GameName):
+            ItemWidth = 256
+            ItemX = self.ScrollX + ItemWidth * i
+            ItemRect = (ItemX, self.Rectangle[3] / 2 - 145 / 2, ItemWidth - 5, 155)
+
+            if self.ItemSelected[i]:
+                Draw_Panel(self.ListSurface, (ItemRect[0], ItemRect[1], ItemRect[2], ItemRect[3] + 8), "BORDER")
+
+            if self.SelectedItemIndex == i:
+                self.ItemSelected[i] = True
+            else:
+                self.ItemSelected[i] = False
+            # -- Render the Item Sprite -- #
+
+            if self.ItemSelected[i]:
+                self.ListSurface.blit(pygame.transform.scale(self.GameBanner[i], (244, 154)), (ItemRect[0] + 3, ItemRect[1] + 5))
+            else:
+                self.ListSurface.blit(pygame.transform.scale(self.GameBanner[i], (240, 150)), (ItemRect[0] + 4, ItemRect[1] + 9))
+
+
+        DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
+        self.ListSurface.fill((0,0,0,0))
+
+
+    def Update(self, event):
+        if event.type == pygame.KEYUP and event.key == pygame.K_q:
+            # -- Scroll the Selected Item -- #
+            self.SelectedItemIndex -= 1
+            sound.PlaySound("/TAIYOU_UI/HUD_Select.wav")
+
+            # -- Limit the Scrolling -- #
+            if self.SelectedItemIndex < 0:
+                self.SelectedItemIndex = 0
+                sound.PlaySound("/TAIYOU_UI/HUD_ListEnd.wav")
+
+        if event.type == pygame.KEYUP and event.key == pygame.K_e:
+            # -- Scroll the Selected Item -- #
+            self.SelectedItemIndex += 1
+            sound.PlaySound("/TAIYOU_UI/HUD_Select.wav")
+
+            # -- Limit the Scrolling -- #
+            if self.SelectedItemIndex >= len(self.GameName):
+                self.SelectedItemIndex -= 1
+                sound.PlaySound("/TAIYOU_UI/HUD_ListEnd.wav")
+
+
+        # -- Mouse Whell -- #
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                self.ScrollX += 5
+            if event.button == 5:
+                self.ScrollX -= 5
+
+        for i, itemNam in enumerate(self.GameName):
+            ItemWidth = 256
+            ItemX = self.ScrollX + ItemWidth * i
+            ItemRect = pygame.Rect(ItemX, self.Rectangle[3] / 2 - 155 / 2, ItemWidth - 5, 155)
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 or self.SelectedItemIndex == i and self.ItemSelected[i] == False:
+                if ItemRect.collidepoint(pygame.mouse.get_pos()) or self.SelectedItemIndex == i:
+                    self.SelectedItem = itemNam
+                    self.SelectedGameID = self.GameID[i]
+                    self.SelectedGameFolderName = self.GameFolderName[i]
+                    self.ItemSelected[i] = True
+                    self.SelectedItemIndex = i
+                    sound.PlaySound("/TAIYOU_UI/HUD_Select.wav")
+                else:
+                    self.ItemSelected[i] = False
+
+    def Set_X(self, Value):
+        self.Rectangle[0] = float(Value)
+
+    def Set_Y(self, Value):
+        self.Rectangle[1] = float(Value)
+
+    def Set_W(self, Value):
+        self.Rectangle[2] = float(Value)
+
+    def Set_H(self, Value):
+        self.Rectangle[3] = float(Value)
+
+    def AddItem(self, GameDir):
+        self.ItemSelected.append(False)
+
+        # -- Read Meta Data File -- #
+        LineNumber = -1 # Line 0 == Game Name; Line 1 == Game ID; Line 2 == Game Version; Line 3 == Game Source Folder
+        MetaFile = GameDir + "/meta.data"
+        with open(MetaFile) as file_in:
+            for line in file_in:
+                LineNumber += 1
+
+                if LineNumber == 0: # -- Game Name
+                    self.GameName.append(line)
+
+                if LineNumber == 1: # -- Game ID
+                    self.GameID.append(line)
+
+                if LineNumber == 2: # -- Game Version
+                    self.GameVersion.append(line)
+
+                if LineNumber == 3: # -- Game Source Folder
+                    self.GameSourceFolder.append(line)
+
+                if LineNumber == 4: # -- Game Folder Name
+                    self.GameFolderName.append(line)
+
+        # -- Load the Game Icon -- #
+        self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
+
+        if LineNumber < 3:
+            # -- Add Game Icon -- #
+
+            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.")
