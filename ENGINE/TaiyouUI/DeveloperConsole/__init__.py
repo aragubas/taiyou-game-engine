@@ -14,7 +14,8 @@
 #   limitations under the License.
 #
 #
-import pygame
+
+import pygame, threading, asyncio
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE.TaiyouUI import UIGTK as gtk
@@ -35,12 +36,27 @@ TextScrollWhenInitialized = False
 def Initialize():
     global WindowObject
     global TextEnter
+    global TerminalBuffer
 
     WindowObject = gtk.Window(pygame.Rect(50,50,550, 350), "Developer Console", True)
     WindowObject.Resiziable = False
     TextEnter = gtk.InputBox(0,0,200,20,"help")
     TextEnter.CustomColision = True
     TextEnter.CustomWidth = True
+
+    ScrollConsole()
+
+def ScrollConsole():
+    global TerminalBuffer
+    global WindowObject
+
+    if sprite.GetText_height("/PressStart2P.ttf", 9, TerminalBuffer) >= WindowObject.WindowSurface.get_height() - 10:
+        try:
+            RemoveAmount = 4
+            TerminalBuffer = TerminalBuffer.split("\n", RemoveAmount)[RemoveAmount]
+        except:
+            print("Oops, cannot clear more than this.")
+
 
 def Update():
     global WindowObject
@@ -54,9 +70,7 @@ def Update():
 
         TextEnter.width = WindowObject.WindowSurface.get_width()
 
-        while sprite.GetText_height("/PressStart2P.ttf", 9, TerminalBuffer) >= WindowObject.WindowSurface.get_height() - 10:
-            TerminalBuffer = TerminalBuffer.split("\n", 1)[1]
-
+        ScrollConsole()
 
 def EventUpdate(event):
     global WindowObject
@@ -85,14 +99,17 @@ def EventUpdate(event):
         # - Set the default text
         TextEnter.DefaultText = TextEnter_LastCommand
 
-TerminalBuffer = "Initial Message"
+TerminalBuffer = "Taiyou Developer Console v" + tge.Get_DeveloperConsoleVersion()
 
 def PrintToTerminalBuffer(text):
     global TerminalBuffer
     global WindowObject
     global WindowInitialized
 
-    TerminalBuffer += "\n" + str(text)
+    if TerminalBuffer == "":
+        TerminalBuffer += str(text)
+    else:
+        TerminalBuffer += "\n" + str(text)
 
 def Draw(DISPLAY):
     global TextEnter
@@ -103,9 +120,9 @@ def Draw(DISPLAY):
 
         # -- Draw the Terminal Buffer -- #
         if WindowInitialized:
-            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, TerminalBuffer, (240,240,240), 0, 0)
+            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 9, TerminalBuffer, (240,240,240), 0, 0)
         else:
-            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, "Initializing the console, please wait...", (240, 240, 240), 0, 0)
+            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 9, "Initializing the console, please wait...", (240, 240, 240), 0, 0)
 
         # -- Draw the Text Box -- #
         TextEnter.Render(WindowObject.WindowSurface)
@@ -135,7 +152,7 @@ def ReadCommand(Input):
             PrintToTerminalBuffer("\n\n")
             PrintToTerminalBuffer("help{hlp} - This list of commands")
             PrintToTerminalBuffer("kill{kil} - Kill the current game")
-            PrintToTerminalBuffer("reload{rel} [REGISTRY,SPRITE/FONT,SOUND] - Reload")
+            PrintToTerminalBuffer("reload{rel} [REGISTRY,SPRITE/FONT,SOUND,CODE,ALL] - Reload")
             PrintToTerminalBuffer("unload{unl} [REGISTRY,SPRITE/FONT,SOUND] - Unload")
             PrintToTerminalBuffer("clear{cls} - Clear the Screen")
             PrintToTerminalBuffer("continue{cnt} - Continue game execution")
@@ -190,6 +207,28 @@ def ReadCommand(Input):
                 PrintToTerminalBuffer("Reloading Sound...")
                 sound.Reload()
                 PrintToTerminalBuffer("Done!")
+
+            elif SplitedComma[1] == "CODE":
+                PrintToTerminalBuffer("Reloading Game Code...")
+                taiyouUI.Messages.append("RELOAD_GAME")
+                PrintToTerminalBuffer("Done?")
+
+
+            elif SplitedComma[1] == "ALL":
+                PrintToTerminalBuffer("Reloading Registry...")
+                reg.Reload()
+
+                PrintToTerminalBuffer("Reloading Sprites...")
+                sprite.Reload()
+
+                PrintToTerminalBuffer("Reloading Sound...")
+                sound.Reload()
+
+                PrintToTerminalBuffer("Reloading Game Code...")
+                taiyouUI.Messages.append("RELOAD_GAME")
+
+                PrintToTerminalBuffer("Done!")
+
 
             else:
                 raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")

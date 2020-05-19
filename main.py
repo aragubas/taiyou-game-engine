@@ -43,7 +43,6 @@ class GameInstance:
         self.GameStarted = False
         self.DISPLAY = pygame.display
         self.IsFullscreen = False
-        self.GameReloadCalled = False
         self.IsMenuMode = True
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
@@ -75,9 +74,9 @@ class GameInstance:
 
         print("Taiyou.GameObject.Initialize : Loading TaiyouUI Assets")
         sprite.LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
-        SystemUI.Initialize()
         sound.LoadAllSounds("Taiyou/SYSTEM/SOURCE")
         reg.Initialize("Taiyou/SYSTEM/SOURCE/REG")
+        SystemUI.Initialize()
 
         print("Taiyou.GameObject.Initialize : Initialization complete.")
 
@@ -168,7 +167,7 @@ class GameInstance:
             try:
                 print("Taiyou.GameObject.ReceiveCommand : Reload Game")
 
-                self.GameReloadCalled = True
+                self.reload_game()
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
@@ -210,6 +209,7 @@ class GameInstance:
                 sprite.Unload()
                 sound.Unload()
                 reg.Unload()
+                tge.CloseGameFolder()
                 self.GameStarted = False
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
@@ -221,22 +221,30 @@ class GameInstance:
             sprite.RenderFont(self.DISPLAY, "/PressStart2P.ttf", 12, "FPS {0}/{1}".format(str(self.FPS), utils.FormatNumber(self.clock.get_fps(), 3)), (240,240,240), 15,15, False)
 
     def reload_game(self):
-        print("Taiyou.GameObject.ReloadGame : Reload Game Object")
-        importlib.reload(self.GameObject)
-        sound.Reload()
-        sprite.Reload()
-        reg.Reload()
+        try:
+            print("Taiyou.GameObject.ReloadGame : Reload Game Object")
+            sound.Reload()
+            sprite.Reload()
+            reg.Reload()
+            self.GameObject = importlib.reload(self.GameObject)
+            self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
+            print("Taiyou.GameObject.ReloadGame : Operation Completed.")
+        except Exception as ex:
+            self.GameException(ex, "ReloadGame")
 
     def OpenGame(self, GameFolder):
-        print("Taiyou.GameObject.OpenGame : Open Game [" + GameFolder + "]")
-        MainGameModuleName = GameFolder.replace("/", ".") + ".MAIN"
-        self.GameObject = importlib.import_module(MainGameModuleName)
+        try:
+            print("Taiyou.GameObject.OpenGame : Open Game [" + GameFolder + "]")
+            MainGameModuleName = GameFolder.replace("/", ".") + ".MAIN"
+            self.GameObject = importlib.import_module(MainGameModuleName)
 
-        print("Taiyou.GameObject.OpenGame : Open Game Folder")
-        tge.OpenGameFolder(GameFolder)  # -- Load Game Assets -- #
+            print("Taiyou.GameObject.OpenGame : Open Game Folder")
+            tge.OpenGameFolder(GameFolder)  # -- Load Game Assets -- #
 
-        print("Taiyou.GameObject.OpenGame : Load registry keys")
-        reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
+            print("Taiyou.GameObject.OpenGame : Load registry keys")
+            reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
+        except Exception as ex:
+            self.GameException(ex, "GameException")
 
     def EventUpdate(self):
         for event in pygame.event.get():
@@ -252,8 +260,7 @@ class GameInstance:
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
                     SystemUI.gameOverlay.UIOpacityAnimEnabled = True
-
-
+                    SystemUI.gameOverlay.UIOpacityScreenCopyied = False
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow:
@@ -262,9 +269,14 @@ class GameInstance:
                     self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE)
 
             # -- Do Game Events -- #
-            if self.GameUpdateEnabled and self.GameStarted and not self.IsMenuMode:
-                self.GameObject.EventUpdate(event)
-            SystemUI.EventUpdate(event)
+            try:
+                if self.GameUpdateEnabled and self.GameStarted and not self.IsMenuMode:
+                    self.GameObject.EventUpdate(event)
+            except Exception as ex:
+                self.GameException(ex, "Game Events")
+
+            if self.IsMenuMode:
+                SystemUI.EventUpdate(event)
         pygame.event.pump()
 
     def GameFunctions(self):
@@ -275,19 +287,16 @@ class GameInstance:
             self.GameStarted = True
             self.ToggleGameStart = False
 
-        # -- Reload Game Object -- #
-        if self.GameReloadCalled:
-            self.reload_game()
-            self.GameReloadCalled = False
+    def GameException(self, Exception, ErrorPart="Unknown"):
+        ExceptionText = "\n\nGAME EXCEPTION! in [" + ErrorPart + "]:\n\n" + str(Exception) + "\n\n"
 
-    def GameException(self, Exception):
-        ExceptionText = str(Exception)
         tge.devel.PrintToTerminalBuffer(ExceptionText)
         self.GameUpdateEnabled = False
         self.IsMenuMode = True
         SystemUI.SystemMenuEnabled = True
-        SystemUI.gameOverlay.UIOpacityAnimEnabled = True
-        SystemUI.gameOverlay.OpenedInGameError = True
+        if not SystemUI.gameOverlay.OpenedInGameError:
+            SystemUI.gameOverlay.UIOpacityAnimEnabled = True
+            SystemUI.gameOverlay.OpenedInGameError = True
 
         print(ExceptionText)
 
@@ -319,7 +328,7 @@ class GameInstance:
                     self.GameObject.GameDraw(self.DISPLAY)
 
             except Exception as ex:
-                self.GameException(ex)
+                self.GameException(ex, "Game Update/Draw")
 
         # -- Flip the Screen -- #
         pygame.display.flip()
@@ -344,11 +353,6 @@ class GameInstance:
         sound.Unload()
         pygame.mixer.quit()
         pygame.quit()
-        print("Taiyou.GameObject.Destroy : Destroy Game Object")
-        self.GameObject = 42
-        # -- Remove Temporary Files -- #
-        os.remove(".AppDataPath")
-        os.remove(".OpenedGameInfos")
         print("Taiyou.GameObject.Destroy : Game [" + tge.Get_GameTitle() + "] has been closed.")
         sys.exit()
 

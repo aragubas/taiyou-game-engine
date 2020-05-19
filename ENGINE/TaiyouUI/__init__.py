@@ -21,17 +21,23 @@ from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
+from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 import ENGINE as tge
 
-CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = License
+CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = License, # 3 = Loading Screen
 SystemMenuEnabled = True
 Cursor_Position = (0,0)
 
 def Initialize():
     print("TaiyouUI.Initialize : Started")
 
+    # -- Load the Language -- #
+    gtk.SetLang(reg.ReadKey("/TaiyouSystem/CONF/lang"))
+
+
     gameOverlay.Initialize()
     seletorScreen.Initialize()
+
 
     print("TaiyouUI.Initialize : Initialization Complete.")
 
@@ -40,6 +46,8 @@ def Draw(Display):
     global CurrentMenuScreen
 
     if SystemMenuEnabled:
+        if CurrentMenuScreen == 4:
+            loadingScreen.Draw(Display)
         if CurrentMenuScreen == 3:
             licenseScreen.Draw(Display)
         if CurrentMenuScreen == 2:
@@ -55,6 +63,8 @@ def Update():
     global CurrentMenuScreen
 
     if SystemMenuEnabled:
+        if CurrentMenuScreen == 4:
+            loadingScreen.Update()
         if CurrentMenuScreen == 3:
             licenseScreen.Update()
         if CurrentMenuScreen == 2:
@@ -70,6 +80,8 @@ def EventUpdate(event):
     global CurrentMenuScreen
 
     if SystemMenuEnabled:
+        if CurrentMenuScreen == 4:
+            loadingScreen.EventUpdate(event)
         if CurrentMenuScreen == 3:
             licenseScreen.EventUpdate(event)
         if CurrentMenuScreen == 2:
@@ -77,16 +89,17 @@ def EventUpdate(event):
         if CurrentMenuScreen == 0:
             gameOverlay.EventUpdate(event)
 
-Messages = list()
 
 def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges")
     pygame.display.set_caption("Taiyou System Menu v" + tge.Get_TaiyouUIVersion())
     Messages.append("RESIZIABLE_WINDOW:False")
-    Messages.append("SET_RESOLUTION:800:600")
+    if not pygame.display.get_window_size() == (800,600):
+        Messages.append("SET_RESOLUTION:800:600")
 
 
 # -- Send the messages on the Message Quee to the Game Engine -- #
+Messages = list()
 def ReadCurrentMessages():
     global Messages
     try:

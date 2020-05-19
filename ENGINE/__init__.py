@@ -19,17 +19,17 @@
 def Get_Version():
     return "1.5"
 def Get_SpriteVersion():
-    return "1.5"
+    return "1.6"
 def Get_SoundVersion():
-    return "1.4"
+    return "1.5"
 def Get_RegistryVersion():
-    return "1.3"
+    return "1.4"
 def Get_UtilsVersion():
     return "1.4"
 def Get_GameObjVersion():
     return "1.9"
 def Get_DeveloperConsoleVersion():
-    return "1.4"
+    return "1.5"
 def Get_TaiyouUIVersion():
     return "1.6"
 
@@ -161,10 +161,6 @@ def OpenGameFolder(GameFolderDir):
             print("Taiyou.Runtime.OpenGameFolder : TaiyouAppDataFolder set to:" + str(SplitedParms[1].rstrip()))
 
     # -- Create Temporary Files -- #
-    f = open(".AppDataPath", "w")
-    f.write(str(TaiyouAppDataFolder))
-    f.close()
-
     f = open(".OpenedGameInfos", "w")
     f.write(str(CurrentGame_ID))
     f.write(str(CurrentGame_Folder))
@@ -173,9 +169,25 @@ def OpenGameFolder(GameFolderDir):
     f.write(str(CurrentGame_SourceFolder))
     f.close()
 
+
     # -- Make Directories -- #
     if not os.path.exists(Get_GlobalAppDataFolder()):
         os.makedirs(Get_GlobalAppDataFolder())
+
+def CloseGameFolder():
+    global CurrentGame_Title
+    global CurrentGame_ID
+    global CurrentGame_Version
+    global CurrentGame_SourceFolder
+    global CurrentGame_Folder
+
+    CurrentGame_Title = ""
+    CurrentGame_ID = ""
+    CurrentGame_Version = ""
+    CurrentGame_SourceFolder = ""
+    CurrentGame_Folder = ""
+    os.remove(".OpenedGameInfos")
+
 
 # -- Return Infos -- #
 def Get_GameTitle():
@@ -210,15 +222,4 @@ def Get_IsSoundEnabled():
 def Get_IsFontRenderingEnabled():
     return sprite.FontRenderingDisabled
 
-# -- User System -- #
-CurrentUserName = "none"
-CurrentUserKey = "none"
 
-def Get_CurrentUserName():
-    return CurrentUserName
-
-def Get_CurrentUserPassword():
-    return CurrentUserKey
-
-def CreateUser(userName, userKey):
-    UserDir = "Taiyou/USERS/"

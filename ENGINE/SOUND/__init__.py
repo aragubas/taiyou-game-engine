@@ -51,30 +51,26 @@ def Unload():
     if DisableSoundSystem:
         return
     print("Sound.Unload : Unloading All Sounds...")
-    tge.devel.PrintToTerminalBuffer("Sound.Unload : Started")
 
     AllLoadedSounds.clear()
 
-    print("Sound.Unload : Operation Completed Sucefully.")
-
-    tge.devel.PrintToTerminalBuffer("Sound.Unload :\nRe-Loading HUD Sounds...")
+    print("Sound.Unload : Reloading TaiyouUI Sounds...")
     LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
-    tge.devel.PrintToTerminalBuffer("Sound.Unload :\nOperation Complted.")
+    print("Sound.Unload : Operation Completed Sucefully.")
 
 def Reload():
     if not DisableSoundSystem:
         print("Sound.Reload : Reloading All Sounds...")
-        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nRealoading all sounds...")
 
         Unload()
-        LoadAllSounds(tge.Get_GameSourceFolder() + "/SOUND")
+        LoadAllSounds(tge.Get_GameSourceFolder())
 
-        print("Sound.Reload : Opearation Completed.")
-        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nRe-Loading HUD Sounds...")
+        print("Sound.Reload : Re-Loading TaiyouUI sounds...")
         LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
-        tge.devel.PrintToTerminalBuffer("Sound.Reload :\nOperation Complted.")
+
+        print("Sound.Reload : Operation Completed.")
 
 
 def PlaySound(SourceName):

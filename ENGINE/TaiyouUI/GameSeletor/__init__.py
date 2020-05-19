@@ -24,9 +24,10 @@ from ENGINE import utils
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
+from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 
 # -- Buttons -- #
-LogOut_Button = gtk.Button
+Exit_Button = gtk.Button
 SelectGame_Button = gtk.Button
 
 # -- Lists -- #
@@ -65,26 +66,31 @@ def ListInstalledGames():
 
 
 def Initialize():
-    global LogOut_Button
+    global Exit_Button
     global InstalledGameList
     global ValidGameFolders
     global SelectGame_Button
-    LogOut_Button = gtk.Button(pygame.Rect(0,0,5,5), "Log Out", 14)
-    SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), "Select Game", 14)
-    InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 190))
+    Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("exit_button", "seletor"), 20)
+    SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
+    InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
 
+    LoadGameList()
 
+def LoadGameList():
+    ValidGameFolders.clear()
+    InstalledGameList.ClearItems()
     ListInstalledGames()
 
     for game in ValidGameFolders:
         InstalledGameList.AddItem(game)
+
 
 BackgroundR = 0
 BackgroundG = 0
 BackgroundB = 0
 
 def Draw(Display):
-    global LogOut_Button
+    global Exit_Button
     global DisplaySurfaceInited
     global DisplaySurface
     global TopPanel_Rect
@@ -98,7 +104,7 @@ def Draw(Display):
         gtk.Draw_Panel(Display, TopPanel_Rect, "DOWN")
 
     # -- Render Buttons -- #
-    LogOut_Button.Render(Display)
+    Exit_Button.Render(Display)
     SelectGame_Button.Render(Display)
 
     # -- Render the Game List -- #
@@ -109,7 +115,7 @@ def Draw(Display):
         DisplaySurfaceInited = True
 
 def Update():
-    global LogOut_Button
+    global Exit_Button
     global AnimationNumb
     global TopPanel_Rect
     global DisplaySurface
@@ -124,7 +130,7 @@ def Update():
     if DisplaySurfaceInited:
         TopPanel_Rect = pygame.Rect(0, AnimationNumb * 1.5, DisplaySurface.get_width(), 35)
 
-        LogOut_Button.Set_X(TopPanel_Rect[2] - LogOut_Button.Rectangle[2] - 5)
+        Exit_Button.Set_X(TopPanel_Rect[2] - Exit_Button.Rectangle[2] - 5)
 
     InstalledGameList.SurfaceOpacity = AnimationNumb * 2.5 + 255
     InstalledGameList.Set_X(AnimationNumb * 1.5 + 20)
@@ -132,36 +138,34 @@ def Update():
     SelectGame_Button.Set_Y(InstalledGameList.Rectangle[1] + InstalledGameList.Rectangle[3] + 5)
 
     if SelectGame_Button.ButtonState == "UP":
-        UIOpacityAnimEnabled = True
-        UIOpacity_AnimExitToOpenGame = True
+        if not InstalledGameList.SelectedItemIndex == -1:
+            UIOpacityAnimEnabled = True
+            UIOpacity_AnimExitToOpenGame = True
+
     # -- Update Objects Position -- #
-    LogOut_Button.Set_Y(AnimationNumb + 5)
+    Exit_Button.Set_Y(AnimationNumb + 5)
 
     # -- Update the In/Out Animation -- #
     UpdateOpacityAnim()
 
-def OpenGame(GameFolderName):
-    GameFolderName = GameFolderName.rstrip()
-    global UIOpacityAnimEnabled
-    print("TaiyouUI.OpenGame : Folder Name[" + str(GameFolderName) + "]")
-
-    tge.OpenGameFolder(GameFolderName)
-    taiyouUI.Messages.append("OPEN_GAME:" + GameFolderName)
-    taiyouUI.Messages.append("TOGGLE_GAME_START")
-    taiyouUI.Messages.append("GAME_UPDATE:True")
-
-    UIOpacityAnimEnabled = True
-    taiyouUI.CurrentMenuScreen = 0
-
 def EventUpdate(event):
-    global LogOut_Button
+    global Exit_Button
     global InstalledGameList
     global SelectGame_Button
+    global UIOpacityAnimEnabled
+    global UIOpacity_AnimExitToOpenGame
 
-    LogOut_Button.Update(event)
+    Exit_Button.Update(event)
     InstalledGameList.Update(event)
     SelectGame_Button.Update(event)
 
+    if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+        if not InstalledGameList.SelectedItemIndex == -1:
+            UIOpacityAnimEnabled = True
+            UIOpacity_AnimExitToOpenGame = True
+
+
+ItemsUnloadedAffterExiting = False
 def UpdateOpacityAnim():
     global UIOpacityAnimState
     global UIOpacity
@@ -186,7 +190,7 @@ def UpdateOpacityAnim():
 
             # -- Play the In Sound -- #
             if not UIOpacityAnim_InSoundPlayed:
-                sound.PlaySound("/TAIYOU_UI/HUD_In.wav")
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In"))
                 UIOpacityAnim_InSoundPlayed = True
 
             if UIOpacity >= 255:  # <- Triggers Animation End
@@ -207,19 +211,19 @@ def UpdateOpacityAnim():
             if BackgroundB > 0:
                 BackgroundB -= 1
 
-
             # -- Play the Out Sound -- #
             if not UIOpacityAnim_OutSoundPlayed:
-                sound.PlaySound("/TAIYOU_UI/HUD_Out.wav")
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out"))
                 UIOpacityAnim_OutSoundPlayed = True
 
             if UIOpacity <= 0:  # <- Triggers Animation End
                 UIOpacity = 0
-                UIOpacityAnimEnabled = False
+                UIOpacityAnimEnabled = True
                 UIOpacityAnimState = 0
 
                 if UIOpacity_AnimExitToOpenGame:
-                    OpenGame(InstalledGameList.SelectedGameFolderName)
+                    loadingScreen.GameFolderToOpen = InstalledGameList.SelectedGameFolderName.rstrip()
+                    taiyouUI.CurrentMenuScreen = 4
 
-
+                LoadGameList() # -- Re-Load the Game List -- #
                 print("Taiyou.SystemUI.AnimationTrigger : Animation End.")

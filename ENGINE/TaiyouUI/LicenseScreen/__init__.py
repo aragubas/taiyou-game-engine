@@ -59,10 +59,10 @@ def Update():
     LicenseText = reg.ReadKey("/TaiyouSystem/licenseText")
 
     if Animation_Enabled:
-        if Animation_StartDelay < 50:
+        if Animation_StartDelay < 5:
             Animation_StartDelay += 1
 
-        if Animation_Mode == 0 and Animation_StartDelay >= 50:
+        if Animation_Mode == 0 and Animation_StartDelay >= 5:
             Animation_Opacity += 15
 
             if Animation_Opacity >= 255:
@@ -72,7 +72,7 @@ def Update():
                 Animation_StartDelay = 0
                 print("TaiyouUI.LicenseScreen.AnimationTrigger : Animation Start")
 
-        if Animation_Mode == 1 and Animation_StartDelay >= 50:
+        if Animation_Mode == 1 and Animation_StartDelay >= 5:
             Animation_Opacity -= 15
 
             if Animation_Opacity <= -50:
