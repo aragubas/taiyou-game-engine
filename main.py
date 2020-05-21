@@ -29,6 +29,7 @@ from ENGINE import TaiyouUI as SystemUI
 import pygame, sys, importlib
 import traceback
 
+
 # The main Entry Point
 print("TaiyouGameEngineMainScript version " + tge.Get_GameObjVersion())
 
@@ -48,27 +49,27 @@ class GameInstance:
         self.CurrentRes_H = 600
         self.WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
         self.OverlayLevel = -1
-        # -- Initialize Pygame -- #
-        Frequency = 96000
-        Size = -16
-        Channels = 2
-        BufferSize = 500
-        pygame.mixer.pre_init(Frequency, Size, Channels, BufferSize)
-        pygame.init()
-        pygame.mixer.quit()
-        pygame.mixer.init(Frequency, Size, Channels, BufferSize)
 
-        # -- Initialize Sound System -- #
 
-        if tge.Get_IsFontRenderingEnabled():
-            print("Taiyou.GameObject.InitializePygame : Initialize Font")
-            pygame.font.init()
+        # -- Init Engine -- #
+        tge.InitEngine()
+
+        # -- Initialize Pygame and Sound System -- #
+        if tge.Get_IsSoundEnabled():
+            Frequency = int(tge.AudioFrequency)
+            Size = int(tge.AudioSize)
+            Channels = int(tge.AudioChannels)
+            BufferSize = int(tge.AudioBufferSize)
+            pygame.mixer.pre_init(Frequency, Size, Channels, BufferSize)
+            pygame.init()
+            pygame.mixer.quit()
+            pygame.mixer.init(Frequency, Size, Channels, BufferSize)
         else:
-            print("Taiyou.GameObject.InitializePygame : Font Rendering is disabled.")
+            pygame.init()
 
         # -- Set Variables -- #
         print("Taiyou.GameObject.Initialize : Set Variables")
-        self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF)
+        self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL)
         pygame.mouse.set_visible(False)
         pygame.display.set_caption(self.WindowTitle)
 
@@ -79,8 +80,6 @@ class GameInstance:
         SystemUI.Initialize()
 
         print("Taiyou.GameObject.Initialize : Initialization complete.")
-
-
 
     def ReceiveCommand(self, Command):
         if Command.startswith("SET_FPS:") if Command else False:
@@ -99,9 +98,9 @@ class GameInstance:
                 self.CurrentRes_W = int(splitedArg[1])
                 self.CurrentRes_H = int(splitedArg[2])
                 if self.ResiziableWindow:
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
                 if not self.ResiziableWindow:
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
 
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
@@ -111,12 +110,12 @@ class GameInstance:
                 splitedArg = Command.split(':')
 
                 if splitedArg[1] == "True":
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
                     self.ResiziableWindow = True
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
                 if splitedArg[1] == "False":
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
                     self.ResiziableWindow = False
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
             except Exception as ex:
@@ -194,7 +193,7 @@ class GameInstance:
                 print("Taiyou.GameObject.ReceiveCommand : Open Game")
                 splitedArg = Command.split(':')
 
-                self.OpenGame(splitedArg[1])
+                self.SetGameObject(splitedArg[1])
 
 
             except Exception as ex:
@@ -205,7 +204,7 @@ class GameInstance:
             try:
                 print("Taiyou.GameObject.ReceiveCommand : Remove Game Object, and unload all data related to it")
 
-                self.GameObject = 43
+                self.GameObject = None
                 sprite.Unload()
                 sound.Unload()
                 reg.Unload()
@@ -232,19 +231,14 @@ class GameInstance:
         except Exception as ex:
             self.GameException(ex, "ReloadGame")
 
-    def OpenGame(self, GameFolder):
+    def SetGameObject(self, GameFolder):
         try:
-            print("Taiyou.GameObject.OpenGame : Open Game [" + GameFolder + "]")
+            print("Taiyou.GameObject.SetGameObject : Open Game [" + GameFolder + "]")
             MainGameModuleName = GameFolder.replace("/", ".") + ".MAIN"
             self.GameObject = importlib.import_module(MainGameModuleName)
 
-            print("Taiyou.GameObject.OpenGame : Open Game Folder")
-            tge.OpenGameFolder(GameFolder)  # -- Load Game Assets -- #
-
-            print("Taiyou.GameObject.OpenGame : Load registry keys")
-            reg.Initialize(tge.Get_GameSourceFolder() + "/REG")
         except Exception as ex:
-            self.GameException(ex, "GameException")
+            self.GameException(ex, "Set Game Object")
 
     def EventUpdate(self):
         for event in pygame.event.get():
@@ -266,7 +260,7 @@ class GameInstance:
             if self.ResiziableWindow:
                 if event.type == pygame.VIDEORESIZE:
                     # Resize the Window
-                    self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
 
             # -- Do Game Events -- #
             try:
@@ -304,6 +298,7 @@ class GameInstance:
         # -- Run the Clock -- #
         if self.FPS > 0:
             self.clock.tick(self.FPS)
+            pygame.display.set_caption("{0} : {1}".format(pygame.display.get_caption()[0].replace(" : " + tge.VideoDriver, ""), tge.VideoDriver))
 
         # -- Draw the Overlay, when it enabled -- #
         if not self.OverlayLevel == -1:
@@ -314,6 +309,9 @@ class GameInstance:
         if self.IsMenuMode:
             SystemUI.Update()
             SystemUI.Draw(self.DISPLAY)
+
+            # -- Flip the Screen -- #
+            pygame.display.flip()
 
         else:
             try:
@@ -326,12 +324,13 @@ class GameInstance:
                 # -- Do Game Draw -- #
                 if self.GameUpdateEnabled and self.GameStarted:
                     self.GameObject.GameDraw(self.DISPLAY)
+                # -- Flip the Screen -- #
+                pygame.display.flip()
+
 
             except Exception as ex:
                 self.GameException(ex, "Game Update/Draw")
 
-        # -- Flip the Screen -- #
-        pygame.display.flip()
 
         # -- Receive command from the Current Game --
         if self.GameUpdateEnabled and self.GameStarted:

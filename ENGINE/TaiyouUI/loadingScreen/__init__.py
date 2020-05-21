@@ -22,6 +22,7 @@ from ENGINE import TaiyouUI as taiyouUI
 import ENGINE as tge
 from ENGINE import utils
 from ENGINE import SPRITE as sprite
+from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
@@ -33,23 +34,26 @@ OpacityAnimation_Mode = 0
 LoadingNextStage = False
 LoadingStage = -1
 LoadingNextStageDelay = 0
+LoadingSquare = gtk.LoadingSquare
 
+GameFolderToOpen = "TESTMODE"
 
-GameFolderToOpen = ""
+def Initialize():
+    global LoadingSquare
+
+    LoadingSquare = gtk.LoadingSquare(5, 5)
 
 def Draw(Display):
     global OpacityAnimation_Opacity
     global LoadingStage
+    global LoadingSquare
     Display.fill((0,0,0))
-    LoadingText = "Loading..."
 
-    if LoadingStage == 0:
-        LoadingText = "Loading..."
-    if LoadingStage == 1:
-        LoadingText = "Done!"
+    LoadingSquare.Render(Display)
 
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 18, LoadingText, (OpacityAnimation_Opacity,OpacityAnimation_Opacity,OpacityAnimation_Opacity), 5, 5, False)
-
+    LoadingSquare.Y = Display.get_height() - 38
+    LoadingSquare.X = Display.get_width() - 38
+    LoadingSquare.Opacity = OpacityAnimation_Opacity
 
 def Update():
     global OpacityAnimation_Enabled
@@ -59,23 +63,32 @@ def Update():
     global LoadingNextStageDelay
     global LoadingStage
     global GameFolderToOpen
+    global LoadingSquare
 
-    if LoadingNextStage:
+    LoadingSquare.Update()
+
+    if LoadingNextStage and not GameFolderToOpen == "TESTMODE":
         LoadingStage += 1
         if LoadingStage == 0:
-            tge.OpenGameFolder(GameFolderToOpen)
+            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
         if LoadingStage == 1:
+            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
+        if LoadingStage == 2:
+            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
+        if LoadingStage == 3:
+            tge.LoadFolderMetaData(GameFolderToOpen)
+        if LoadingStage == 4:
             taiyouUI.Messages.append("OPEN_GAME:" + GameFolderToOpen)
             taiyouUI.Messages.append("TOGGLE_GAME_START")
-            taiyouUI.Messages.append("GAME_UPDATE:False")
 
             OpacityAnimation_Enabled = True
+
 
     if OpacityAnimation_Mode == 1 and not OpacityAnimation_Enabled:
         LoadingNextStageDelay += 1
 
 
-        if LoadingNextStageDelay >= 500:
+        if LoadingNextStageDelay >= 5000:
             LoadingNextStageDelay = 0
             LoadingNextStage = True
 
@@ -96,7 +109,7 @@ def Update():
                 OpacityAnimation_Opacity = 0
                 OpacityAnimation_Mode = 0
                 OpacityAnimation_Enabled = True
-                LoadingStage = 0
+                LoadingStage = -1
                 LoadingNextStageDelay = 0
                 LoadingNextStage = False
 

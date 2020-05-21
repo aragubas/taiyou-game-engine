@@ -468,6 +468,11 @@ class HorizontalItemsView:
         sprite.RenderFont(self.ListSurface, HORIZONTAL_LIST_FONT_FILE, 24, self.SelectedItem, (250, 250, 250), 3, 3)
 
         for i, itemNam in enumerate(self.GameName):
+            if self.SelectedItemIndex == i:
+                self.ItemSelected[i] = True
+            else:
+                self.ItemSelected[i] = False
+
             ItemWidth = 256
             ItemX = self.ScrollX + ItemWidth * i
             ItemRect = pygame.Rect(ItemX, 30, ItemWidth - 5, 165)
@@ -506,16 +511,13 @@ class HorizontalItemsView:
 
             ItemSurface.set_alpha(self.ItemApperAnimationNumb[i])
 
-            if self.ItemSelected[i]:
-                Draw_Panel(ItemSurface, (PANELS_INDICATOR_SIZE, PANELS_INDICATOR_SIZE, ItemRect[2] - PANELS_INDICATOR_SIZE * 2, ItemRect[3] - PANELS_INDICATOR_SIZE * 2), "BORDER")
 
-            if self.SelectedItemIndex == i:
-                self.ItemSelected[i] = True
-            else:
-                self.ItemSelected[i] = False
 
             # -- Render the Item Sprite -- #
             if self.ItemSelected[i]:
+                if self.ItemSelected[i]:
+                    Draw_Panel(ItemSurface, (PANELS_INDICATOR_SIZE, PANELS_INDICATOR_SIZE, ItemRect[2] - PANELS_INDICATOR_SIZE * 2, ItemRect[3] - PANELS_INDICATOR_SIZE * 2), "BORDER")
+
                 self.ItemSelectedCurrentFrameUpdateDelay[i] += 1
 
                 if self.ItemSelectedCurrentFrameUpdateDelay[i] >= self.GameBannerAnimationFrameDelay[i]:
@@ -715,3 +717,35 @@ class HorizontalItemsView:
             # -- Add Game Icon -- #
 
             raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.")
+
+
+class LoadingSquare:
+    def __init__(self, X, Y):
+        self.X = X
+        self.Y = Y
+        self.FramesPrefix = "/FRAMES/loading/"
+        self.CurrentFrame = 1
+        self.UpdateAnimDelay = 0
+        self.Opacity = 255
+        self.OpacityAddMode = 0
+
+
+    def Update(self):
+        # -- Do the Aniamtion Loop -- #
+        self.UpdateAnimDelay += 1
+        if self.UpdateAnimDelay >= 2:
+            self.CurrentFrame += 1
+
+            if self.CurrentFrame >= 39:
+
+                self.CurrentFrame = 1
+
+            self.UpdateAnimDelay = 0
+
+    def Render(self, DISPLAY):
+        AnimSurface = pygame.Surface((32,32))
+        AnimSurface.set_alpha(self.Opacity)
+
+        sprite.Render(AnimSurface, self.FramesPrefix + str(self.CurrentFrame) + ".png", 0, 0, 32, 32)
+
+        DISPLAY.blit(AnimSurface, (self.X, self.Y))

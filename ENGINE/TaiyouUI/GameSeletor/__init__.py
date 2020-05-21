@@ -37,6 +37,8 @@ InstalledGameList = gtk.HorizontalItemsView
 TopPanel_Rect = pygame.Rect(0,0,30,30)
 
 # -- Animation Fields -- #
+SeletorLoadingSquare = gtk.LoadingSquare
+
 UIOpacity = 0
 UIOpacityAnimSpeed = 15
 UIOpacityAnimEnabled = True
@@ -44,6 +46,7 @@ UIOpacityAnimState = 0
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacity_AnimExitToOpenGame = False
+UIOpacity_EnableDelay = 0
 AnimationNumb = 0
 
 DisplaySurface = pygame.Surface((0,0))
@@ -70,9 +73,12 @@ def Initialize():
     global InstalledGameList
     global ValidGameFolders
     global SelectGame_Button
+    global SeletorLoadingSquare
     Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("exit_button", "seletor"), 20)
     SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
     InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
+    SeletorLoadingSquare = gtk.LoadingSquare(5,5)
+
 
     LoadGameList()
 
@@ -97,21 +103,34 @@ def Draw(Display):
     global UIOpacity
     global InstalledGameList
     global SelectGame_Button
-    DisplaySurface = Display
-    Display.fill((BackgroundR,BackgroundG,BackgroundB))
+    global AnimationNumb
+    global SeletorLoadingSquare
+    Display.fill((0, 0, 0))
+    if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
+        SeletorLoadingSquare.Render(Display)
 
     if DisplaySurfaceInited:
-        gtk.Draw_Panel(Display, TopPanel_Rect, "DOWN")
+        DisplaySurface.fill((BackgroundR, BackgroundG, BackgroundB))
+        DisplaySurface.set_alpha(UIOpacity)
 
-    # -- Render Buttons -- #
-    Exit_Button.Render(Display)
-    SelectGame_Button.Render(Display)
+        gtk.Draw_Panel(DisplaySurface, TopPanel_Rect, "DOWN")
 
-    # -- Render the Game List -- #
-    InstalledGameList.Render(Display)
+        # -- Draw the Username -- #
+        sprite.RenderFont(DisplaySurface, "/UbuntuMono_Bold.ttf",24,tge.UserName, (240,240,240), 5, AnimationNumb + 5)
+
+        # -- Render Buttons -- #
+        Exit_Button.Render(DisplaySurface)
+        SelectGame_Button.Render(DisplaySurface)
+
+        # -- Render the Game List -- #
+        InstalledGameList.Render(DisplaySurface)
+
+
+    Display.blit(DisplaySurface, (0,0))
 
     # -- Set the Display Inited Variable -- #
     if not DisplaySurfaceInited:
+        DisplaySurface = pygame.Surface((800,600))
         DisplaySurfaceInited = True
 
 def Update():
@@ -124,7 +143,16 @@ def Update():
     global InstalledGameList
     global UIOpacity_AnimExitToOpenGame
     global UIOpacityAnimEnabled
+    global SeletorLoadingSquare
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+
+    if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
+        if DisplaySurfaceInited:
+            SeletorLoadingSquare.X = DisplaySurface.get_width() - 38
+            SeletorLoadingSquare.Y = DisplaySurface.get_height() - 38
+
+        SeletorLoadingSquare.Update()
+        SeletorLoadingSquare.Opacity = UIOpacity_EnableDelay + 50 - UIOpacity
 
     # -- Update Bar's Positions -- #
     if DisplaySurfaceInited:
@@ -176,8 +204,10 @@ def UpdateOpacityAnim():
     global BackgroundR
     global BackgroundG
     global BackgroundB
+    global UIOpacity_EnableDelay
+    UIOpacity_EnableDelay += 1
 
-    if UIOpacityAnimEnabled:
+    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= reg.ReadKey_int("TaiyouSystem/CONF/start_delay"):
         if UIOpacityAnimState == 0:  # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 

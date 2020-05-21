@@ -35,12 +35,13 @@ TopMenu_DeveloperConsoleButton = gtk.Button
 TopMenu_RestartGame = gtk.Button
 TopMenu_MainMenu = gtk.Button
 
+
 # -- General -- #
 UIOpacity = 0
 UIOpacityAnimSpeed = 15
 UIOpacityAnimEnabled = True
 UIOpacityAnimState = 0
-UIOpacityScreenCopyied = False
+UIOpacityScreenCopyied = True
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacityAnim_InGameErrorSoundPlayed = False
@@ -376,12 +377,13 @@ def UpdateOpacityAnim():
     global OpenedInGameError
     global UIOpacityAnim_InGameErrorSoundPlayed
 
+
     if UIOpacityAnimEnabled:
         if UIOpacityAnimState == 0: # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 
             # -- Copy the Screen Surface -- #
-            if not UIOpacityScreenCopyied and not OpenedInGameError:
+            if not UIOpacityScreenCopyied:
                 CopyOfTheScreen = DISPLAYObject.copy()
 
                 UIOpacityScreenCopyied = True
@@ -460,7 +462,6 @@ def ExitToMainMenu_UpdateAnim():
     global RestartGameConfirm_AnimMode
     global RestartGameConfirm_AnimNumb
     global RestartGameConfirm_AnimEnabled
-    global IsFirstOpening
     global UIObjectsSurfaceUpdated
     global RestartGameConfirm_SurfacesUpdated
     global CopyOfTheScreen
@@ -486,7 +487,6 @@ def ExitToMainMenu_UpdateAnim():
             UIObjectsSurfaceUpdated = False
             RestartGameConfirm_SurfacesUpdated = False
             CopyOfTheScreen.fill((0,0,0))
-            IsFirstOpening = True
 
             # -- Restart Animation -- #
             UIOpacity = 0
@@ -503,7 +503,7 @@ def ExitToMainMenu_UpdateAnim():
 
             UiHandler.SetMenuMode_Changes()
 
-            UiHandler.CurrentMenuScreen = 3
+            UiHandler.CurrentMenuScreen = 2
 
 def EventUpdate(event):
     global TopMenu_BackToGame_Button

@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "1.5"
+    return "1.6"
 def Get_SpriteVersion():
     return "1.6"
 def Get_SoundVersion():
@@ -31,7 +31,7 @@ def Get_GameObjVersion():
 def Get_DeveloperConsoleVersion():
     return "1.5"
 def Get_TaiyouUIVersion():
-    return "1.6"
+    return "1.7"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -54,10 +54,53 @@ CurrentGame_Version = ""
 CurrentGame_SourceFolder = ""
 CurrentGame_Folder = ""
 IsGameRunning = False
+VideoDriver = "x11"
+AudioDriver = "alsa"
+DiskAudioFile = "output.raw"
+DiskAudioDelay = "150"
+AudioFrequency = 96000
+AudioSize = -16
+AudioChannels = 2
+AudioBufferSize = 500
 
-TaiyouAppDataFolder = "AppData/"
 
-def OpenGameFolder(GameFolderDir):
+
+
+# -- User -- #
+UserName = ""
+UserLanguage = ""
+UserFormatCountry = ""
+
+
+TaiyouAppDataFolder = "Taiyou/HOME/AppsData"
+
+def InitUserData():
+    global UserName
+    global UserLanguage
+    global UserFormatCountry
+
+    conf_file = open("Taiyou/HOME/meta.data","r")
+    print("Taiyou.InitUserData : Started")
+
+    for x in conf_file:
+        x = x.rstrip()
+        if not x.startswith("#"):
+            SplitedParms = x.split(":")
+
+            if SplitedParms[0] == "Username":
+                UserName = str(SplitedParms[1])
+                print("Taiyou.InitUserData : Username was set to:[{0}]".format(UserName))
+
+            if SplitedParms[0] == "Language":
+                UserLanguage = str(SplitedParms[1])
+                print("Taiyou.InitUserData : Language was set to:[{0}]".format(UserLanguage))
+
+            if SplitedParms[0] == "Format":
+                UserFormatCountry = str(SplitedParms[1])
+                print("Taiyou.InitUserData : Format Type was set to:[{0}]".format(UserFormatCountry))
+
+
+def LoadFolderMetaData(GameFolderDir):
     global CurrentGame_Title
     global CurrentGame_ID
     global CurrentGame_Version
@@ -66,9 +109,7 @@ def OpenGameFolder(GameFolderDir):
     global TaiyouAppDataFolder
     global TaiyouGeneralVersion
 
-    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
-
-    print("Taiyou.Runtime.OpenGameFolder : Loading Taiyou Options file...")
+    print("Taiyou.Runtime.LoadFolderMetaData : Loading Taiyou Options file...")
     InfFileLocation = GameFolderDir + "/meta.data"
 
     inf_file = open(InfFileLocation,"r")
@@ -80,29 +121,52 @@ def OpenGameFolder(GameFolderDir):
         LineIndex += 1
         if LineIndex == 1:
             CurrentGame_Title = x.rstrip()
-            print("Taiyou.Runtime.OpenGameFolder : GameTitle[" + CurrentGame_Title + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : GameTitle[" + CurrentGame_Title + "]")
         
         if LineIndex == 2:
             CurrentGame_ID = x.rstrip()
-            print("Taiyou.Runtime.OpenGameFolder : GameID[" + CurrentGame_ID + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : GameID[" + CurrentGame_ID + "]")
         
         if LineIndex == 3:
             CurrentGame_Version = x.rstrip()
-            print("Taiyou.Runtime.OpenGameFolder : GameVersion[" + CurrentGame_Version + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : GameVersion[" + CurrentGame_Version + "]")
 
         if LineIndex == 4:
             CurrentGame_SourceFolder = GameFolderDir + "/" +  x.rstrip()
-            print("Taiyou.Runtime.OpenGameFolder : GameSourceFolder[" + CurrentGame_SourceFolder + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : GameSourceFolder[" + CurrentGame_SourceFolder + "]")
 
 
-    print("Taiyou.Runtime.OpenGameFolder : inf file loading complete, Loading Assets...")
+    print("Taiyou.Runtime.LoadFolderMetaData : Creating Temporary Files...")
 
-    sprite.LoadSpritesInFolder(CurrentGame_SourceFolder)
-    sound.LoadAllSounds(CurrentGame_SourceFolder)
-    print("Taiyou.Runtime.OpenGameFolder : " + str(GameFolderDir))
+    # -- Create Temporary File -- #
+    f = open(".OpenedGameInfos", "w")
+    f.write(str(CurrentGame_ID))
+    f.write(str(CurrentGame_Folder))
+    f.write(str(CurrentGame_Title))
+    f.write(str(CurrentGame_Version))
+    f.write(str(CurrentGame_SourceFolder))
+    f.close()
 
-    print("Taiyou.Runtime.OpenGameFolder : Game Loading complete, Loading Engine Configuration...")
 
+    # -- Make Directories -- #
+    if not os.path.exists(Get_GlobalAppDataFolder()):
+        os.makedirs(Get_GlobalAppDataFolder())
+
+
+    print("Taiyou.Runtime.LoadFolderMetaData : Metadata Loading complete.")
+
+def InitEngine():
+    global TaiyouAppDataFolder
+    global VideoDriver
+    global AudioDriver
+    global DiskAudioFile
+    global DiskAudioDelay
+    global AudioSize
+    global AudioBufferSize
+    global AudioChannels
+    global AudioFrequency
+
+    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
     conf_file = open("Taiyou.config","r")
 
     for x in conf_file:
@@ -160,19 +224,60 @@ def OpenGameFolder(GameFolderDir):
 
             print("Taiyou.Runtime.OpenGameFolder : TaiyouAppDataFolder set to:" + str(SplitedParms[1].rstrip()))
 
-    # -- Create Temporary Files -- #
-    f = open(".OpenedGameInfos", "w")
-    f.write(str(CurrentGame_ID))
-    f.write(str(CurrentGame_Folder))
-    f.write(str(CurrentGame_Title))
-    f.write(str(CurrentGame_Version))
-    f.write(str(CurrentGame_SourceFolder))
-    f.close()
+        if SplitedParms[0] == "VideoDriver":
+            VideoDriver = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolder : Video Driver was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AudioDriver":
+            AudioDriver = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolder : Audio Driver was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "DiskAudioFile":
+            DiskAudioFile = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolder : Disk Audio File was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "DiskAudioDelay":
+            DiskAudioDelay = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolder : Disk Audio Delay was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AudioFrequency":
+            AudioFrequency = int(SplitedParms[1].rstrip())
+
+            print("Taiyou.Runtime.OpenGameFolder : Audio Frequency was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AudioSize":
+            AudioSize = int(SplitedParms[1].rstrip())
+
+            print("Taiyou.Runtime.OpenGameFolder : Audio Size was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AudioChannels":
+            AudioChannels = int(SplitedParms[1].rstrip())
+
+            print("Taiyou.Runtime.OpenGameFolder : Audio Channels was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AudioBufferSize":
+            AudioBufferSize = int(SplitedParms[1].rstrip())
+
+            print("Taiyou.Runtime.OpenGameFolder : Audio Buffer Size was set to:" + str(SplitedParms[1].rstrip()))
 
 
-    # -- Make Directories -- #
-    if not os.path.exists(Get_GlobalAppDataFolder()):
-        os.makedirs(Get_GlobalAppDataFolder())
+
+
+
+
+    # -- Set the Video Driver -- #
+    os.environ['SDL_VIDEODRIVER'] = VideoDriver
+    os.environ['SDL_AUDIODRIVER'] = AudioDriver
+
+    if AudioDriver == "disk":
+        os.environ['SDL_DISKAUDIOFILE'] = DiskAudioFile
+        os.environ['SDL_AUDIODRIVER'] = DiskAudioDelay
+
+    InitUserData()
 
 def CloseGameFolder():
     global CurrentGame_Title
