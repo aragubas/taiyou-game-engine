@@ -52,3 +52,20 @@ def Directory_Exists(path):
 
 def FileCopy(path, destinationPath):
     shutil.copy(path, destinationPath)
+
+def Calculate_FolderSize(path):
+    total_size = 0
+    start_path = path  # To get size of current directory
+    for path, dirs, files in os.walk(start_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            total_size += os.path.getsize(fp)
+    return total_size
+
+def Get_DirectoryTotalOfFiles(path):
+    try:
+        list = os.listdir(path)  # dir is your directory path
+        number_files = len(list)
+        return number_files
+    except:
+        return 0

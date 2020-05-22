@@ -18,17 +18,19 @@ from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
 from ENGINE import TaiyouUI as mainScript
 from ENGINE import SOUND as sound
-import pygame, sys
+import pygame, sys, importlib
 
-PANELS_BACKGROUND_COLOR = (4,21,32)
-PANELS_INDICATOR_COLOR = (13,10,13)
+PANELS_BACKGROUND_COLOR = (4, 21, 32)
+PANELS_INDICATOR_COLOR = (13, 10, 13)
 PANELS_INDICATOR_SIZE = 2
 BUTTONS_FONT_FILE = "/Ubuntu_Bold.ttf"
 WINDOW_TITLE_TEXT_FONT_FILE = "/Ubuntu_Bold.ttf"
 HORIZONTAL_LIST_FONT_FILE = "/Ubuntu_Bold.ttf"
 INPUT_BOX_FONT_FILE = "/Ubuntu_Bold.ttf"
+VERTICALLIST_FONT_FILE = "/Ubuntu_Bold.ttf"
 
 CurrentLanguage = ""
+
 
 def SetLang(lang):
     global CurrentLanguage
@@ -37,7 +39,10 @@ def SetLang(lang):
     LangErrorAppered = False
     print("TaiyouUI.GTK : Language was set to[" + lang + "]")
 
+
 LangErrorAppered = False
+
+
 def GetLangText(lang_name, lang_prefix="no_prefix"):
     global CurrentLanguage
     global LangErrorAppered
@@ -51,6 +56,7 @@ def GetLangText(lang_name, lang_prefix="no_prefix"):
             LangErrorAppered = True
         return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name))
 
+
 def Draw_Panel(DISPLAY, Rectangle, IndicatorPosition="UP", Opacity=255):
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.SRCALPHA)
     ResultPanel.set_alpha(Opacity)
@@ -60,13 +66,13 @@ def Draw_Panel(DISPLAY, Rectangle, IndicatorPosition="UP", Opacity=255):
         pygame.draw.rect(ResultPanel, PANELS_INDICATOR_COLOR, Rectangle, PANELS_INDICATOR_SIZE)
 
     if IndicatorPosition == "DOWN":
-        sprite.RenderRectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0,Rectangle[3] - PANELS_INDICATOR_SIZE, Rectangle[2], PANELS_INDICATOR_SIZE))
+        sprite.RenderRectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0, Rectangle[3] - PANELS_INDICATOR_SIZE, Rectangle[2], PANELS_INDICATOR_SIZE))
 
     if IndicatorPosition == "UP":
         sprite.RenderRectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0, 0, Rectangle[2], PANELS_INDICATOR_SIZE))
 
-
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
+
 
 class Button:
     def __init__(self, Rectangle, ButtonText, TextSize):
@@ -76,11 +82,7 @@ class Button:
         self.ButtonState = "INATIVE"
         self.IsButtonEnabled = True
         self.WhiteButton = False
-        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1],
-                                          sprite.GetText_width("/PressStart2P.ttf", self.TextSize,
-                                                               self.ButtonText) + 5,
-                                          sprite.GetText_height("/PressStart2P.ttf", self.TextSize,
-                                                                self.ButtonText) + 6)
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetText_width("/PressStart2P.ttf", self.TextSize, self.ButtonText) + 5, sprite.GetText_height("/PressStart2P.ttf", self.TextSize, self.ButtonText) + 6)
         self.CursorSettedToggle = False
         self.ButtonDowed = False
         self.ColisionRectangle = self.Rectangle
@@ -88,7 +90,7 @@ class Button:
         self.BackgroundColor = (1, 22, 39)
         self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
         self.SurfaceUpdated = False
-        self.LastRect = pygame.Rect(0,0,0,0)
+        self.LastRect = pygame.Rect(0, 0, 0, 0)
 
     def Update(self, event):
         if not self.CustomColisionRectangle:
@@ -140,7 +142,7 @@ class Button:
 
     def Render(self, DISPLAY):
         # -- Render the Background -- #
-        pygame.draw.rect(self.ButtonSurface, self.BackgroundColor, (0,0, self.Rectangle[2], self.Rectangle[3]))
+        pygame.draw.rect(self.ButtonSurface, self.BackgroundColor, (0, 0, self.Rectangle[2], self.Rectangle[3]))
 
         # -- Update Surface when the size is changed -- #
         if not self.LastRect == self.Rectangle:
@@ -153,40 +155,37 @@ class Button:
             self.SurfaceUpdated = True
             self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
-
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
                 self.BackgroundColor = (1, 22, 39, 50)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2],1))
+                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 1))
 
                 # -- Text -- #
-                sprite.RenderFont(self.ButtonSurface, BUTTONS_FONT_FILE, self.TextSize, self.ButtonText, (200, 200, 200),
-                                  3, 3)
+                sprite.RenderFont(self.ButtonSurface, BUTTONS_FONT_FILE, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3)
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = (15, 27, 44, 100)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0,self.Rectangle[2],1))
+                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 1))
 
                 # -- Text -- #
-                sprite.RenderFont(self.ButtonSurface, BUTTONS_FONT_FILE, self.TextSize, self.ButtonText, (255, 255, 255),
-                                  3, 3)
+                sprite.RenderFont(self.ButtonSurface, BUTTONS_FONT_FILE, self.TextSize, self.ButtonText, (255, 255, 255), 3, 3)
         else:
             if self.ButtonState == "INATIVE":
                 # -- Background -- #
                 self.BackgroundColor = (1, 22, 39, 50)
 
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0,self.Rectangle[2],4))
+                sprite.RenderRectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 4))
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = (15, 27, 44, 100)
                 # -- Indicator Bar -- #
-                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2],2))
+                sprite.RenderRectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 2))
 
         # -- Draw the Button -- #
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
@@ -194,20 +193,19 @@ class Button:
             self.ButtonState = "INATIVE"
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"))
 
+
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):
         self.WindowRectangle = Rectangle
         self.Title = Title
-        self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1], self.WindowRectangle[2],
-                                             20)
-        self.ResizeRectangle = pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[3] - 16,
-                                           self.WindowRectangle[1] + self.WindowRectangle[3] - 16, 16, 16)
+        self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1], self.WindowRectangle[2], 20)
+        self.ResizeRectangle = pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[3] - 16, self.WindowRectangle[1] + self.WindowRectangle[3] - 16, 16, 16)
         self.Cursor_Position = mainScript.Cursor_Position
         self.Window_IsBeingGrabbed = False
         self.Window_IsBeingResized = False
         self.Window_MinimunW = Rectangle[2]
         self.Window_MinimunH = Rectangle[3]
-        self.MinimizeButton = Button(pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[2] - 20, self.WindowRectangle[1], 16, 20),"↑",16)
+        self.MinimizeButton = Button(pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[2] - 20, self.WindowRectangle[1], 16, 20), "↑", 16)
         self.WindowSurface = pygame.Surface((self.WindowRectangle[0], self.WindowRectangle[1] + 20), pygame.SRCALPHA)
         self.WindowMinimized = False
         self.Resiziable = Resiziable
@@ -226,15 +224,12 @@ class Window:
         self.WindowRectangle[1] = self.TitleBarRectangle[1]
         # -- Title Bar Rectangle -- #
         if self.Minimizable:
-            self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1],
-                                                 self.WindowRectangle[2] - 21, 20)
+            self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1], self.WindowRectangle[2] - 21, 20)
         else:
-            self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1],
-                                                 self.WindowRectangle[2], 20)
+            self.TitleBarRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1], self.WindowRectangle[2], 20)
         # -- Resize Button Rectangle -- #
         if self.Resiziable:
-            self.ResizeRectangle = pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[2] - 10,
-                                               self.WindowRectangle[1] + self.WindowRectangle[3], 10, 10)
+            self.ResizeRectangle = pygame.Rect(self.WindowRectangle[0] + self.WindowRectangle[2] - 10, self.WindowRectangle[1] + self.WindowRectangle[3], 10, 10)
         # -- Minimize Button Location -- #
         if self.Minimizable:
             self.MinimizeButton.Set_X(self.WindowRectangle[0] + self.WindowRectangle[2] - 21)
@@ -259,18 +254,14 @@ class Window:
 
         # -- Draw the Resize Block -- #
         if self.Resiziable:
-            sprite.Render(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1],
-                          self.ResizeRectangle[2], self.ResizeRectangle[3])
+            sprite.Render(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1], self.ResizeRectangle[2], self.ResizeRectangle[3])
 
         # -- Render the Minimize Button -- #
         if self.Minimizable:
             self.MinimizeButton.Render(DISPLAY)
 
         # -- Draw the window title -- #
-        sprite.RenderFont(DISPLAY, WINDOW_TITLE_TEXT_FONT_FILE, 18, self.Title, (250, 250, 255),
-                          self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetText_width(
-                              WINDOW_TITLE_TEXT_FONT_FILE, 18, self.Title) / 2, self.TitleBarRectangle[1] + 1)
-
+        sprite.RenderFont(DISPLAY, WINDOW_TITLE_TEXT_FONT_FILE, 18, self.Title, (250, 250, 255), self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetText_width(WINDOW_TITLE_TEXT_FONT_FILE, 18, self.Title) / 2, self.TitleBarRectangle[1] + 1)
 
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
@@ -306,14 +297,14 @@ class Window:
             self.TitleBarRectangle[1] = self.Cursor_Position[1] - self.TitleBarRectangle[3] / 2
 
         # -- Resize Window -- #
-        if self.Window_IsBeingResized and self.Resiziable: # <- Resize the Window
+        if self.Window_IsBeingResized and self.Resiziable:  # <- Resize the Window
             # -- Limit Window Size -- #
 
             if self.WindowRectangle[2] >= self.Window_MinimunW:
                 self.WindowRectangle[2] = self.Cursor_Position[0] - self.WindowRectangle[0]
                 self.UpdateSurface()
 
-            if self.WindowRectangle[3] >= self.Window_MinimunH: # <- Resize the Window
+            if self.WindowRectangle[3] >= self.Window_MinimunH:  # <- Resize the Window
                 self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
                 self.UpdateSurface()
 
@@ -325,7 +316,6 @@ class Window:
         if self.WindowRectangle[3] < self.Window_MinimunH:
             self.WindowRectangle[3] = self.Window_MinimunH
             self.UpdateSurface()
-
 
     def UpdateSurface(self):
         if not self.WindowMinimized:
@@ -341,20 +331,21 @@ class Window:
         else:
             self.WindowMinimized = True
             self.WindowOriginalRect = self.WindowRectangle
-            self.WindowRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1],
-                                               self.WindowRectangle[2], 20)
+            self.WindowRectangle = pygame.Rect(self.WindowRectangle[0], self.WindowRectangle[1], self.WindowRectangle[2], 20)
             self.OriginalMinumunHeight = self.Window_MinimunH
             self.Window_MinimunH = 0
             self.OriginalResiziable = self.Resiziable
             self.Resiziable = False
 
+
 COLOR_INACTIVE = (1, 22, 39)
-COLOR_ACTIVE = (15,27,44)
+COLOR_ACTIVE = (15, 27, 44)
+
 
 class InputBox:
     def __init__(self, x, y, w, h, text='LO'):
         self.rect = pygame.Rect(x, y, w, h)
-        self.colisionRect = pygame.Rect(x,y,w,h)
+        self.colisionRect = pygame.Rect(x, y, w, h)
         self.CustomColision = False
         self.color = COLOR_INACTIVE
         self.text = text
@@ -372,14 +363,14 @@ class InputBox:
 
     def Update(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-                # If the user clicked on the input_box rect.
-                if self.colisionRect.collidepoint(event.pos):
-                    # Toggle the active variable.
-                    self.active = not self.active
-                else:
-                    self.active = False
-                # Change the current color of the input box.
-                self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+            # If the user clicked on the input_box rect.
+            if self.colisionRect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
         if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.key == pygame.K_BACKSPACE:
@@ -395,7 +386,7 @@ class InputBox:
         # -- Resize the Textbox -- #
         try:
             if not self.CustomWidth:
-                self.width = max(100, sprite.GetText_width(INPUT_BOX_FONT_FILE, 10, self.text)+10)
+                self.width = max(100, sprite.GetText_width(INPUT_BOX_FONT_FILE, 10, self.text) + 10)
             self.rect.w = self.width
             self.rect.h = sprite.GetText_height(INPUT_BOX_FONT_FILE, 10, self.text)
             self.LastHeight = self.rect.h
@@ -411,15 +402,16 @@ class InputBox:
         Draw_Panel(screen, self.rect, "UP")
 
         if self.text == self.DefaultText:
-            sprite.RenderFont(screen, INPUT_BOX_FONT_FILE, 10, self.text, (140,140,140), self.rect[0],self.rect[1])
+            sprite.RenderFont(screen, INPUT_BOX_FONT_FILE, 10, self.text, (140, 140, 140), self.rect[0], self.rect[1])
         else:
             if not self.text == "":
                 sprite.RenderFont(screen, INPUT_BOX_FONT_FILE, 10, self.text, (240, 240, 240), self.rect[0], self.rect[1])
 
         if not self.active:
-            sprite.RenderRectangle(screen, (255, 51, 102), (self.rect[0],self.rect[1] - 1,self.rect[2], 1))
+            sprite.RenderRectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
         else:
-            sprite.RenderRectangle(screen, (46, 196, 182), (self.rect[0],self.rect[1] - 1,self.rect[2], 1))
+            sprite.RenderRectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
+
 
 class HorizontalItemsView:
     def __init__(self, Rectangle):
@@ -444,6 +436,7 @@ class HorizontalItemsView:
         self.ItemSelected = list()
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
         self.SelectedGameID = ""
+        self.SelectedGameVersion = ""
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
 
@@ -477,7 +470,6 @@ class HorizontalItemsView:
             ItemX = self.ScrollX + ItemWidth * i
             ItemRect = pygame.Rect(ItemX, 30, ItemWidth - 5, 165)
             ItemSurface = pygame.Surface((ItemRect[2], ItemRect[3]), pygame.SRCALPHA)
-            OpctMax = 255
             AnimationSpeed = 15
             if not self.ItemSelected[i]:
                 OpctMax = 150
@@ -510,8 +502,6 @@ class HorizontalItemsView:
                         self.ItemApperAnimationMode[i] = 0
 
             ItemSurface.set_alpha(self.ItemApperAnimationNumb[i])
-
-
 
             # -- Render the Item Sprite -- #
             if self.ItemSelected[i]:
@@ -551,7 +541,7 @@ class HorizontalItemsView:
                 self.ScrollSlowdown = 0
                 self.ScrollSlowdownEnabled = False
 
-        self.ListSurface.fill((0,0,0,0))
+        self.ListSurface.fill((0, 0, 0, 0))
 
     def ClearItems(self):
         self.GameName.clear()
@@ -568,8 +558,8 @@ class HorizontalItemsView:
         self.ItemApperAnimationToggle.clear()
         self.GameBannerAnimation.clear()
         self.GameBannerAnimationAmount.clear()
-        self.ItemSelected.clear()
         self.GameBannerAnimationFrameDelay.clear()
+        self.ItemSelected.clear()
 
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
         self.SelectedGameID = ""
@@ -641,7 +631,11 @@ class HorizontalItemsView:
                     self.SelectedGameFolderName = self.GameFolderName[i]
                     self.ItemSelected[i] = True
                     self.SelectedItemIndex = i
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
+                    self.SelectedGameVersion = self.GameVersion[i]
+                    self.SelectedGameID = self.GameID[i]
+
+                    if ItemRect.collidepoint(pygame.mouse.get_pos()):
+                        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
                 else:
                     self.ItemSelected[i] = False
 
@@ -661,35 +655,34 @@ class HorizontalItemsView:
         self.ItemSelected.append(False)
 
         # -- Read Meta Data File -- #
-        LineNumber = -1 # Line 0 == Game Name; Line 1 == Game ID; Line 2 == Game Version; Line 3 == Game Source Folder
+        LineNumber = -1  # Line 0 == Game Name; Line 1 == Game ID; Line 2 == Game Version; Line 3 == Game Source Folder
         GameBannerAnimAmountFrames = 0
         MetaFile = GameDir + "/meta.data"
         with open(MetaFile) as file_in:
             for line in file_in:
                 LineNumber += 1
 
-                if LineNumber == 0: # -- Game Name
+                if LineNumber == 0:  # -- Game Name
                     self.GameName.append(line)
 
-                if LineNumber == 1: # -- Game ID
+                if LineNumber == 1:  # -- Game ID
                     self.GameID.append(line)
 
-                if LineNumber == 2: # -- Game Version
+                if LineNumber == 2:  # -- Game Version
                     self.GameVersion.append(line)
 
-                if LineNumber == 3: # -- Game Source Folder
+                if LineNumber == 3:  # -- Game Source Folder
                     self.GameSourceFolder.append(line)
 
-                if LineNumber == 4: # -- Game Folder Name
+                if LineNumber == 4:  # -- Game Folder Name
                     self.GameFolderName.append(line)
 
-                if LineNumber == 5: # -- Animation Banner Frames
+                if LineNumber == 5:  # -- Animation Banner Frames
                     self.GameBannerAnimationAmount.append(int(line))
                     GameBannerAnimAmountFrames = int(line)
 
-                if LineNumber == 6: # -- Animation Banner Frames Delay
+                if LineNumber == 6:  # -- Animation Banner Frames Delay
                     self.GameBannerAnimationFrameDelay.append(int(line))
-
 
         # -- Load the Game Icon and Banner Animation -- #
         self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
@@ -700,10 +693,9 @@ class HorizontalItemsView:
         self.ItemApperAnimationToggle.append(False)
         self.ItemSelectedCurrentFrameUpdateDelay.append(0)
 
-
         AnimationFrames = list()
         for frame in range(0, GameBannerAnimAmountFrames):
-            FiltredGameDir = GameDir.replace("./","")
+            FiltredGameDir = GameDir.replace("./", "")
             path = FiltredGameDir + "/SELETOR/" + str(frame) + ".png"
 
             print("Frame : [" + path + "]")
@@ -711,12 +703,105 @@ class HorizontalItemsView:
 
         self.GameBannerAnimation.append(AnimationFrames)
 
-
-
         if LineNumber < 3:
             # -- Add Game Icon -- #
 
             raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.")
+
+
+class VerticalListWithDescription:
+    def __init__(self, Rectangle):
+        self.Rectangle = Rectangle
+        self.ItemsName = list()
+        self.ItemsDescription = list()
+        self.ItemSprite = list()
+        self.ItemSelected = list()
+        self.LastItemClicked = "null"
+        self.ScrollY = 0
+        self.ListSurface = pygame.Surface((Rectangle[2], Rectangle[3]))
+        self.ClickedItem = ""
+        self.ColisionXOffset = 0
+        self.ColisionYOffset = 0
+        self.ButtonUpRectangle = pygame.Rect(0, 0, 32, 32)
+        self.ButtonDownRectangle = pygame.Rect(34, 0, 32, 32)
+        self.Cursor_Position = mainScript.Cursor_Position
+        self.ListSurfaceUpdated = False
+
+    def Render(self, DISPLAY):
+        if not self.ListSurfaceUpdated:
+            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+            self.ListSurfaceUpdated = True
+
+        self.ListSurface.fill((0,0,0,0))
+        for i, itemNam in enumerate(self.ItemsName):
+            ItemRect = (0, self.ScrollY + 42 * i, self.Rectangle[2], 40)
+
+            # -- When the item is not clicked -- #
+            if not self.ItemSelected[i]:
+                if self.LastItemClicked == itemNam:
+                    # -- Background -- #
+                    sprite.RenderRectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
+                    # -- Indicator Bar -- #
+                    sprite.RenderRectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                else:
+                    # -- Background -- #
+                    sprite.RenderRectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
+                    # -- Indicator Bar -- #
+                    sprite.RenderRectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+
+            else:
+                # -- Background -- #
+                sprite.RenderRectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
+                # -- Indicator Bar -- #
+                sprite.RenderRectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+
+            # -- Render the Item Name and Description -- #
+            sprite.RenderFont(self.ListSurface, VERTICALLIST_FONT_FILE, 18, itemNam, (250, 250, 250), ItemRect[0] + 5, ItemRect[1] + 5, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
+            sprite.RenderFont(self.ListSurface, VERTICALLIST_FONT_FILE, 12, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 3, ItemRect[1] + 28, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
+
+        DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
+
+        # -- Keyup List Scrolling -- #
+        pressed = pygame.key.get_pressed()
+
+        if pressed[pygame.K_a]:
+            self.ScrollY += 1
+
+        if pressed[pygame.K_d]:
+            self.ScrollY -= 1
+
+    def Update(self, event):
+        self.Cursor_Position = mainScript.Cursor_Position
+
+        # -- Select the Clicked Item -- #
+        for i, itemNam in enumerate(self.ItemsName):
+            ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if ItemRect.collidepoint(self.Cursor_Position):
+                    self.LastItemClicked = itemNam
+                    self.ItemSelected[i] = True
+                    print("LastClickedItem : " + self.LastItemClicked)
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.ItemSelected[i] = False
+
+    def Set_X(self, Value):
+        self.Rectangle[0] = int(Value)
+
+    def Set_Y(self, Value):
+        self.Rectangle[1] = int(Value)
+
+    def Set_W(self, Value):
+        self.Rectangle[2] = int(Value)
+
+    def Set_H(self, Value):
+        self.Rectangle[3] = int(Value)
+
+    def AddItem(self, ItemName, ItemDescription, ItemSprite="null"):
+        self.ItemsName.append(ItemName)
+        self.ItemsDescription.append(ItemDescription)
+        self.ItemSprite.append(ItemSprite)
+        self.ItemSelected.append(False)
 
 
 class LoadingSquare:
@@ -729,7 +814,6 @@ class LoadingSquare:
         self.Opacity = 255
         self.OpacityAddMode = 0
 
-
     def Update(self):
         # -- Do the Aniamtion Loop -- #
         self.UpdateAnimDelay += 1
@@ -737,13 +821,12 @@ class LoadingSquare:
             self.CurrentFrame += 1
 
             if self.CurrentFrame >= 39:
-
                 self.CurrentFrame = 1
 
             self.UpdateAnimDelay = 0
 
     def Render(self, DISPLAY):
-        AnimSurface = pygame.Surface((32,32))
+        AnimSurface = pygame.Surface((32, 32))
         AnimSurface.set_alpha(self.Opacity)
 
         sprite.Render(AnimSurface, self.FramesPrefix + str(self.CurrentFrame) + ".png", 0, 0, 32, 32)

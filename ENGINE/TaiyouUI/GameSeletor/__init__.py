@@ -28,10 +28,12 @@ from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 
 # -- Buttons -- #
 Exit_Button = gtk.Button
+RestartList_Button = gtk.Button
 SelectGame_Button = gtk.Button
 
 # -- Lists -- #
 InstalledGameList = gtk.HorizontalItemsView
+GameAtibutesList = gtk.VerticalListWithDescription
 
 # -- Rects -- #
 TopPanel_Rect = pygame.Rect(0,0,30,30)
@@ -46,7 +48,10 @@ UIOpacityAnimState = 0
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacity_AnimExitToOpenGame = False
+UIOpacityAnim_ListLoaded = False
 UIOpacity_EnableDelay = 0
+UIOpacity_StartDelay = 5
+UIOpacity_NextScreen = -1
 AnimationNumb = 0
 
 DisplaySurface = pygame.Surface((0,0))
@@ -74,22 +79,41 @@ def Initialize():
     global ValidGameFolders
     global SelectGame_Button
     global SeletorLoadingSquare
-    Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("exit_button", "seletor"), 20)
+    global UIOpacity_StartDelay
+    global RestartList_Button
+    global GameAtibutesList
+    Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("options_button", "seletor"), 20)
     SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
     InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
+    RestartList_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("restart_button", "seletor"), 20)
     SeletorLoadingSquare = gtk.LoadingSquare(5,5)
+    GameAtibutesList = gtk.VerticalListWithDescription(pygame.Rect(5, 600 - 305, 370, 300))
+
+    GameAtibutesList.AddItem("Title Information", "Title, ID, Version...")
+    GameAtibutesList.AddItem("Local Information", "Size, Files...")
+    GameAtibutesList.AddItem("Online Information", "is Registred Game, Online Version, Patch Notes")
+
+    UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay")
+
 
 
     LoadGameList()
 
 def LoadGameList():
+    print("TaiyouUI.LoadGameList : Started")
     ValidGameFolders.clear()
     InstalledGameList.ClearItems()
     ListInstalledGames()
 
     for game in ValidGameFolders:
         InstalledGameList.AddItem(game)
+    print("TaiyouUI.LoadGameList : Game List has been reloaded.")
 
+def UnloadGameList():
+    print("TaiyouUI.UnloadGameList : Started")
+    ValidGameFolders.clear()
+    InstalledGameList.ClearItems()
+    print("TaiyouUI.UnloadGameList : Game List has been unloaded.")
 
 BackgroundR = 0
 BackgroundG = 0
@@ -105,7 +129,11 @@ def Draw(Display):
     global SelectGame_Button
     global AnimationNumb
     global SeletorLoadingSquare
+    global RestartList_Button
+    global GameAtibutesList
+
     Display.fill((0, 0, 0))
+
     if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
         SeletorLoadingSquare.Render(Display)
 
@@ -121,9 +149,12 @@ def Draw(Display):
         # -- Render Buttons -- #
         Exit_Button.Render(DisplaySurface)
         SelectGame_Button.Render(DisplaySurface)
+        RestartList_Button.Render(DisplaySurface)
 
         # -- Render the Game List -- #
         InstalledGameList.Render(DisplaySurface)
+
+        RenderGameInfos(DisplaySurface)
 
 
     Display.blit(DisplaySurface, (0,0))
@@ -144,7 +175,13 @@ def Update():
     global UIOpacity_AnimExitToOpenGame
     global UIOpacityAnimEnabled
     global SeletorLoadingSquare
+    global RestartList_Button
+    global UIOpacity_EnableDelay
+
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+
+    UpdateGameInfos()
+
 
     if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
         if DisplaySurfaceInited:
@@ -154,27 +191,115 @@ def Update():
         SeletorLoadingSquare.Update()
         SeletorLoadingSquare.Opacity = UIOpacity_EnableDelay + 50 - UIOpacity
 
+    # -- Refresh Button -- #
+    if RestartList_Button.ButtonState == "UP":
+        UIOpacity_AnimExitToOpenGame = False
+        UIOpacityAnimEnabled = True
+
     # -- Update Bar's Positions -- #
     if DisplaySurfaceInited:
         TopPanel_Rect = pygame.Rect(0, AnimationNumb * 1.5, DisplaySurface.get_width(), 35)
 
         Exit_Button.Set_X(TopPanel_Rect[2] - Exit_Button.Rectangle[2] - 5)
 
-    InstalledGameList.SurfaceOpacity = AnimationNumb * 2.5 + 255
-    InstalledGameList.Set_X(AnimationNumb * 1.5 + 20)
-    SelectGame_Button.Set_X(InstalledGameList.Rectangle[0])
-    SelectGame_Button.Set_Y(InstalledGameList.Rectangle[1] + InstalledGameList.Rectangle[3] + 5)
+        InstalledGameList.SurfaceOpacity = AnimationNumb * 2.5 + 255
+        InstalledGameList.Set_X(AnimationNumb * 1.5 + 20)
+        SelectGame_Button.Set_X(InstalledGameList.Rectangle[0])
+        SelectGame_Button.Set_Y(InstalledGameList.Rectangle[1] + InstalledGameList.Rectangle[3] + 5)
 
-    if SelectGame_Button.ButtonState == "UP":
-        if not InstalledGameList.SelectedItemIndex == -1:
-            UIOpacityAnimEnabled = True
-            UIOpacity_AnimExitToOpenGame = True
+        RestartList_Button.Set_X(Exit_Button.Rectangle[0] - RestartList_Button.Rectangle[2] - 5)
+        RestartList_Button.Set_Y(Exit_Button.Rectangle[1])
 
-    # -- Update Objects Position -- #
-    Exit_Button.Set_Y(AnimationNumb + 5)
+        if SelectGame_Button.ButtonState == "UP":
+            if not InstalledGameList.SelectedItemIndex == -1:
+                UIOpacityAnimEnabled = True
+                UIOpacity_AnimExitToOpenGame = True
+
+        # -- Update Objects Position -- #
+        Exit_Button.Set_Y(AnimationNumb + 5)
 
     # -- Update the In/Out Animation -- #
     UpdateOpacityAnim()
+
+
+GameInfosRectBox = pygame.Rect(0,0, 300,200)
+InformationLoaded_Last = "null"
+InformationLoaded = False
+SelectedGameInfosList = list()
+def UpdateGameInfos():
+    global GameAtibutesList
+    global GameInfosRectBox
+    global InformationLoaded
+    global InformationLoaded_Last
+
+    if not InformationLoaded_Last == InstalledGameList.SelectedItem:
+        # -- Get Selected Game Infos List -- #
+        SelectedGameInfosList.clear()
+
+        # -- Title Informations -- #
+        SelectedGameInfosList.append(InstalledGameList.SelectedItem)
+        SelectedGameInfosList.append(InstalledGameList.SelectedGameVersion)
+        SelectedGameInfosList.append(InstalledGameList.SelectedGameID)
+        SelectedGameInfosList.append(InstalledGameList.SelectedGameFolderName)
+
+
+        # -- Local Informations -- #
+
+        SelectedGameInfosList.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(InstalledGameList.SelectedGameFolderName.rstrip()), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
+        SelectedGameInfosList.append(tge.utils.Get_DirectoryTotalOfFiles(InstalledGameList.SelectedGameFolderName.rstrip()))
+
+        InformationLoaded_Last = InstalledGameList.SelectedItem
+
+
+
+    GameInfosRectBox = pygame.Rect(GameAtibutesList.Rectangle[0] + GameAtibutesList.Rectangle[2] + 5, GameAtibutesList.Rectangle[1], GameAtibutesList.Rectangle[2] + 20, GameAtibutesList.Rectangle[3])
+
+def RenderGameInfos(Display):
+    global GameInfosRectBox
+    # -- Render Games Info List -- #
+    GameAtibutesList.Render(Display)
+
+    # -- Render Infos Box -- #
+    gtk.Draw_Panel(Display, GameInfosRectBox, "BORDER")
+
+
+    if GameAtibutesList.LastItemClicked == "Title Information":
+        RenderTitleInformation(Display)
+
+    if GameAtibutesList.LastItemClicked == "Local Information":
+        RenderLocalInformation(Display)
+
+    if GameAtibutesList.LastItemClicked == "Online Information":
+        RenderOnlineInformation(Display)
+
+def RenderTitleInformation(Display):
+    global SelectedGameInfosList
+    Text = "Title: {0}\n" \
+           "Version: {1}\n" \
+           "ID: {2}\n" \
+           "Game Folder: {3}".format(SelectedGameInfosList[0], SelectedGameInfosList[1], SelectedGameInfosList[2], SelectedGameInfosList[3])
+
+    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 14, Text, (230,230,230), GameInfosRectBox[0] + 5, GameInfosRectBox[1] + 25, True)
+
+
+def RenderLocalInformation(Display):
+    Text = "Folder Size: {0}\n" \
+           "Number of Files: {1}".format(SelectedGameInfosList[4], SelectedGameInfosList[5])
+
+    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 14, Text, (230,230,230), GameInfosRectBox[0] + 5, GameInfosRectBox[1] + 25, True)
+
+
+def RenderOnlineInformation(Display):
+    sprite.Render(Display, "/TAIYOU_UI/Cursor/1.png", 5, 5, 20, 20)
+
+
+def EventGameInfos(event):
+    # -- Render Games Info List -- #
+    GameAtibutesList.Update(event)
+
+
+
+
 
 def EventUpdate(event):
     global Exit_Button
@@ -182,10 +307,18 @@ def EventUpdate(event):
     global SelectGame_Button
     global UIOpacityAnimEnabled
     global UIOpacity_AnimExitToOpenGame
+    global RestartList_Button
+    global GameAtibutesList
 
+    # -- Update Buttons -- #
     Exit_Button.Update(event)
-    InstalledGameList.Update(event)
     SelectGame_Button.Update(event)
+    RestartList_Button.Update(event)
+
+    # -- Update Lists -- #
+    InstalledGameList.Update(event)
+
+    EventGameInfos(event)
 
     if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
         if not InstalledGameList.SelectedItemIndex == -1:
@@ -205,9 +338,15 @@ def UpdateOpacityAnim():
     global BackgroundG
     global BackgroundB
     global UIOpacity_EnableDelay
+    global UIOpacity_StartDelay
+    global UIOpacityAnim_ListLoaded
     UIOpacity_EnableDelay += 1
 
-    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= reg.ReadKey_int("TaiyouSystem/CONF/start_delay"):
+    if not UIOpacityAnim_ListLoaded and UIOpacity_EnableDelay == 20:
+        UIOpacityAnim_ListLoaded = True
+        LoadGameList()
+
+    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= UIOpacity_StartDelay:
         if UIOpacityAnimState == 0:  # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 
@@ -250,10 +389,15 @@ def UpdateOpacityAnim():
                 UIOpacity = 0
                 UIOpacityAnimEnabled = True
                 UIOpacityAnimState = 0
+                UIOpacityAnim_ListLoaded = False
+                UIOpacity_EnableDelay = 0
 
                 if UIOpacity_AnimExitToOpenGame:
                     loadingScreen.GameFolderToOpen = InstalledGameList.SelectedGameFolderName.rstrip()
                     taiyouUI.CurrentMenuScreen = 4
 
-                LoadGameList() # -- Re-Load the Game List -- #
+                UnloadGameList() # -- Re-Load the Game List -- #
+                if not UIOpacity_NextScreen == -1:
+                    taiyouUI.CurrentMenuScreen = UIOpacity_NextScreen
+
                 print("Taiyou.SystemUI.AnimationTrigger : Animation End.")

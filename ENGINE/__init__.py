@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "1.6"
+    return "1.7"
 def Get_SpriteVersion():
     return "1.6"
 def Get_SoundVersion():
@@ -25,13 +25,13 @@ def Get_SoundVersion():
 def Get_RegistryVersion():
     return "1.4"
 def Get_UtilsVersion():
-    return "1.4"
+    return "1.5"
 def Get_GameObjVersion():
-    return "1.9"
+    return "2.0"
 def Get_DeveloperConsoleVersion():
     return "1.5"
 def Get_TaiyouUIVersion():
-    return "1.7"
+    return "1.8"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -99,6 +99,17 @@ def InitUserData():
                 UserFormatCountry = str(SplitedParms[1])
                 print("Taiyou.InitUserData : Format Type was set to:[{0}]".format(UserFormatCountry))
 
+    os.makedirs("Taiyou/HOME/Screenshots",exist_ok=True) # -- Screenshots Folder
+    os.makedirs("Taiyou/HOME/Webcache",exist_ok=True) # -- Webcache Folder
+    os.makedirs("Taiyou/HOME/Records",exist_ok=True)  # -- Records Folder
+    os.makedirs("Taiyou/HOME/Version",exist_ok=True)  # -- Version Folder
+    os.makedirs("Taiyou/HOME/Applets",exist_ok=True)  # -- Applets Folder
+
+    # -- Make some files -- #
+    if not os.path.isfile("Taiyou/HOME/Version/Taiyou.data"):
+        LastTaiyouVersionFile = open("Taiyou/HOME/Version/Taiyou.data", "w")
+        LastTaiyouVersionFile.write(str(TaiyouGeneralVersion))
+        LastTaiyouVersionFile.close()
 
 def LoadFolderMetaData(GameFolderDir):
     global CurrentGame_Title
@@ -326,5 +337,3 @@ def Get_IsSoundEnabled():
 
 def Get_IsFontRenderingEnabled():
     return sprite.FontRenderingDisabled
-
-
