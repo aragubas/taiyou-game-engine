@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "1.7"
+    return "1.9"
 def Get_SpriteVersion():
     return "1.6"
 def Get_SoundVersion():
@@ -31,7 +31,7 @@ def Get_GameObjVersion():
 def Get_DeveloperConsoleVersion():
     return "1.5"
 def Get_TaiyouUIVersion():
-    return "1.8"
+    return "2.0"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -101,15 +101,22 @@ def InitUserData():
 
     os.makedirs("Taiyou/HOME/Screenshots",exist_ok=True) # -- Screenshots Folder
     os.makedirs("Taiyou/HOME/Webcache",exist_ok=True) # -- Webcache Folder
+    os.makedirs("Taiyou/HOME/Webcache/UPDATER/", exist_ok=True)  # -- Webcache Folder
     os.makedirs("Taiyou/HOME/Records",exist_ok=True)  # -- Records Folder
     os.makedirs("Taiyou/HOME/Version",exist_ok=True)  # -- Version Folder
-    os.makedirs("Taiyou/HOME/Applets",exist_ok=True)  # -- Applets Folder
 
-    # -- Make some files -- #
-    if not os.path.isfile("Taiyou/HOME/Version/Taiyou.data"):
-        LastTaiyouVersionFile = open("Taiyou/HOME/Version/Taiyou.data", "w")
-        LastTaiyouVersionFile.write(str(TaiyouGeneralVersion))
-        LastTaiyouVersionFile.close()
+    # -- Make current Version File -- #
+    LastTaiyouVersionFile = open("Taiyou/HOME/Version/TaiyouModules.data", "w")
+    LastTaiyouVersionFile.write("TGE=" + Get_Version() + "\n")
+    LastTaiyouVersionFile.write("SPRITE=" + Get_SpriteVersion() + "\n")
+    LastTaiyouVersionFile.write("SOUND=" + Get_SoundVersion() + "\n")
+    LastTaiyouVersionFile.write("REGISTRY=" + Get_RegistryVersion() + "\n")
+    LastTaiyouVersionFile.write("UTILS=" + Get_UtilsVersion() + "\n")
+    LastTaiyouVersionFile.write("GAME_OBJ=" + Get_GameObjVersion() + "\n")
+    LastTaiyouVersionFile.write("DEVELOPER_CONSOLE=" + Get_DeveloperConsoleVersion() + "\n")
+    LastTaiyouVersionFile.write("TAIYOU_UI=" + Get_TaiyouUIVersion())
+    LastTaiyouVersionFile.close()
+
 
 def LoadFolderMetaData(GameFolderDir):
     global CurrentGame_Title
@@ -160,8 +167,7 @@ def LoadFolderMetaData(GameFolderDir):
 
 
     # -- Make Directories -- #
-    if not os.path.exists(Get_GlobalAppDataFolder()):
-        os.makedirs(Get_GlobalAppDataFolder())
+    utils.Directory_MakeDir(Get_GlobalAppDataFolder())
 
 
     print("Taiyou.Runtime.LoadFolderMetaData : Metadata Loading complete.")
@@ -177,7 +183,7 @@ def InitEngine():
     global AudioChannels
     global AudioFrequency
 
-    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "].\n\n\n")
+    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open("Taiyou.config","r")
 
     for x in conf_file:
@@ -276,10 +282,6 @@ def InitEngine():
             print("Taiyou.Runtime.OpenGameFolder : Audio Buffer Size was set to:" + str(SplitedParms[1].rstrip()))
 
 
-
-
-
-
     # -- Set the Video Driver -- #
     os.environ['SDL_VIDEODRIVER'] = VideoDriver
     os.environ['SDL_AUDIODRIVER'] = AudioDriver
@@ -337,3 +339,39 @@ def Get_IsSoundEnabled():
 
 def Get_IsFontRenderingEnabled():
     return sprite.FontRenderingDisabled
+
+def GetData_InGameMetaDataFile(metaDataFilePath, MetaPartToReturn):
+    # -- Read Meta Data File -- #
+    LineNumber = 0
+
+    with open(metaDataFilePath) as file_in:
+        for line in file_in:
+            LineNumber += 1
+
+            if LineNumber == 0:  # -- Game Name
+                if MetaPartToReturn == "GAME_NAME":
+                    return line
+
+            if LineNumber == 1:  # -- Game ID
+                if MetaPartToReturn == "GAME_ID":
+                    return line
+
+            if LineNumber == 2:  # -- Game Version
+                if MetaPartToReturn == "GAME_VERSION":
+                    return line
+
+            if LineNumber == 3:  # -- Game Source Folder
+                if MetaPartToReturn == "GAME_SOURCE_FOLDER":
+                    return line
+
+            if LineNumber == 4:  # -- Game Folder Name
+                if MetaPartToReturn == "GAME_FOLDER":
+                    return line.rstrip()
+
+            if LineNumber == 5:  # -- Animation Banner Frames
+                if MetaPartToReturn == "GAME_ANIMATION_BANNER_FRAMES":
+                    return int(line)
+
+            if LineNumber == 6:  # -- Animation Banner Frames Delay
+                if MetaPartToReturn == "GAME_ANIMATION_BANNER_DELAY":
+                    return int(line)

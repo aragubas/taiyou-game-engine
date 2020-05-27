@@ -17,8 +17,8 @@
 
 # -- Imports -- #
 import ENGINE as tge
-import shutil
-import os
+import os, shutil, requests, string, random, asyncio, threading, zipfile
+from pathlib import Path
 
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
@@ -50,6 +50,15 @@ def File_Exists(path):
 def Directory_Exists(path):
     return os.path.exists(path)
 
+def Directory_MakeDir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def Unzip_File(path, destination):
+    with zipfile.ZipFile(path, 'r') as zip_ref:
+        zip_ref.extractall(destination)
+
+
 def FileCopy(path, destinationPath):
     shutil.copy(path, destinationPath)
 
@@ -62,10 +71,93 @@ def Calculate_FolderSize(path):
             total_size += os.path.getsize(fp)
     return total_size
 
+def Get_DirectoryOfFilePath(file_path):
+    p = Path(file_path)
+    return p.parent
+
+
 def Get_DirectoryTotalOfFiles(path):
     try:
-        list = os.listdir(path)  # dir is your directory path
+        list = GetFileInDir(path)  # dir is your directory path
         number_files = len(list)
         return number_files
     except:
         return 0
+
+def Random_String(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
+def Online_LinkExists(url):
+    try:
+        request = requests.get(url)
+        if request.status_code == 404:
+            return False
+        else:
+            return True
+    except Exception as ex:
+        raise ConnectionError("Fatal Error in Taiyou.Utils module:\n" + str(ex) + "\nThis can be a signal of a Corrupted Taiyou Game Engine installation.")
+
+def Get_Percentage(Percentage, Max, MaxPercentage):
+    return (Percentage * Max) / MaxPercentage
+
+def File_Delete(filePath):
+    os.remove(filePath)
+
+def Directory_Remove(path):
+    shutil.rmtree(path, True)
+
+
+
+# -- Class Downloader -- #
+class Downloader:
+    def __init__(self):
+        self.Url = ""
+        self.DownloadState = "STOPPED"
+        self.InstanceFileName = "Taiyou/HOME/Webcache/" + Random_String(20) + ".temp"
+        self.DownloadThread = threading.Thread
+        self.DownloadMetaData = list()
+
+    def Update(self):
+        self.DownloadState = "STARTING"
+
+        with open(self.InstanceFileName, "wb") as f:
+            response = requests.get(self.Url, stream=True)
+            total_length = response.headers.get('content-length')
+            self.DownloadMetaData[0] = total_length
+            self.DownloadState = "DOWNLOADING"
+
+            if total_length is None:  # no content length header
+                f.write(response.content)
+            else:
+                dl = 0
+                total_length = int(total_length)
+                for data in response.iter_content(chunk_size=1024):
+                    dl += len(data)
+                    f.write(data)
+                    done = int(100 * dl / total_length)
+                    self.DownloadMetaData[1] = done
+
+        self.DownloadState = "FINISHED"
+
+    def StartDownload(self, Url, FileLocation="default"):
+        if FileLocation == "default":
+            self.InstanceFileName = "Taiyou/HOME/Webcache/" + Random_String(50) + ".temp"
+        else:
+            self.InstanceFileName = FileLocation
+        # -- Set Download State -- #
+        self.DownloadState = "STOPPED"
+        # -- Set the Url -- #
+        self.Url = Url
+        # -- Restart some Variables -- #
+        self.DownloadMetaData.clear()
+        self.DownloadMetaData.append("0") # -- Index 0 is File Size
+        self.DownloadMetaData.append("0") # -- Index 1 is Download Progress
+
+        # -- Create the Path for Download -- #
+        Directory_MakeDir(Get_DirectoryOfFilePath(self.InstanceFileName))
+
+        # -- Create the Download Thread -- #
+        self.DownloadThread = threading.Thread(target=self.Update)
+        self.DownloadThread.daemon = True
+        self.DownloadThread.start()

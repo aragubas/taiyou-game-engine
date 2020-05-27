@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,10 @@ from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
+
 import ENGINE as tge
 
-CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 4 = Loading Screen
+CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
 SystemMenuEnabled = True
 Cursor_Position = (0,0)
 

@@ -4,13 +4,16 @@
 # Format:
 # [sprite_location]:[True or False, transparency]
 #
+# -- Cursor -- #
 /TAIYOU_UI/Cursor/0.png:True
 /TAIYOU_UI/Cursor/1.png:True
 /TAIYOU_UI/Cursor/2.png:True
 /TAIYOU_UI/Cursor/3.png:True
 /TAIYOU_UI/Cursor/4.png:True
 /TAIYOU_UI/Cursor/5.png:True
+# -- Aragubas Logo -- #
 /TAIYOU_UI/aragubas.png:True
+# -- Loading animation -- #
 /FRAMES/loading/1.png:True
 /FRAMES/loading/2.png:True
 /FRAMES/loading/3.png:True

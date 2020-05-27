@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
 from ENGINE import TaiyouUI as mainScript
 from ENGINE import SOUND as sound
+import ENGINE as tge
 import pygame, sys, importlib
 
 PANELS_BACKGROUND_COLOR = (4, 21, 32)
@@ -43,7 +44,7 @@ def SetLang(lang):
 LangErrorAppered = False
 
 
-def GetLangText(lang_name, lang_prefix="no_prefix"):
+def GetLangText(lang_name, lang_prefix="generic"):
     global CurrentLanguage
     global LangErrorAppered
     try:
@@ -95,6 +96,8 @@ class Button:
     def Update(self, event):
         if not self.CustomColisionRectangle:
             self.ColisionRectangle = self.Rectangle
+        else:
+            self.ColisionRectangle = pygame.Rect(self.ColisionRectangle[0], self.ColisionRectangle[1], self.Rectangle[2], self.Rectangle[3])
 
         if self.IsButtonEnabled:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -136,6 +139,7 @@ class Button:
 
     def Set_ColisionY(self, Value):
         self.ColisionRectangle[1] = Value
+
 
     def Set_Text(self, Value):
         self.ButtonText = Value
@@ -423,6 +427,7 @@ class HorizontalItemsView:
         self.GameSourceFolder = list()
         self.GameBanner = list()
         self.GameFolderName = list()
+        self.GameFolderInfos = list()
         self.ItemApperAnimationEnabled = list()
         self.ItemApperAnimationNumb = list()
         self.ItemApperAnimationMode = list()
@@ -433,12 +438,15 @@ class HorizontalItemsView:
         self.ItemSelectedCurrentFrameUpdateDelay = list()
         self.GameBannerAnimationFrameDelay = list()
 
+
         self.ItemSelected = list()
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
         self.SelectedGameID = ""
         self.SelectedGameVersion = ""
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
+
+
 
         self.ScrollX = 0
         self.ScrollSpeed = 0
@@ -565,6 +573,7 @@ class HorizontalItemsView:
         self.SelectedGameID = ""
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
+        self.SelectedGameFolderInfos = None
 
         self.ScrollX = 0
 
@@ -626,6 +635,7 @@ class HorizontalItemsView:
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 or self.SelectedItemIndex == i and self.ItemSelected[i] == False:
                 if ItemRect.collidepoint(pygame.mouse.get_pos()) or self.SelectedItemIndex == i:
+                    self.SelectedGameFolderInfos = self.GameFolderInfos[i]
                     self.SelectedItem = itemNam
                     self.SelectedGameID = self.GameID[i]
                     self.SelectedGameFolderName = self.GameFolderName[i]
@@ -658,6 +668,7 @@ class HorizontalItemsView:
         LineNumber = -1  # Line 0 == Game Name; Line 1 == Game ID; Line 2 == Game Version; Line 3 == Game Source Folder
         GameBannerAnimAmountFrames = 0
         MetaFile = GameDir + "/meta.data"
+        FolderName = ""
         with open(MetaFile) as file_in:
             for line in file_in:
                 LineNumber += 1
@@ -676,6 +687,7 @@ class HorizontalItemsView:
 
                 if LineNumber == 4:  # -- Game Folder Name
                     self.GameFolderName.append(line)
+                    FolderName = line.rstrip()
 
                 if LineNumber == 5:  # -- Animation Banner Frames
                     self.GameBannerAnimationAmount.append(int(line))
@@ -692,6 +704,14 @@ class HorizontalItemsView:
         self.ItemSelectedCurrentFrame.append(0)
         self.ItemApperAnimationToggle.append(False)
         self.ItemSelectedCurrentFrameUpdateDelay.append(0)
+
+        # - Load Folder Metadata -- #
+        GameFolderInfos = list()
+
+        GameFolderInfos.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(FolderName), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
+        GameFolderInfos.append(tge.utils.Get_DirectoryTotalOfFiles(FolderName))
+
+        self.GameFolderInfos.append(GameFolderInfos)
 
         AnimationFrames = list()
         for frame in range(0, GameBannerAnimAmountFrames):
@@ -825,8 +845,15 @@ class LoadingSquare:
 
             self.UpdateAnimDelay = 0
 
+    def Set_X(self, NewValue):
+        self.X = NewValue
+
+    def Set_Y(self, NewValue):
+        self.Y = NewValue
+
+
     def Render(self, DISPLAY):
-        AnimSurface = pygame.Surface((32, 32))
+        AnimSurface = pygame.Surface((32, 32), pygame.SRCALPHA)
         AnimSurface.set_alpha(self.Opacity)
 
         sprite.Render(AnimSurface, self.FramesPrefix + str(self.CurrentFrame) + ".png", 0, 0, 32, 32)
