@@ -21,7 +21,7 @@ from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-
+from ENGINE import utils
 import ENGINE as tge
 
 CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
@@ -86,7 +86,7 @@ def EventUpdate(event):
 
 def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges")
-    pygame.display.set_caption("Taiyou System Menu v" + tge.Get_TaiyouUIVersion())
+    pygame.display.set_caption("Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
     Messages.append("RESIZIABLE_WINDOW:False")
     if not pygame.display.get_window_size() == (800,600):
         Messages.append("SET_RESOLUTION:800:600")

@@ -109,12 +109,9 @@ def ReadKey_bool(keyName):
 def WriteKey(keyName, keyValue):
     keyName = CorrectKeyName(keyName)
     FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
-    BarraSplit = keyName.split('/')
-    CorrectDir = tge.Get_GameSourceFolder() + "/REG/" + BarraSplit[len(BarraSplit) - 2]
-    if not os.path.exists(CorrectDir):
-        os.makedirs(CorrectDir)
-        print("Taiyou.RegistryManager.WriteKey : Directory[" + CorrectDir + "]created.")
 
+    # -- Create the directory if not exists -- #
+    os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Location;" + FileLocation)
 

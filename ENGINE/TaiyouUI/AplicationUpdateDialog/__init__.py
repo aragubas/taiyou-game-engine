@@ -67,7 +67,7 @@ def Draw(Display):
 
         # -- Draw the Titlebar -- #
         sprite.RenderRectangle(CommonDisplay, (10, 32, 49), (0, 0, DialogRectangle[2], 25))
-        sprite.RenderFont(CommonDisplay, "/Ubuntu_Bold.ttf", 18, MessageTitle, (240, 240, 240), DialogRectangle[2] / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 18, gtk.GetLangText("title", "update_diag")) / 2, 2)
+        sprite.RenderFont(CommonDisplay, "/Ubuntu_Bold.ttf", 18, MessageTitle, (240, 240, 240), DialogRectangle[2] / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 18, MessageTitle) / 2, 2)
 
         if Subscreen == 1:
             subscreen1.Draw(CommonDisplay)

@@ -70,14 +70,17 @@ def Update():
     if LoadingNextStage and not GameFolderToOpen == "TESTMODE":
         LoadingStage += 1
         if LoadingStage == 0:
-            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
+            if utils.Directory_Exists(GameFolderToOpen):
+                
         if LoadingStage == 1:
-            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
+            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
         if LoadingStage == 2:
-            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
+            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
         if LoadingStage == 3:
-            tge.LoadFolderMetaData(GameFolderToOpen)
+            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
         if LoadingStage == 4:
+            tge.LoadFolderMetaData(GameFolderToOpen)
+        if LoadingStage == 5:
             taiyouUI.Messages.append("OPEN_GAME:" + GameFolderToOpen)
             taiyouUI.Messages.append("TOGGLE_GAME_START")
 

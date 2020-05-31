@@ -26,16 +26,15 @@ from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import AplicationUpdateDialog as UpdateDiag
+from ENGINE.TaiyouUI.GameSeletor import GameInfos
 
 # -- Buttons -- #
 Exit_Button = gtk.Button
 RestartList_Button = gtk.Button
 SelectGame_Button = gtk.Button
-RunUpdater_Button = gtk.Button
 
 # -- Lists -- #
 InstalledGameList = gtk.HorizontalItemsView
-GameAtibutesList = gtk.VerticalListWithDescription
 
 # -- Rects -- #
 TopPanel_Rect = pygame.Rect(0,0,30,30)
@@ -67,19 +66,6 @@ AnimationNumb = 0
 DisplaySurface = pygame.Surface((0,0))
 DisplaySurfaceInited = False
 
-# -- Game Infos -- #
-GameInfosAnim_Opacity = 0
-GameInfosAnim_Enabled = False
-GameInfosAnim_Mode = 0
-GameInfosAnim_Numb = 0
-GameInfosAnim_Last = "null"
-GameInfosSurface = pygame.Surface
-GameInfosSurface_Dest = (5,5)
-GameInfosRectBox = pygame.Rect(0,0, 300,200)
-SelectedGameInfosList = list()
-InformationLoaded_Last = "null"
-InformationLoaded = False
-
 # -- Application Update Dialog -- #
 ApplicationUpdateDialogEnabled = False
 
@@ -93,36 +79,7 @@ DownloaderObj = utils.Downloader
 LoadingPauseMessage = "0%"
 
 
-
-
-def GameInfosAnimUpdate():
-    global GameInfosAnim_Enabled
-    global GameInfosAnim_Mode
-    global GameInfosAnim_Opacity
-    global GameInfosAnim_Numb
-
-    if GameInfosAnim_Enabled:
-        GameInfosAnim_Numb = GameInfosAnim_Opacity - 255 + 15
-
-        if GameInfosAnim_Mode == 0:
-            GameInfosAnim_Opacity += 15
-
-            if GameInfosAnim_Opacity >= 255:
-                GameInfosAnim_Numb = 0
-                GameInfosAnim_Opacity = 255
-                GameInfosAnim_Enabled = False
-                GameInfosAnim_Mode = 1
-
-        if GameInfosAnim_Mode == 1:
-            GameInfosAnim_Opacity -= 15
-
-            if GameInfosAnim_Opacity <= 0:
-                GameInfosAnim_Numb = 0
-                GameInfosAnim_Opacity = 0
-                GameInfosAnim_Enabled = True
-                GameInfosAnim_Mode = 0
-
-
+SelectedGameInfo = () # 0 == Game ID; 1 == Game Name; 2 == Game Version; 3 == Game Folder
 
 
 def ListInstalledGames():
@@ -151,30 +108,18 @@ def Initialize():
     global SeletorLoadingSquare
     global UIOpacity_StartDelay
     global RestartList_Button
-    global GameAtibutesList
     global DownloaderObj
-    global RunUpdater_Button
-    global GameInfosSurface
-    global GameInfosRectBox
     Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("options_button", "seletor"), 20)
     SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
     InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
     RestartList_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("restart_button", "seletor"), 20)
     SeletorLoadingSquare = gtk.LoadingSquare(5,5)
-    GameAtibutesList = gtk.VerticalListWithDescription(pygame.Rect(0, 0, 370, 300))
-    RunUpdater_Button = gtk.Button(pygame.Rect(5,5,5,5), gtk.GetLangText("updater_button", "seletor"), 20)
-    RunUpdater_Button.CustomColisionRectangle = True
     DownloaderObj = utils.Downloader()
-
-    GameInfosSurface = pygame.Surface((GameAtibutesList.Rectangle[2] + GameInfosRectBox[2], GameAtibutesList.Rectangle[3]))
-
-    GameAtibutesList.AddItem(gtk.GetLangText("title_info", "seletor/atribute_list/title"), gtk.GetLangText("title_desc", "seletor/atribute_list"))
-    GameAtibutesList.AddItem(gtk.GetLangText("local_info", "seletor/atribute_list/title"), gtk.GetLangText("local_desc", "seletor/atribute_list"))
-    GameAtibutesList.AddItem(gtk.GetLangText("online_info", "seletor/atribute_list/title"), gtk.GetLangText("online_desc", "seletor/atribute_list"))
 
     UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay")
 
     UpdateDiag.Initialize()
+    GameInfos.Initialize()
 
     LoadGameList()
 
@@ -215,8 +160,6 @@ def Draw(Display):
     global AnimationNumb
     global SeletorLoadingSquare
     global RestartList_Button
-    global GameAtibutesList
-    global RunUpdater_Button
     global UIOpacity_EnableDelayEnabled
     global ApplicationUpdateDialogEnabled
     Display.fill((0, 0, 0, 0))
@@ -245,7 +188,8 @@ def Draw(Display):
         InstalledGameList.Render(DisplaySurface)
 
         if not InstalledGameList.SelectedItemIndex == -1:
-            RenderGameInfos(DisplaySurface)
+            GameInfos.Draw(DisplaySurface)
+
     Display.blit(DisplaySurface, (0,0))
 
     if ApplicationUpdateDialogEnabled:
@@ -273,15 +217,19 @@ def Update():
     global RestartList_Button
     global UIOpacity_EnableDelay
     global ApplicationUpdateDialogEnabled
-    global RunUpdater_Button
+    global SelectedGameInfo
 
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
-    UpdateGameInfos()
+    # -- Update Game Infos -- #
+    if not InstalledGameList.SelectedItemIndex == -1:
+        GameInfos.Update()
 
+    # -- Update update Dialog -- #
     if ApplicationUpdateDialogEnabled:
         UpdateDiag.Update()
 
+    # -- Update Loading Square -- #
     if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
         if DisplaySurfaceInited:
             SeletorLoadingSquare.X = DisplaySurface.get_width() - 38
@@ -304,6 +252,11 @@ def Update():
         RestartList_Button.Set_X(Exit_Button.Rectangle[0] - RestartList_Button.Rectangle[2] - 5)
         RestartList_Button.Set_Y(Exit_Button.Rectangle[1])
 
+
+        # -- Update Selected Game Infos List -- #
+        if not InstalledGameList.SelectedItemIndex == -1:
+            SelectedGameInfo = (InstalledGameList.SelectedGameID.rstrip(), InstalledGameList.SelectedItem.rstrip(), InstalledGameList.SelectedGameVersion.rstrip(), InstalledGameList.SelectedGameFolderName.rstrip())
+
         # -- Refresh Button -- #
         if RestartList_Button.ButtonState == "UP":
             UIOpacity_AnimExitToOpenGame = False
@@ -319,128 +272,6 @@ def Update():
 
     # -- Update the In/Out Animation -- #
     UpdateOpacityAnim()
-    GameInfosAnimUpdate()
-
-
-
-
-def UpdateGameInfos():
-    global GameAtibutesList
-    global GameInfosRectBox
-    global InformationLoaded
-    global InformationLoaded_Last
-    global GameInfosSurface
-    global ApplicationUpdateDialogEnabled
-    global RunUpdater_Button
-    global GameInfosAnim_Numb
-    global GameInfosSurface_Dest
-
-    GameInfosSurface_Dest = (GameInfosAnim_Numb + 5, 600 - GameInfosRectBox[3] - 5)
-
-    if not InformationLoaded_Last == InstalledGameList.SelectedItem:
-        # -- Get Selected Game Infos List -- #
-        SelectedGameInfosList.clear()
-
-        # -- Title Informations -- #
-        SelectedGameInfosList.append(InstalledGameList.SelectedItem.rstrip())
-        SelectedGameInfosList.append(InstalledGameList.SelectedGameVersion.rstrip())
-        SelectedGameInfosList.append(InstalledGameList.SelectedGameID.rstrip())
-        SelectedGameInfosList.append(InstalledGameList.SelectedGameFolderName.rstrip())
-
-        GameInfosRectBox = pygame.Rect(GameAtibutesList.Rectangle[2] + 5, GameAtibutesList.Rectangle[1], GameAtibutesList.Rectangle[2] + 20, GameAtibutesList.Rectangle[3])
-
-        GameInfosSurface = pygame.Surface((GameAtibutesList.Rectangle[2] + GameInfosRectBox[2] - 10, GameAtibutesList.Rectangle[3]))
-
-        GameAtibutesList.ColisionXOffset = 5
-        GameAtibutesList.ColisionYOffset = 600 - GameInfosRectBox[3] - 5
-
-    if GameAtibutesList.LastItemClicked == gtk.GetLangText("online_info", "seletor/atribute_list/title"):
-        # -- Run Updater Button -- #
-        RunUpdater_Button.Set_X(GameInfosRectBox[0] + 15)
-        RunUpdater_Button.Set_Y(GameInfosRectBox[1] + GameInfosRectBox[3] - 32)
-
-        RunUpdater_Button.Set_ColisionX(GameInfosSurface_Dest[0] + RunUpdater_Button.Rectangle[0])
-        RunUpdater_Button.Set_ColisionY(GameInfosSurface_Dest[1] + RunUpdater_Button.Rectangle[1])
-
-        # -- Update Button -- #
-        if RunUpdater_Button.ButtonState == "UP":
-            # -- Set Variables -- #
-            ApplicationUpdateDialogEnabled = True
-            UpdateDiag.ApplicationID = InstalledGameList.SelectedGameID.rstrip()
-            UpdateDiag.ApplicationName = InstalledGameList.SelectedItem.rstrip()
-            UpdateDiag.ApplicationVersion = float(InstalledGameList.SelectedGameVersion.rstrip())
-            UpdateDiag.ApplicationFolder = InstalledGameList.SelectedGameFolderName.rstrip()
-            RunUpdater_Button.ButtonState = "INACTIVE"
-
-
-
-
-def RenderGameInfos(Display):
-    global GameInfosRectBox
-    global GameInfosAnim_Last
-    global GameInfosAnim_Enabled
-    global GameInfosSurface
-    global GameInfosAnim_Numb
-    global GameAtibutesList
-    global GameInfosAnim_Opacity
-    global GameInfosSurface_Dest
-
-    if not GameInfosAnim_Last == InstalledGameList.SelectedItemIndex:
-        GameInfosAnim_Last = InstalledGameList.SelectedItemIndex
-        GameInfosAnim_Enabled = True
-
-    # -- Clear the Surface -- #
-    GameInfosSurface.fill((BackgroundR, BackgroundG, BackgroundB))
-    GameInfosSurface.set_alpha(GameInfosAnim_Opacity)
-
-    # -- Render Games Info List -- #
-    GameAtibutesList.Render(GameInfosSurface)
-
-
-    # -- Render Infos Box -- #
-    gtk.Draw_Panel(GameInfosSurface, GameInfosRectBox, "BORDER")
-
-    if GameAtibutesList.LastItemClicked == gtk.GetLangText("title_info", "seletor/atribute_list/title"):
-        RenderTitleInformation(GameInfosSurface)
-
-    if GameAtibutesList.LastItemClicked == gtk.GetLangText("local_info", "seletor/atribute_list/title"):
-        RenderLocalInformation(GameInfosSurface)
-
-    if GameAtibutesList.LastItemClicked == gtk.GetLangText("online_info", "seletor/atribute_list/title"):
-        RenderOnlineInformation(GameInfosSurface)
-
-    Display.blit(GameInfosSurface, GameInfosSurface_Dest)
-
-
-
-
-def RenderTitleInformation(Display):
-    global SelectedGameInfosList
-    Text = gtk.GetLangText("title_info", "seletor/atribute_list/txt").format(SelectedGameInfosList[0], SelectedGameInfosList[1], SelectedGameInfosList[2], SelectedGameInfosList[3])
-
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 14, Text, (230,230,230), GameInfosRectBox[0] + 5, GameInfosRectBox[1] + 25, True)
-
-
-
-
-def RenderLocalInformation(Display):
-    Text = gtk.GetLangText("local_info", "seletor/atribute_list/txt").format(InstalledGameList.SelectedGameFolderInfos[0], InstalledGameList.SelectedGameFolderInfos[1])
-
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 14, Text, (230,230,230), GameInfosRectBox[0] + 5, GameInfosRectBox[1] + 25, True)
-
-
-
-
-def RenderOnlineInformation(Display):
-    global RunUpdater_Button
-    RunUpdater_Button.Render(Display)
-
-
-
-
-def EventGameInfos(event):
-    # -- Render Games Info List -- #
-    GameAtibutesList.Update(event)
 
 
 
@@ -452,21 +283,19 @@ def EventUpdate(event):
     global UIOpacityAnimEnabled
     global UIOpacity_AnimExitToOpenGame
     global RestartList_Button
-    global GameAtibutesList
     global ApplicationUpdateDialogEnabled
-    global RunUpdater_Button
 
     # -- Update Buttons -- #
     if not ApplicationUpdateDialogEnabled:
         Exit_Button.Update(event)
         SelectGame_Button.Update(event)
         RestartList_Button.Update(event)
-        RunUpdater_Button.Update(event)
 
         # -- Update Lists -- #
         InstalledGameList.Update(event)
 
-        EventGameInfos(event)
+        if not InstalledGameList.SelectedItemIndex == -1:
+            GameInfos.EventUpdate(event)
 
         if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
             if not InstalledGameList.SelectedItemIndex == -1:
@@ -487,9 +316,12 @@ def LoadingTasks():
     global UIOpacity_EnableDelayEnabled
     global DownloadersCreated
     global DownloaderObj
-    if UIOpacity_EnableDelay == 20: # -- Loading Task 1
+    if UIOpacity_EnableDelay == 2: # -- Loading Task 1
         UIOpacityAnim_ListLoaded = True
         LoadGameList()
+
+
+
 
 def DownloadFileInLoading(Url, FilePath):
     global DownloadersCreated
@@ -513,6 +345,8 @@ def DownloadFileInLoading(Url, FilePath):
         DownloadersCreated = False
 
 
+
+
 def UpdateOpacityAnim():
     global UIOpacityAnimState
     global UIOpacity
@@ -526,11 +360,6 @@ def UpdateOpacityAnim():
     global UIOpacity_EnableDelay
     global UIOpacity_StartDelay
     global UIOpacityAnim_ListLoaded
-    global GameInfosAnim_Last
-    global GameInfosAnim_Enabled
-    global GameInfosAnim_Opacity
-    global GameInfosAnim_Mode
-    global GameInfosAnim_Numb
 
     if not ApplicationUpdateDialogEnabled:
         if UIOpacity_EnableDelayEnabled:
@@ -587,14 +416,6 @@ def UpdateOpacityAnim():
                 if UIOpacity_AnimExitToOpenGame:
                     loadingScreen.GameFolderToOpen = InstalledGameList.SelectedGameFolderName.rstrip()
                     taiyouUI.CurrentMenuScreen = 4
-
-
-                # -- Restart Atribute Error -- #
-                GameInfosAnim_Last = -1
-                GameInfosAnim_Opacity = 0
-                GameInfosAnim_Mode = 0
-                GameInfosAnim_Numb = 0
-                GameInfosAnim_Enabled = True
 
                 UnloadGameList() # -- Re-Load the Game List -- #
                 if not UIOpacity_NextScreen == -1:

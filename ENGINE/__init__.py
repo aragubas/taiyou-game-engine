@@ -17,21 +17,21 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "1.9"
+    return "2.2"
 def Get_SpriteVersion():
     return "1.6"
 def Get_SoundVersion():
-    return "1.5"
+    return "1.6"
 def Get_RegistryVersion():
     return "1.4"
 def Get_UtilsVersion():
     return "1.5"
 def Get_GameObjVersion():
-    return "2.0"
+    return "2.1"
 def Get_DeveloperConsoleVersion():
     return "1.5"
 def Get_TaiyouUIVersion():
-    return "2.0"
+    return "2.2"
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
 
@@ -45,24 +45,25 @@ from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import DeveloperConsole as devel
+from ENGINE import TaiyouUI as TaiyouUI
 import os
 
 # -- Variables --
-CurrentGame_Title = ""
-CurrentGame_ID = ""
-CurrentGame_Version = ""
-CurrentGame_SourceFolder = ""
-CurrentGame_Folder = ""
+CurrentGame_Title = "null"
+CurrentGame_ID = "null"
+CurrentGame_Version = "null"
+CurrentGame_SourceFolder = "null"
+CurrentGame_Folder = "null"
 IsGameRunning = False
-VideoDriver = "x11"
-AudioDriver = "alsa"
-DiskAudioFile = "output.raw"
-DiskAudioDelay = "150"
-AudioFrequency = 96000
-AudioSize = -16
-AudioChannels = 2
-AudioBufferSize = 500
-
+VideoDriver = "null"
+AudioDriver = "null"
+DiskAudioFile = "null"
+DiskAudioDelay = "null"
+AudioFrequency = 0
+AudioSize = -0
+AudioChannels = 0
+AudioBufferSize = 0
+RunInFullScreen = False
 
 
 
@@ -104,6 +105,7 @@ def InitUserData():
     os.makedirs("Taiyou/HOME/Webcache/UPDATER/", exist_ok=True)  # -- Webcache Folder
     os.makedirs("Taiyou/HOME/Records",exist_ok=True)  # -- Records Folder
     os.makedirs("Taiyou/HOME/Version",exist_ok=True)  # -- Version Folder
+    os.makedirs("Taiyou/HOME/Cache",exist_ok=True)  # -- Cache Folder
 
     # -- Make current Version File -- #
     LastTaiyouVersionFile = open("Taiyou/HOME/Version/TaiyouModules.data", "w")
@@ -182,6 +184,7 @@ def InitEngine():
     global AudioBufferSize
     global AudioChannels
     global AudioFrequency
+    global RunInFullScreen
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open("Taiyou.config","r")
@@ -192,49 +195,44 @@ def InitEngine():
 
         if SplitedParms[0] == "DisableFontRendering":
             if SplitedParms[1] == "True":
-                Value = True
+                sprite.FontRenderingDisabled = True
             else:
-                Value = False
+                sprite.FontRenderingDisabled = False
 
-            sprite.FontRenderingDisabled = Value
-            print("Taiyou.Runtime.OpenGameFolder : Disable font rendering set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : Disable font rendering set to:" + str(sprite.FontRenderingDisabled ))
         
         if SplitedParms[0] == "DisableSpriteRendering":
             if SplitedParms[1] == "True":
-                Value = True
+                sprite.SpriteRenderingDisabled = True
             else:
-                Value = False
+                sprite.SpriteRenderingDisabled = False
 
-            sprite.SpriteRenderingDisabled = Value
-            print("Taiyou.Runtime.OpenGameFolder : Disable sprite rendering set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : Disable sprite rendering set to:" + str(sprite.SpriteRenderingDisabled))
 
 
         if SplitedParms[0] == "DisableRectangleRendering":
             if SplitedParms[1] == "True":
-                Value = True
+                sprite.RectangleRenderingDisabled = True
             else:
-                Value = False
+                sprite.RectangleRenderingDisabled = False
 
-            sprite.RectangleRenderingDisabled = Value
-            print("Taiyou.Runtime.OpenGameFolder : Disable rectangle rendering set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : Disable rectangle rendering set to:" + str(sprite.RectangleRenderingDisabled))
 
         if SplitedParms[0] == "DisableSpriteTransparency":
             if SplitedParms[1] == "True":
-                Value = True
+                sprite.SpriteTransparency = True
             else:
-                Value = False
+                sprite.SpriteTransparency = False
 
-            sprite.SpriteTransparency = Value
-            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(sprite.SpriteTransparency))
 
         if SplitedParms[0] == "DisableSoundSystem":
             if SplitedParms[1] == "True":
-                Value = True
+                sound.DisableSoundSystem = True
             else:
-                Value = False
+                sound.DisableSoundSystem = False
 
-            sound.DisableSoundSystem = Value
-            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(Value))
+            print("Taiyou.Runtime.OpenGameFolder : Disable sound system set to:" + str(sound.DisableSoundSystem))
 
         if SplitedParms[0] == "AppDataFolder":
             TaiyouAppDataFolder = SplitedParms[1].rstrip()
@@ -281,6 +279,24 @@ def InitEngine():
 
             print("Taiyou.Runtime.OpenGameFolder : Audio Buffer Size was set to:" + str(SplitedParms[1].rstrip()))
 
+        if SplitedParms[0] == "RunInFullScreen":
+            if SplitedParms[1].rstrip() == "True":
+                RunInFullScreen = True
+            elif SplitedParms[1].rstrip() == "False":
+                RunInFullScreen = False
+            else:
+                RunInFullScreen = False
+
+            print("Taiyou.Runtime.OpenGameFolder : Run in Fullscreen was set to:" + str(SplitedParms[1].rstrip()))
+
+        if SplitedParms[0] == "AutoBootGameFolder":
+            TaiyouUI.CurrentMenuScreen = 4
+            TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
+
+            print("Taiyou.Runtime.OpenGameFolder : AutoBoot Game Folder was set to:" + str(SplitedParms[1].rstrip()))
+
+
+
 
     # -- Set the Video Driver -- #
     os.environ['SDL_VIDEODRIVER'] = VideoDriver
@@ -299,11 +315,11 @@ def CloseGameFolder():
     global CurrentGame_SourceFolder
     global CurrentGame_Folder
 
-    CurrentGame_Title = ""
-    CurrentGame_ID = ""
-    CurrentGame_Version = ""
-    CurrentGame_SourceFolder = ""
-    CurrentGame_Folder = ""
+    CurrentGame_Title = "null"
+    CurrentGame_ID = "null"
+    CurrentGame_Version = "null"
+    CurrentGame_SourceFolder = "null"
+    CurrentGame_Folder = "null"
     os.remove(".OpenedGameInfos")
 
 
@@ -322,6 +338,8 @@ def Get_GameVersion():
 
 def Get_GameSourceFolder():
     global CurrentGame_SourceFolder
+    if CurrentGame_SourceFolder == "null":
+        return "Taiyou/SYSTEM/SOURCE"
     return CurrentGame_SourceFolder
 
 def Get_GameFolder():
@@ -335,7 +353,7 @@ def Get_GlobalAppDataFolder():
     return TaiyouAppDataFolder + "{0}/{1}/".format(str(CurrentGame_ID), str(CurrentGame_Version))
 
 def Get_IsSoundEnabled():
-    return sound.DisableSoundSystem
+    return not sound.DisableSoundSystem
 
 def Get_IsFontRenderingEnabled():
     return sprite.FontRenderingDisabled

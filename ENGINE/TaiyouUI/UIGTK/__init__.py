@@ -737,6 +737,7 @@ class VerticalListWithDescription:
         self.ItemSprite = list()
         self.ItemSelected = list()
         self.LastItemClicked = "null"
+        self.SelectedItemIndex = -1
         self.ScrollY = 0
         self.ListSurface = pygame.Surface((Rectangle[2], Rectangle[3]))
         self.ClickedItem = ""
@@ -801,6 +802,7 @@ class VerticalListWithDescription:
                 if ItemRect.collidepoint(self.Cursor_Position):
                     self.LastItemClicked = itemNam
                     self.ItemSelected[i] = True
+                    self.SelectedItemIndex = i
                     print("LastClickedItem : " + self.LastItemClicked)
             if event.type == pygame.MOUSEBUTTONUP:
                 self.ItemSelected[i] = False

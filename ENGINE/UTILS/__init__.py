@@ -17,8 +17,9 @@
 
 # -- Imports -- #
 import ENGINE as tge
-import os, shutil, requests, string, random, asyncio, threading, zipfile
+import os, shutil, requests, string, random, asyncio, threading, zipfile, urllib.request
 from pathlib import Path
+from urllib.error import HTTPError
 
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
@@ -90,13 +91,10 @@ def Random_String(length):
 
 def Online_LinkExists(url):
     try:
-        request = requests.get(url)
-        if request.status_code == 404:
-            return False
-        else:
-            return True
-    except Exception as ex:
-        raise ConnectionError("Fatal Error in Taiyou.Utils module:\n" + str(ex) + "\nThis can be a signal of a Corrupted Taiyou Game Engine installation.")
+        conn = urllib.request.urlopen(url)
+        return conn.getcode()
+    except HTTPError as e:
+        return e.code
 
 def Get_Percentage(Percentage, Max, MaxPercentage):
     return (Percentage * Max) / MaxPercentage
@@ -121,24 +119,31 @@ class Downloader:
     def Update(self):
         self.DownloadState = "STARTING"
 
-        with open(self.InstanceFileName, "wb") as f:
-            response = requests.get(self.Url, stream=True)
-            total_length = response.headers.get('content-length')
-            self.DownloadMetaData[0] = total_length
-            self.DownloadState = "DOWNLOADING"
+        Response = Online_LinkExists(self.Url)
+        DownloadError = False
+        if not Response == 200:
+            self.DownloadState = "ERROR_" + str(Response)
+            DownloadError = True
 
-            if total_length is None:  # no content length header
-                f.write(response.content)
-            else:
-                dl = 0
-                total_length = int(total_length)
-                for data in response.iter_content(chunk_size=1024):
-                    dl += len(data)
-                    f.write(data)
-                    done = int(100 * dl / total_length)
-                    self.DownloadMetaData[1] = done
+        if not DownloadError:
+            with open(self.InstanceFileName, "wb") as f:
+                response = requests.get(self.Url, stream=True)
+                total_length = response.headers.get('content-length')
+                self.DownloadMetaData[0] = total_length
+                self.DownloadState = "DOWNLOADING"
 
-        self.DownloadState = "FINISHED"
+                if total_length is None:  # no content length header
+                    f.write(response.content)
+                else:
+                    dl = 0
+                    total_length = int(total_length)
+                    for data in response.iter_content(chunk_size=1024):
+                        dl += len(data)
+                        f.write(data)
+                        done = int(100 * dl / total_length)
+                        self.DownloadMetaData[1] = done
+
+            self.DownloadState = "FINISHED"
 
     def StartDownload(self, Url, FileLocation="default"):
         if FileLocation == "default":
