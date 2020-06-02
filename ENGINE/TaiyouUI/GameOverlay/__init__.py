@@ -41,7 +41,7 @@ UIOpacity = 0
 UIOpacityAnimSpeed = 15
 UIOpacityAnimEnabled = True
 UIOpacityAnimState = 0
-UIOpacityScreenCopyied = True
+UIOpacityPauseGame = True
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacityAnim_InGameErrorSoundPlayed = False
@@ -127,8 +127,18 @@ def Draw(Display):
     global ExitToMainMenuOpacityAnimBG
 
     DISPLAYObject = Display
-    # -- Draw the Dark Background -- #
-    Display.blit(CopyOfTheScreen, (0, 0))
+    # -- Draw the Screenshot of Screen -- #
+    if reg.ReadKey_bool("/TaiyouSystem/CONF/overlay_screenshot_of_screen"):
+        if reg.ReadKey_bool("/TaiyouSystem/CONF/blur_enabled"):
+            # -- Pixalizate if Overlay Pixalizate is True -- #
+            if not reg.ReadKey_bool("/TaiyouSystem/CONF/overlay_pixelizate"):
+                Display.blit(sprite.Surface_Blur(CopyOfTheScreen, max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount"))), (0, 0))
+            else:
+                Display.blit(sprite.Surface_Pixalizate(CopyOfTheScreen, max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount"))), (0, 0))
+
+        else:
+            Display.blit(CopyOfTheScreen, (0, 0))
+
     if not UIObjectsSurfaceUpdated:
         UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
         UIObjectsSurfaceUpdated = True
@@ -165,7 +175,6 @@ def Draw(Display):
         ExitToMainMenuOpacityAnimBG.set_alpha(ExitToMainMenuAnimOpacity * 2)
 
         Display.blit(ExitToMainMenuOpacityAnimBG, (0,0))
-
 
 def Update():
     global TopBarRectangle
@@ -367,7 +376,7 @@ def UpdateOpacityAnim():
     global CopyOfTheScreen
     global DarkerBackgroundSurface
     global UIObjectsSurface
-    global UIOpacityScreenCopyied
+    global UIOpacityPauseGame
     global ConsoleWindowEnabled
     global UIObjectsSurfaceUpdated
     global ExitToInitializeGame
@@ -377,16 +386,13 @@ def UpdateOpacityAnim():
     global OpenedInGameError
     global UIOpacityAnim_InGameErrorSoundPlayed
 
-
     if UIOpacityAnimEnabled:
         if UIOpacityAnimState == 0: # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 
             # -- Copy the Screen Surface -- #
-            if not UIOpacityScreenCopyied:
-                CopyOfTheScreen = DISPLAYObject.copy()
-
-                UIOpacityScreenCopyied = True
+            if not UIOpacityPauseGame:
+                UIOpacityPauseGame = True
                 print("Taiyou.SystemUI.AnimationTrigger : Screen Copied.")
                 UiHandler.Messages.append("GAME_UPDATE:False")
 
@@ -431,7 +437,7 @@ def UpdateOpacityAnim():
                 CopyOfTheScreen = pygame.Surface((0,0), pygame.SRCALPHA)
                 DarkerBackgroundSurface = pygame.Surface((0,0), pygame.SRCALPHA)
                 UIObjectsSurface = pygame.Surface((0,0), pygame.SRCALPHA)
-                UIOpacityScreenCopyied = False
+                UIOpacityPauseGame = False
                 UIObjectsSurfaceUpdated = False
                 RestartGameConfirm_SurfacesUpdated = False
                 ConsoleWindowEnabled = False

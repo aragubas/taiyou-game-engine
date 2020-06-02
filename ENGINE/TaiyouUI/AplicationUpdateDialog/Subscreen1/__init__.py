@@ -110,62 +110,63 @@ def Update():
     global DownloadError
 
     # -- Set the Title -- #
-    if not IsMetadataUpdate:
-        if not VersionChecking:
-            Handler.MessageTitle = gtk.GetLangText("update_in_progress_title", "update_diag")
+    if not Handler.DialogOpctAnim_AnimEnabled:
+        if not IsMetadataUpdate:
+            if not VersionChecking:
+                Handler.MessageTitle = gtk.GetLangText("update_in_progress_title", "update_diag")
+            else:
+                if not UpdateCompleted:
+                    Handler.MessageTitle = gtk.GetLangText("version_checking_title", "update_diag")
+                else:
+                    Handler.MessageTitle = gtk.GetLangText("update_complete_title", "update_diag")
         else:
             if not UpdateCompleted:
-                Handler.MessageTitle = gtk.GetLangText("version_checking_title", "update_diag")
+                Handler.MessageTitle = gtk.GetLangText("metadw_downloading", "update_diag")
             else:
-                Handler.MessageTitle = gtk.GetLangText("update_complete_title", "update_diag")
-    else:
+                Handler.MessageTitle = gtk.GetLangText("metadw_download_complete", "update_diag")
+
+        # -- Update the Steps -- #
         if not UpdateCompleted:
-            Handler.MessageTitle = gtk.GetLangText("metadw_downloading", "update_diag")
+            if not IsMetadataUpdate:
+                Update_Steps()
+            else:
+                Update_MetaSteps()
+
         else:
-            Handler.MessageTitle = gtk.GetLangText("metadw_download_complete", "update_diag")
+            # -- Update OK Button -- #
+            OK_Button.Set_ColisionX(Handler.CommonDisplayScreenPos[0] + OK_Button.Rectangle[0])
+            OK_Button.Set_ColisionY(Handler.CommonDisplayScreenPos[1] + OK_Button.Rectangle[1])
+            OK_Button.Set_X(5)
+            OK_Button.Set_Y(Handler.CommonDisplay.get_height() - OK_Button.Rectangle[3] - 5)
 
-    # -- Update the Steps -- #
-    if not UpdateCompleted:
-        if not IsMetadataUpdate:
-            Update_Steps()
-        else:
-            Update_MetaSteps()
+            if OK_Button.ButtonState == "UP":
+                Handler.DialogOpctAnim_AnimEnabled = True
 
-    else:
-        # -- Update OK Button -- #
-        OK_Button.Set_ColisionX(Handler.CommonDisplayScreenPos[0] + OK_Button.Rectangle[0])
-        OK_Button.Set_ColisionY(Handler.CommonDisplayScreenPos[1] + OK_Button.Rectangle[1])
-        OK_Button.Set_X(5)
-        OK_Button.Set_Y(Handler.CommonDisplay.get_height() - OK_Button.Rectangle[3] - 5)
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm"))
+                # -- Reset Variables -- #
+                DownloaderEnabled = False
+                UpdateProgress = 0
+                UpdateStep = -1
+                UpdateStepCanAdd = True
+                UpdateCompleted = False
+                VersionChecking = True
+                UpdateCompletedMessage = "update_completed"
+                UpdateProgressStatus = "Stopped."
+                FileIsDownloading = False
+                IsMetadataUpdate = False
+                DownloadError = False
+                OK_Button.ButtonState = "INACTIVE"
 
-        if OK_Button.ButtonState == "UP":
-            OK_Button.ButtonState = "INACTIVE"
+        if DownloaderEnabled:
+            LoadingAnimSquare.Set_Y(Handler.CommonDisplay.get_height() - 38)
+            LoadingAnimSquare.Set_X(Handler.CommonDisplay.get_width() - 38)
+            LoadingAnimSquare.Update()
 
-            Handler.DialogOpctAnim_AnimEnabled = True
-
-            # -- Reset Variables -- #
-            DownloaderEnabled = False
-            UpdateProgress = 0
-            UpdateStep = -1
-            UpdateStepCanAdd = True
-            UpdateCompleted = False
-            VersionChecking = True
-            UpdateCompletedMessage = "update_completed"
-            UpdateProgressStatus = "Stopped."
-            FileIsDownloading = False
-            IsMetadataUpdate = False
-            DownloadError = False
-
-    if DownloaderEnabled:
-        LoadingAnimSquare.Set_Y(Handler.CommonDisplay.get_height() - 38)
-        LoadingAnimSquare.Set_X(Handler.CommonDisplay.get_width() - 38)
-        LoadingAnimSquare.Update()
-
-        UpdateDownloader()
+            UpdateDownloader()
 
 
-    # -- Set Progress -- #
-    UpdateProgressBar_Rectangle = pygame.Rect(5, Handler.DialogRectangle[3] - 20, (Handler.DialogRectangle[2] - 44) * UpdateProgress / 100, 15)
+        # -- Set Progress -- #
+        UpdateProgressBar_Rectangle = pygame.Rect(5, Handler.DialogRectangle[3] - 20, (Handler.DialogRectangle[2] - 44) * UpdateProgress / 100, 15)
 
 DownloaderDownloadURL = "NULL"
 DownloaderDownloadFilePath = "Taiyou/HOME/Webcache/NULL"

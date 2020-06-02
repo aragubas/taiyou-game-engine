@@ -30,7 +30,7 @@ HORIZONTAL_LIST_FONT_FILE = "/Ubuntu_Bold.ttf"
 INPUT_BOX_FONT_FILE = "/Ubuntu_Bold.ttf"
 VERTICALLIST_FONT_FILE = "/Ubuntu_Bold.ttf"
 
-CurrentLanguage = ""
+CurrentLanguage = "en"
 
 
 def SetLang(lang):
@@ -432,12 +432,12 @@ class HorizontalItemsView:
         self.ItemApperAnimationNumb = list()
         self.ItemApperAnimationMode = list()
         self.ItemApperAnimationToggle = list()
+        self.ItemSurface = list()
         self.GameBannerAnimation = list()
         self.GameBannerAnimationAmount = list()
         self.ItemSelectedCurrentFrame = list()
         self.ItemSelectedCurrentFrameUpdateDelay = list()
         self.GameBannerAnimationFrameDelay = list()
-
 
         self.ItemSelected = list()
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
@@ -445,8 +445,7 @@ class HorizontalItemsView:
         self.SelectedGameVersion = ""
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
-
-
+        self.SelectedGameFolderInfos = None
 
         self.ScrollX = 0
         self.ScrollSpeed = 0
@@ -474,10 +473,9 @@ class HorizontalItemsView:
             else:
                 self.ItemSelected[i] = False
 
-            ItemWidth = 256
-            ItemX = self.ScrollX + ItemWidth * i
-            ItemRect = pygame.Rect(ItemX, 30, ItemWidth - 5, 165)
+            ItemRect = pygame.Rect((self.ScrollX + 256 * i), 30, 256 - 5, 165)
             ItemSurface = pygame.Surface((ItemRect[2], ItemRect[3]), pygame.SRCALPHA)
+
             AnimationSpeed = 15
             if not self.ItemSelected[i]:
                 OpctMax = 150
@@ -538,9 +536,10 @@ class HorizontalItemsView:
                 self.ItemSelectedCurrentFrame[i] = 0
                 ItemSurface.blit(pygame.transform.scale(self.GameBanner[i], (240, 150)), (4, 9))
 
-            self.ListSurface.blit(ItemSurface, (ItemX, ItemRect[1]))
+            self.ListSurface.blit(ItemSurface, (ItemRect[0], ItemRect[1]))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
+        self.ListSurface.fill((0, 0, 0, 0))
 
         if self.ScrollSlowdownEnabled:
             self.ScrollSlowdown += 1
@@ -549,7 +548,6 @@ class HorizontalItemsView:
                 self.ScrollSlowdown = 0
                 self.ScrollSlowdownEnabled = False
 
-        self.ListSurface.fill((0, 0, 0, 0))
 
     def ClearItems(self):
         self.GameName.clear()
@@ -585,6 +583,7 @@ class HorizontalItemsView:
         if self.SelectedItemIndex >= len(self.GameName):
             self.SelectedItemIndex -= 1
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+
         else:
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
 
@@ -598,6 +597,7 @@ class HorizontalItemsView:
         if self.SelectedItemIndex < 0:
             self.SelectedItemIndex = 0
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+
         else:
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
 
@@ -613,7 +613,7 @@ class HorizontalItemsView:
 
             if event.type == pygame.KEYUP and event.key == pygame.K_HOME:
                 self.SelectedItemIndex = len(self.GameName) - 1
-                self.ScrollX = -356 * self.SelectedItemIndex / 1.02
+                self.ScrollX = self.SelectedItemIndex / 1.02
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
 
             if event.type == pygame.KEYUP and event.key == pygame.K_END:
@@ -629,25 +629,26 @@ class HorizontalItemsView:
                     self.ScrollIndexDown()
 
         for i, itemNam in enumerate(self.GameName):
-            ItemWidth = 256
-            ItemX = self.ScrollX + ItemWidth * i
-            ItemRect = pygame.Rect(ItemX, self.Rectangle[3] / 2 - 155 / 2, ItemWidth - 5, 155)
+            ItemRect = pygame.Rect((self.ScrollX + 256 * i), 30, 256 - 5, 205)
 
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 or self.SelectedItemIndex == i and self.ItemSelected[i] == False:
-                if ItemRect.collidepoint(pygame.mouse.get_pos()) or self.SelectedItemIndex == i:
-                    self.SelectedGameFolderInfos = self.GameFolderInfos[i]
-                    self.SelectedItem = itemNam
-                    self.SelectedGameID = self.GameID[i]
-                    self.SelectedGameFolderName = self.GameFolderName[i]
-                    self.ItemSelected[i] = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and ItemRect.collidepoint(pygame.mouse.get_pos()):
+                if not self.SelectedItemIndex == i:
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
                     self.SelectedItemIndex = i
-                    self.SelectedGameVersion = self.GameVersion[i]
-                    self.SelectedGameID = self.GameID[i]
 
-                    if ItemRect.collidepoint(pygame.mouse.get_pos()):
-                        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
-                else:
-                    self.ItemSelected[i] = False
+            if self.SelectedItemIndex == i:
+                self.SelectedGameFolderInfos = self.GameFolderInfos[i]
+                self.SelectedItem = itemNam
+                self.SelectedGameID = self.GameID[i]
+                self.SelectedGameFolderName = self.GameFolderName[i]
+                self.ItemSelected[i] = True
+                self.SelectedItemIndex = i
+                self.SelectedGameVersion = self.GameVersion[i]
+                self.SelectedGameID = self.GameID[i]
+
+            else:
+                self.ItemSelected[i] = False
+
 
     def Set_X(self, Value):
         self.Rectangle[0] = float(Value)

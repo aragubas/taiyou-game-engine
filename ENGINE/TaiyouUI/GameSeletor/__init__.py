@@ -76,7 +76,7 @@ ValidGameFolders = list()
 ItemsUnloadedAffterExiting = False
 DownloadersCreated = False
 DownloaderObj = utils.Downloader
-LoadingPauseMessage = "0%"
+LoadingPauseMessage = "NULL"
 
 
 SelectedGameInfo = () # 0 == Game ID; 1 == Game Name; 2 == Game Version; 3 == Game Folder

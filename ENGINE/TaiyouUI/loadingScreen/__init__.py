@@ -71,7 +71,10 @@ def Update():
         LoadingStage += 1
         if LoadingStage == 0:
             if utils.Directory_Exists(GameFolderToOpen):
-                
+                print("Placeholder : Game Exists")
+            else:
+                print("Placeholder : Game doed not Exists")
+
         if LoadingStage == 1:
             sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
         if LoadingStage == 2:

@@ -51,7 +51,6 @@ class GameInstance:
         self.WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
         self.OverlayLevel = -1
 
-
         # -- Init Engine -- #
         tge.InitEngine()
 
@@ -275,6 +274,8 @@ class GameInstance:
                 if not self.IsMenuMode:
                     self.IsMenuMode = True
                     self.GameUpdateEnabled = False
+                    SystemUI.gameOverlay.CopyOfTheScreen = self.DISPLAY.copy()
+
 
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
