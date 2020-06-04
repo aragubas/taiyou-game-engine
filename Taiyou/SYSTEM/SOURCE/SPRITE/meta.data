@@ -11,8 +11,10 @@
 /TAIYOU_UI/Cursor/3.png:True
 /TAIYOU_UI/Cursor/4.png:True
 /TAIYOU_UI/Cursor/5.png:True
-# -- Aragubas Logo -- #
+# -- Logos -- #
 /TAIYOU_UI/aragubas.png:True
+/TAIYOU_UI/icon.png:True
+/TAIYOU_UI/no_icon.png:True
 # -- Loading animation -- #
 /FRAMES/loading/1.png:True
 /FRAMES/loading/2.png:True

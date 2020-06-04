@@ -19,7 +19,7 @@
 def Get_Version():
     return "2.3"
 def Get_SpriteVersion():
-    return "1.6"
+    return "1.7"
 def Get_SoundVersion():
     return "1.6"
 def Get_RegistryVersion():

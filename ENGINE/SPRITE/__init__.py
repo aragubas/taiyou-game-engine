@@ -18,8 +18,7 @@
 # -- Imports --
 from ENGINE import UTILS as utils
 import ENGINE as tge
-import pygame
-import sys
+import pygame, sys, os
 
 print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
 
@@ -49,13 +48,13 @@ def LoadSpritesInFolder(FolderName):
     try:
         for line in sprite_meta_lines:
             line = line.rstrip()
-            if not line.startswith('#'):
+            if not line.startswith('#') and not line == "":
                 currentLine = line.split(':')
                 spriteLocation = folder_name + currentLine[0]
                 print("[{0}]".format(spriteLocation))
+                Sprites_Name.append(currentLine[0])
 
                 if currentLine[1] == "True":
-                    Sprites_Name.append(currentLine[0])
                     if not SpriteTransparency:
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
                     else:
@@ -63,7 +62,6 @@ def LoadSpritesInFolder(FolderName):
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
 
                 elif currentLine[1] == "False":
-                    Sprites_Name.append(currentLine[0])
                     Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
                 else:
@@ -103,6 +101,15 @@ def LoadSpritesInFolder(FolderName):
         sys.exit()
 
     print("Sprite.LoadFolder : Operation Completed.")
+
+def LoadSprite(SpritePath, Transparency=False):
+    if utils.Directory_Exists(SpritePath):
+        Sprites_Name.append("/" + os.path.basename(SpritePath))
+
+        if Transparency:
+            Sprites_Data.append(pygame.image.load(SpritePath).convert_alpha())
+        else:
+            Sprites_Data.append(pygame.image.load(SpritePath).convert())
 
 def GetSprite(SpriteResourceName):
     try:
@@ -151,10 +158,11 @@ def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0):
     if not SpriteRenderingDisabled:
         try:
             if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
-                if Width == 0:
+                if Width == 0 and Height == 0:
                     DISPLAY.blit(GetSprite(spriteName), (X, Y))
                 else:
                     DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 

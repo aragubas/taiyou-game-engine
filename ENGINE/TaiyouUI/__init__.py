@@ -38,6 +38,8 @@ def Initialize():
     gameOverlay.Initialize()
     seletorScreen.Initialize()
     loadingScreen.Initialize()
+    SetMenuMode_Changes()
+
 
     print("TaiyouUI.Initialize : Initialization Complete.")
 
@@ -86,10 +88,20 @@ def EventUpdate(event):
 
 def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges")
-    pygame.display.set_caption("Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
-    Messages.append("RESIZIABLE_WINDOW:False")
-    if not pygame.display.get_window_size() == (800,600):
+
+    # -- Set the Window Title -- #
+    Messages.append("SET_TITLE;" + "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
+    # -- Set the Unresizeable window
+    Messages.append("RESIZIABLE_WINDOW:FalseIfTrue")
+    # -- Set the Default Icon -- #
+    Messages.append("SET_ICON_BY_SPRITE:/TAIYOU_UI/icon.png")
+
+    CurrentRes = pygame.display.get_window_size()
+    if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:
         Messages.append("SET_RESOLUTION:800:600")
+        print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
+    else:
+        print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
 
 
 # -- Send the messages on the Message Quee to the Game Engine -- #

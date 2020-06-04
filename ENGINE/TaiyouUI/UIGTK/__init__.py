@@ -446,6 +446,7 @@ class HorizontalItemsView:
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
         self.SelectedGameFolderInfos = None
+        self.SelectedGameIcon = sprite.DefaultSprite
 
         self.ScrollX = 0
         self.ScrollSpeed = 0
@@ -572,6 +573,7 @@ class HorizontalItemsView:
         self.SelectedGameFolderName = ""
         self.SelectedItemIndex = -1
         self.SelectedGameFolderInfos = None
+        self.SelectedGameIcon = sprite.DefaultSprite
 
         self.ScrollX = 0
 
@@ -645,7 +647,7 @@ class HorizontalItemsView:
                 self.SelectedItemIndex = i
                 self.SelectedGameVersion = self.GameVersion[i]
                 self.SelectedGameID = self.GameID[i]
-
+                self.SelectedGameIcon = self.GameBanner[i]
             else:
                 self.ItemSelected[i] = False
 
@@ -672,30 +674,31 @@ class HorizontalItemsView:
         FolderName = ""
         with open(MetaFile) as file_in:
             for line in file_in:
-                LineNumber += 1
+                if not line == "":
+                    LineNumber += 1
 
-                if LineNumber == 0:  # -- Game Name
-                    self.GameName.append(line)
+                    if LineNumber == 0:  # -- Game Name
+                        self.GameName.append(line)
 
-                if LineNumber == 1:  # -- Game ID
-                    self.GameID.append(line)
+                    if LineNumber == 1:  # -- Game ID
+                        self.GameID.append(line)
 
-                if LineNumber == 2:  # -- Game Version
-                    self.GameVersion.append(line)
+                    if LineNumber == 2:  # -- Game Version
+                        self.GameVersion.append(line)
 
-                if LineNumber == 3:  # -- Game Source Folder
-                    self.GameSourceFolder.append(line)
+                    if LineNumber == 3:  # -- Game Source Folder
+                        self.GameSourceFolder.append(line)
 
-                if LineNumber == 4:  # -- Game Folder Name
-                    self.GameFolderName.append(line)
-                    FolderName = line.rstrip()
+                    if LineNumber == 4:  # -- Game Folder Name
+                        self.GameFolderName.append(line)
+                        FolderName = line.rstrip()
 
-                if LineNumber == 5:  # -- Animation Banner Frames
-                    self.GameBannerAnimationAmount.append(int(line))
-                    GameBannerAnimAmountFrames = int(line)
+                    if LineNumber == 5:  # -- Animation Banner Frames
+                        self.GameBannerAnimationAmount.append(int(line))
+                        GameBannerAnimAmountFrames = int(line)
 
-                if LineNumber == 6:  # -- Animation Banner Frames Delay
-                    self.GameBannerAnimationFrameDelay.append(int(line))
+                    if LineNumber == 6:  # -- Animation Banner Frames Delay
+                        self.GameBannerAnimationFrameDelay.append(int(line))
 
         # -- Load the Game Icon and Banner Animation -- #
         self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
@@ -724,10 +727,8 @@ class HorizontalItemsView:
 
         self.GameBannerAnimation.append(AnimationFrames)
 
-        if LineNumber < 3:
-            # -- Add Game Icon -- #
-
-            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.")
+        if LineNumber < 6 or LineNumber > 8: # -- Detect if the Game Folder is invalid
+            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.\nThis metadata file contains: " + str(LineNumber) + " lines.")
 
 
 class VerticalListWithDescription:

@@ -103,7 +103,7 @@ class GameInstance:
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
 
-        if Command.startswith("SET_RESOLUTION:") if Command else False:
+        if Command.startswith("SET_RESOLUTION") if Command else False:
             try:
                 splitedArg = Command.split(':')
                 print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
@@ -125,12 +125,16 @@ class GameInstance:
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
 
-        if Command.startswith("RESIZIABLE_WINDOW:") if Command else False:
+        if Command.startswith("RESIZIABLE_WINDOW") if Command else False:
             try:
                 splitedArg = Command.split(':')
 
                 if splitedArg[1] == "True":
+                    if tge.RunInFullScreen:
+                        return
+
                     self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
+
                     self.ResiziableWindow = True
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
 
@@ -142,10 +146,21 @@ class GameInstance:
 
                     self.ResiziableWindow = False
                     print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
+
+                if splitedArg[1] == "FalseIfTrue":
+                    if not tge.RunInFullScreen:
+                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
+                    else:
+                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
+
+                    self.ResiziableWindow = False
+                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
+
+
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-        if Command.startswith("GAME_UPDATE:") if Command else False:
+        if Command.startswith("GAME_UPDATE") if Command else False:
             try:
                 splitedArg = Command.split(':')
 
@@ -168,7 +183,7 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-        if Command.startswith("OVERLAY_LEVEL:") if Command else False:
+        if Command.startswith("OVERLAY_LEVEL") if Command else False:
             try:
                 splitedArg = Command.split(':')
                 self.OverlayLevel = int(splitedArg[1])
@@ -212,7 +227,7 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-        if Command.startswith("OPEN_GAME:") if Command else False:
+        if Command.startswith("OPEN_GAME") if Command else False:
             try:
                 print("Taiyou.GameObject.ReceiveCommand : Open Game")
                 splitedArg = Command.split(':')
@@ -222,7 +237,6 @@ class GameInstance:
 
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
-
 
         if Command.startswith("REMOVE_GAME") if Command else False:
             try:
@@ -236,6 +250,31 @@ class GameInstance:
                 self.GameStarted = False
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("SET_ICON_BY_SPRITE") if Command else False:
+            try:
+                splitedArg = Command.split(':')
+
+                pygame.display.set_icon(sprite.GetSprite(splitedArg[1]))
+
+                print("Taiyou.GameObject.ReceiveCommand : Window Icon was set to sprite [" + splitedArg[1] + "]")
+
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+        if Command.startswith("SET_TITLE") if Command else False:
+            try:
+                splitedArg = Command.split(';')
+
+                pygame.display.set_caption(splitedArg[1])
+
+                print("Taiyou.GameObject.ReceiveCommand : Window Title was set to sprite [" + splitedArg[1] + "]")
+
+
+            except Exception as ex:
+                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
+
 
 
     def render_overlay(self):
@@ -324,7 +363,6 @@ class GameInstance:
         # -- Run the Clock -- #
         if self.FPS > 0:
             self.clock.tick(self.FPS)
-            pygame.display.set_caption("{0} : {1}".format(pygame.display.get_caption()[0].replace(" : " + tge.VideoDriver, ""), tge.VideoDriver))
 
         # -- Draw the Overlay, when it enabled -- #
         if not self.OverlayLevel == -1:

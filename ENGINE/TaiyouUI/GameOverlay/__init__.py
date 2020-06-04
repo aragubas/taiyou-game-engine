@@ -95,7 +95,6 @@ def Initialize():
 
     RestartGameConfirm_YesButton.CustomColisionRectangle = True
     RestartGameConfirm_NoButton.CustomColisionRectangle = True
-    print("TaiyouUI.GameOverlay.Initialize : Operation Completed.")
 
 def Draw(Display):
     global UIObjectsSurface
@@ -432,7 +431,6 @@ def UpdateOpacityAnim():
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
                 UiHandler.Messages.append("GAME_UPDATE:True")
-                print("Taiyou.SystemUI.AnimationTrigger : Animation End.")
                 # -- Unload the Surfaces -- #
                 CopyOfTheScreen = pygame.Surface((0,0), pygame.SRCALPHA)
                 DarkerBackgroundSurface = pygame.Surface((0,0), pygame.SRCALPHA)
@@ -445,11 +443,9 @@ def UpdateOpacityAnim():
                 # -- Initialize the Game when exiting -- #
                 if ExitToInitializeGame:
                     ExitToInitializeGame = False
-                    print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize")
                     UiHandler.Messages.append("TOGGLE_GAME_START")
                     UiHandler.Messages.append("GAME_UPDATE:True")
                     UiHandler.Messages.append("SET_GAME_MODE")
-                    print("Taiyou.SystemUI.AnimationTrigger : Toggle Game Initialize, complete.")
 
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
@@ -481,8 +477,6 @@ def ExitToMainMenu_UpdateAnim():
         ExitToMainMenuAnimOpacity += 5
 
         if ExitToMainMenuAnimOpacity >= 255:
-            print("ExitToMainMenuAnim.AnimationTrigger : Animation has been ended.")
-
             # -- Restart the RestarGameConfirm -- #
             RestartGameConfirm_AnimOpacity = 0
             RestartGameConfirm_AnimMode = 0

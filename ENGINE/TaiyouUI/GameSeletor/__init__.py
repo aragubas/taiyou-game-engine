@@ -79,7 +79,7 @@ DownloaderObj = utils.Downloader
 LoadingPauseMessage = "NULL"
 
 
-SelectedGameInfo = () # 0 == Game ID; 1 == Game Name; 2 == Game Version; 3 == Game Folder
+SelectedGameInfo = ("nul", "nul", "nul", "nul", sprite.DefaultSprite) # 0 == Game ID; 1 == Game Name; 2 == Game Version; 3 == Game Folder
 
 
 def ListInstalledGames():
@@ -255,7 +255,7 @@ def Update():
 
         # -- Update Selected Game Infos List -- #
         if not InstalledGameList.SelectedItemIndex == -1:
-            SelectedGameInfo = (InstalledGameList.SelectedGameID.rstrip(), InstalledGameList.SelectedItem.rstrip(), InstalledGameList.SelectedGameVersion.rstrip(), InstalledGameList.SelectedGameFolderName.rstrip())
+            SelectedGameInfo = (InstalledGameList.SelectedGameID.rstrip(), InstalledGameList.SelectedItem.rstrip(), InstalledGameList.SelectedGameVersion.rstrip(), InstalledGameList.SelectedGameFolderName.rstrip(), InstalledGameList.SelectedGameIcon)
 
         # -- Refresh Button -- #
         if RestartList_Button.ButtonState == "UP":
@@ -305,7 +305,6 @@ def EventUpdate(event):
     # -- Event Application Update Ready Message -- #
     if ApplicationUpdateDialogEnabled:
         UpdateDiag.EventUpdate(event)
-
 
 
 
@@ -415,6 +414,7 @@ def UpdateOpacityAnim():
 
                 if UIOpacity_AnimExitToOpenGame:
                     loadingScreen.GameFolderToOpen = InstalledGameList.SelectedGameFolderName.rstrip()
+                    loadingScreen.GameIcon = SelectedGameInfo[4]
                     taiyouUI.CurrentMenuScreen = 4
 
                 UnloadGameList() # -- Re-Load the Game List -- #
