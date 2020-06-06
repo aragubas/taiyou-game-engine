@@ -19,7 +19,7 @@
 from ENGINE import UTILS as utils
 import ENGINE as tge
 import pygame
-import threading
+import time
 
 print("Taiyou Sound System version " + tge.Get_SoundVersion())
 
@@ -29,7 +29,27 @@ CurrentBGMPlaying = list()
 
 DisableSoundSystem = False
 
+GameSoundChannels = list()
+SystemSoundChannels = list()
 def LoadAllSounds(FolderName):
+    """
+    Load all sounds on the Specified Folder
+    :param FolderName:the Specified Folder
+    :return:
+    """
+    global GameSoundChannels
+    global SystemSoundChannels
+
+    GameSoundChannels.clear()
+
+    pygame.mixer.set_num_channels(255)
+
+    for i in range(0, 200):
+        GameSoundChannels.append(pygame.mixer.Channel(i))
+
+    for i in range(200, 255):
+        SystemSoundChannels.append(pygame.mixer.Channel(i))
+
     if DisableSoundSystem:
         return
     FolderName = FolderName + "/SOUND"
@@ -47,7 +67,12 @@ def LoadAllSounds(FolderName):
         print("Sound.LoadAllSounds : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
     print("Sound.LoadAllSounds : Operation Completed")
 
+
 def Unload():
+    """
+    Unload all sounds loaded
+    :return:
+    """
     if DisableSoundSystem:
         return
     print("Sound.Unload : Unloading All Sounds...")
@@ -60,6 +85,10 @@ def Unload():
     print("Sound.Unload : Operation Completed Sucefully.")
 
 def Reload():
+    """
+    Reload all sounds
+    :return:
+    """
     if not DisableSoundSystem:
         print("Sound.Reload : Reloading All Sounds...")
 
@@ -72,13 +101,65 @@ def Reload():
 
         print("Sound.Reload : Operation Completed.")
 
+def PauseGameChannel():
+    global GameSoundChannels
 
-def PlaySound(SourceName):
+    for i, Channel in enumerate(GameSoundChannels):
+        Channel.pause()
+        print("SoundChannel " + str(i) + " was been paused.")
+
+def UnpauseGameChannel():
+    global GameSoundChannels
+
+    for i, Channel in enumerate(GameSoundChannels):
+        Channel.unpause()
+        print("SoundChannel " + str(i) + " was been resumed.")
+
+
+def PlaySound(SourceName, Volume=0.5, LeftPan=1.0, RightPan=1.0, PlayOnSystemChannel=False):
+    """
+    Play a sound loaded on the Sound System
+    :param SourceName:Sound File Name [starting with /]
+    :param Volume:Volume in range 0.0 to 1.0
+    :return:
+    """
     if not DisableSoundSystem:
         global AllLoadedSounds
+        global GameSoundChannels
+        global SystemSoundChannels
 
-        sound = AllLoadedSounds.get(SourceName)
-        sound.play()
+        # -- Play on Mono -- #
+        if tge.AudioChannels == 1:
+
+            sound = AllLoadedSounds.get(SourceName)
+            sound.set_volume(Volume)
+            sound.play()
+
+        elif tge.AudioChannels >= 2:
+            # -- Play Stereo Audio -- #
+            sound = AllLoadedSounds.get(SourceName)
+            sound.set_volume(Volume)
+
+            if not PlayOnSystemChannel:
+                for i, GameChannel in enumerate(GameSoundChannels):
+                    if not GameChannel.get_busy():
+                        GameChannel.set_volume(LeftPan, RightPan)
+
+                        GameChannel.play(sound)
+                        print("Found Game Channel in {0}".format(str(i)))
+                        break
+                    else:
+                        print("Sound Game Channel {0} is busy.".format(str(i)))
+            else:
+                for i, SystemChannel in enumerate(SystemSoundChannels):
+                    if not SystemChannel.get_busy():
+                        SystemChannel.set_volume(LeftPan, RightPan)
+
+                        SystemChannel.play(sound)
+                        print("Found System Channel in {0}".format(str(i)))
+                        break
+                    else:
+                        print("Sound System Channel {0} is busy.".format(str(i)))
 
 
 def StopSound(SourceName):
@@ -86,4 +167,3 @@ def StopSound(SourceName):
         global AllLoadedSounds
         sound = AllLoadedSounds.get(SourceName)
         sound.stop()
-

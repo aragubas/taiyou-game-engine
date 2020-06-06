@@ -103,6 +103,7 @@ class GameInstance:
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
 
+
         if Command.startswith("SET_RESOLUTION") if Command else False:
             try:
                 splitedArg = Command.split(':')
@@ -124,6 +125,7 @@ class GameInstance:
 
             except:
                 print("Taiyou.GameObject.ReceiveCommand : Invalid Argument, [" + Command + "]")
+
 
         if Command.startswith("RESIZIABLE_WINDOW") if Command else False:
             try:
@@ -160,20 +162,6 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-        if Command.startswith("GAME_UPDATE") if Command else False:
-            try:
-                splitedArg = Command.split(':')
-
-                if splitedArg[1] == "True":
-                    self.GameUpdateEnabled = True
-                    print("Taiyou.GameObject.ReceiveCommand : Set GAME_UPDATE to: True")
-
-                if splitedArg[1] == "False":
-                    self.GameUpdateEnabled = False
-                    print("Taiyou.GameObject.ReceiveCommand : Set GAME_UPDATE to: False")
-
-            except Exception as ex:
-                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
         if Command.startswith("KILL") if Command else False:
             try:
@@ -182,6 +170,7 @@ class GameInstance:
                 self.destroy()
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
 
         if Command.startswith("OVERLAY_LEVEL") if Command else False:
             try:
@@ -193,6 +182,7 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
+
         if Command.startswith("TOGGLE_GAME_START") if Command else False:
             try:
                 print("Taiyou.GameObject.ReceiveCommand : Toggle Game Start")
@@ -200,6 +190,7 @@ class GameInstance:
                 self.ToggleGameStart = True
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
 
         if Command.startswith("RELOAD_GAME") if Command else False:
             try:
@@ -209,14 +200,6 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
-        if Command.startswith("SET_MENU_MODE") if Command else False:
-            try:
-                print("Taiyou.GameObject.ReceiveCommand : Set Menu Mode")
-
-                self.IsMenuMode = True
-                self.GameUpdateEnabled = False
-            except Exception as ex:
-                print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
         if Command.startswith("SET_GAME_MODE") if Command else False:
             try:
@@ -224,8 +207,12 @@ class GameInstance:
 
                 self.IsMenuMode = False
                 self.GameUpdateEnabled = True
+                sound.UnpauseGameChannel()
+                print("Taiyou.GameObject.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
+
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
 
         if Command.startswith("OPEN_GAME") if Command else False:
             try:
@@ -237,6 +224,7 @@ class GameInstance:
 
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
 
         if Command.startswith("REMOVE_GAME") if Command else False:
             try:
@@ -251,6 +239,7 @@ class GameInstance:
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
 
+
         if Command.startswith("SET_ICON_BY_SPRITE") if Command else False:
             try:
                 splitedArg = Command.split(':')
@@ -261,6 +250,7 @@ class GameInstance:
 
             except Exception as ex:
                 print("Taiyou.GameObject.ReceiveCommand_Error : Error, [" + str(ex) + "]")
+
 
         if Command.startswith("SET_TITLE") if Command else False:
             try:
@@ -314,12 +304,14 @@ class GameInstance:
                     self.IsMenuMode = True
                     self.GameUpdateEnabled = False
                     SystemUI.gameOverlay.CopyOfTheScreen = self.DISPLAY.copy()
-
+                    sound.PauseGameChannel()
+                    print("Taiyou.GameObject.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
 
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
                     SystemUI.gameOverlay.UIOpacityAnimEnabled = True
                     SystemUI.gameOverlay.UIOpacityScreenCopyied = False
+
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow and not tge.RunInFullScreen:
@@ -347,17 +339,21 @@ class GameInstance:
             self.ToggleGameStart = False
 
     def GameException(self, Exception, ErrorPart="Unknown"):
-        ExceptionText = "\n\nGAME EXCEPTION! in [" + ErrorPart + "]:\n\n" + str(Exception) + "\n\n"
+        if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler"):
+            raise Exception
+        else:
+            ExceptionText = "\n\nGAME EXCEPTION! in [" + ErrorPart + "]:\n\n" + str(Exception) + "\n\n"
 
-        tge.devel.PrintToTerminalBuffer(ExceptionText)
-        self.GameUpdateEnabled = False
-        self.IsMenuMode = True
-        SystemUI.SystemMenuEnabled = True
-        if not SystemUI.gameOverlay.OpenedInGameError:
-            SystemUI.gameOverlay.UIOpacityAnimEnabled = True
-            SystemUI.gameOverlay.OpenedInGameError = True
+            tge.devel.PrintToTerminalBuffer(ExceptionText)
+            self.GameUpdateEnabled = False
+            self.IsMenuMode = True
+            SystemUI.SystemMenuEnabled = True
+            if not SystemUI.gameOverlay.OpenedInGameError:
+                SystemUI.gameOverlay.UIOpacityAnimEnabled = True
+                SystemUI.gameOverlay.OpenedInGameError = True
+                SystemUI.gameOverlay.CopyOfTheScreen = self.DISPLAY.copy()
 
-        print(ExceptionText)
+            print(ExceptionText)
 
     def run(self):
         # -- Run the Clock -- #

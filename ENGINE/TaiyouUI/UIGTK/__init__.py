@@ -195,7 +195,7 @@ class Button:
         DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), PlayOnSystemChannel=True)
 
 
 class Window:
@@ -584,10 +584,10 @@ class HorizontalItemsView:
         # -- Limit the Scrolling -- #
         if self.SelectedItemIndex >= len(self.GameName):
             self.SelectedItemIndex -= 1
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
 
         else:
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
 
         self.ScrollSlowdownEnabled = True
 
@@ -598,10 +598,10 @@ class HorizontalItemsView:
         # -- Limit the Scrolling -- #
         if self.SelectedItemIndex < 0:
             self.SelectedItemIndex = 0
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
 
         else:
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
 
         self.ScrollSlowdownEnabled = True
 
@@ -616,12 +616,12 @@ class HorizontalItemsView:
             if event.type == pygame.KEYUP and event.key == pygame.K_HOME:
                 self.SelectedItemIndex = len(self.GameName) - 1
                 self.ScrollX = self.SelectedItemIndex / 1.02
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
 
             if event.type == pygame.KEYUP and event.key == pygame.K_END:
                 self.ScrollX = 256
                 self.SelectedItemIndex = 0
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
 
             # -- Mouse Whell -- #
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -635,7 +635,7 @@ class HorizontalItemsView:
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and ItemRect.collidepoint(pygame.mouse.get_pos()):
                 if not self.SelectedItemIndex == i:
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"))
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
                     self.SelectedItemIndex = i
 
             if self.SelectedItemIndex == i:
@@ -699,9 +699,15 @@ class HorizontalItemsView:
 
                     if LineNumber == 6:  # -- Animation Banner Frames Delay
                         self.GameBannerAnimationFrameDelay.append(int(line))
+        if LineNumber < 6 or LineNumber > 7: # -- Detect if the Game Folder is invalid
+            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.\nThis metadata file contains: " + str(LineNumber) + " lines.")
 
         # -- Load the Game Icon and Banner Animation -- #
-        self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
+        try:
+            self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
+        except:
+            self.GameBanner.append(sprite.GetSprite("/TAIYOU_UI/no_icon.png"))
+
         self.ItemApperAnimationEnabled.append(True)
         self.ItemApperAnimationNumb.append(0)
         self.ItemApperAnimationMode.append(0)
@@ -711,6 +717,7 @@ class HorizontalItemsView:
 
         # - Load Folder Metadata -- #
         GameFolderInfos = list()
+
 
         GameFolderInfos.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(FolderName), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
         GameFolderInfos.append(tge.utils.Get_DirectoryTotalOfFiles(FolderName))
@@ -726,9 +733,6 @@ class HorizontalItemsView:
             AnimationFrames.append(pygame.image.load(path).convert())
 
         self.GameBannerAnimation.append(AnimationFrames)
-
-        if LineNumber < 6 or LineNumber > 8: # -- Detect if the Game Folder is invalid
-            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.\nThis metadata file contains: " + str(LineNumber) + " lines.")
 
 
 class VerticalListWithDescription:

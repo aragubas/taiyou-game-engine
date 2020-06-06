@@ -81,7 +81,7 @@ def Draw(Display):
 
     Display.blit(LogoSur, (800 / 2 - LogoSur.get_width() / 2, 50))
 
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (240, 240, 240), 800 / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
+    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (OpacityAnimation_Opacity, OpacityAnimation_Opacity, OpacityAnimation_Opacity), 800 / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
 
 
     LoadingSquare.Render(Display)

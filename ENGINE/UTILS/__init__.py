@@ -17,7 +17,7 @@
 
 # -- Imports -- #
 import ENGINE as tge
-import os, shutil, requests, string, random, asyncio, threading, zipfile, urllib.request
+import os, shutil, requests, string, random, threading, zipfile, urllib.request
 from pathlib import Path
 from urllib.error import HTTPError
 

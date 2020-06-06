@@ -31,6 +31,11 @@ reg_contents = list()
 
 
 def Initialize(reg_dir):
+    """
+    Load all keys on Specified Folder
+    :param reg_dir:Specified Folder
+    :return:
+    """
     print("\nTaiyou.RegistryManager.Initialize : Loading Registry...")
 
     temp_reg_keys = utils.GetFileInDir(reg_dir)
@@ -59,6 +64,10 @@ def Initialize(reg_dir):
     print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded.".format(str(len(reg_keys))))
 
 def Reload():
+    """
+    Reload all Registry Keys
+    :return:
+    """
     print("Taiyou.RegistryManager.ReloadRegistry : Re-Loading Game Registry...")
     CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
 
@@ -71,6 +80,10 @@ def Reload():
     print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
 
 def Unload():
+    """
+    Unload all registry keys
+    :return:
+    """
     print("Taiyou.RegistryManager.UnloadRegistry : Unloading Registry...")
 
     # -- Clear the Registry -- #
@@ -92,21 +105,47 @@ def CorrectKeyName(keyEntred):
         return keyEntred
 
 def ReadKey(keyName):
+    """
+    Returns a String Key
+    :param keyName:Name of Key [starting with /]
+    :return:KeyData
+    """
     return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
 
 def ReadKey_int(keyName):
+    """
+    Returns a Integer Key
+    :param keyName:Name of Key [starting with /]
+    :return:KeyData
+    """
     return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
 
 def ReadKey_float(keyName):
+    """
+    Returns a Float Key
+    :param keyName:Name of Key [starting with /]
+    :return:KeyData
+    """
     return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
 
 def ReadKey_bool(keyName):
+    """
+    Returns a Boolean Key
+    :param keyName:Name of Key [starting with /]
+    :return:KeyData
+    """
     if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
         return True
     else:
         return False
 
 def WriteKey(keyName, keyValue):
+    """
+    Write data to a Key
+    :param keyName:Name of Key [starting with /]
+    :param keyValue:Key Value
+    :return:
+    """
     keyName = CorrectKeyName(keyName)
     FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
 
@@ -131,6 +170,11 @@ def WriteKey(keyName, keyValue):
 
 
 def KeyExists(keyName):
+    """
+    Returns True if the Specified Key Exists
+    :param keyName: Specified Key [starting with /]
+    :return: Value to Return
+    """
     try:
         Test = reg_contents[reg_keys.index(CorrectKeyName(keyName))]
         return True
@@ -140,6 +184,12 @@ def KeyExists(keyName):
 
 # -- Read key with Try -- #
 def ReadKeyWithTry(keyName,defaultValue):
+    """
+    Tries to Read a Key, if there is a error, Return Default Value [String]
+    :param keyName:Name of Key [starting with /]
+    :param defaultValue:Default Value to Return
+    :return:KeyData
+    """
     try:
         return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     except:
@@ -147,6 +197,12 @@ def ReadKeyWithTry(keyName,defaultValue):
         return defaultValue
 
 def ReadKeyWithTry_int(keyName,defaultValue):
+    """
+    Tries to Read a Key, if there is a error, Return Default Value [Integer]
+    :param keyName:Name of Key [starting with /]
+    :param defaultValue:Default Value to Return
+    :return:KeyData
+    """
     try:
         return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
@@ -154,6 +210,12 @@ def ReadKeyWithTry_int(keyName,defaultValue):
         return int(defaultValue)
 
 def ReadKeyWithTry_float(keyName,defaultValue):
+    """
+    Tries to Read a Key, if there is a error, Return Default Value [Float]
+    :param keyName:Name of Key [starting with /]
+    :param defaultValue:Default Value to Return
+    :return:KeyData
+    """
     try:
         return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
@@ -161,6 +223,12 @@ def ReadKeyWithTry_float(keyName,defaultValue):
         return float(defaultValue)
 
 def ReadKeyWithTry_bool(keyName,defaultValue):
+    """
+    Tries to Read a Key, if there is a error, Return Default Value [Boolean]
+    :param keyName:Name of Key [starting with /]
+    :param defaultValue:Default Value to Return
+    :return:KeyData
+    """
     try:
         if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
             return True
