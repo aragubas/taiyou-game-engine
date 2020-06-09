@@ -68,7 +68,8 @@ AudioBufferSize = 0
 RunInFullScreen = False
 InputMouseDriver = "fbcon"
 InputDisableMouse = False
-
+IgnoreSDL2Parameters = True
+ 
 # -- User -- #
 UserName = ""
 UserLanguage = ""
@@ -190,6 +191,7 @@ def InitEngine():
     global VideoX11YUV_HWACCEL
     global InputMouseDriver
     global InputDisableMouse
+    global IgnoreSDL2Parameters
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open("Taiyou.config","r")
@@ -335,30 +337,43 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : InputDisableMouse was set to:" + str(SplitedParms[1].rstrip()))
 
+            if SplitedParms[0] == "IgnoreSDL2Parameters":
+                if SplitedParms[1].rstrip() == "True":
+                    IgnoreSDL2Parameters = True
+                elif SplitedParms[1].rstrip() == "False":
+                    IgnoreSDL2Parameters = False
+                else:
+                    IgnoreSDL2Parameters = False
+
+                print("Taiyou.Runtime.InitEngine : IgnoreSDL2Parameters was set to:" + str(SplitedParms[1].rstrip()))
 
 
-    # -- Set the Enviroments Variables -- #
-    os.environ['SDL_VIDEODRIVER'] = str(VideoDriver) # -- Set the Video Driver
-    os.environ['SDL_AUDIODRIVER'] = str(AudioDriver) # -- Set the Audio Driver
+#IgnoreDriversParameters
+    
+    if not IgnoreSDL2Parameters:
+        # -- Set the Enviroments Variables -- #
+        os.environ['SDL_VIDEODRIVER'] = str(VideoDriver) # -- Set the Video Driver
+        os.environ['SDL_AUDIODRIVER'] = str(AudioDriver) # -- Set the Audio Driver
 
-    # -- Set Input Enviroments -- #
-    os.environ['SDL_MOUSEDRV'] = str(InputMouseDriver) # -- Set the Mouse Driver
-    os.environ['SDL_NOMOUSE'] = str(InputDisableMouse) # -- Set the Mouse Driver
-
-
-
-    # -- Set X11 Enviroment Keys -- #
-    if VideoDriver == "x11":
-        if VideoX11CenterWindow:
-            os.environ['SDL_VIDEO_CENTERED'] = "True"# -- Set the Centered Window
-
-        if VideoX11DGAMouse:
-            os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "True"# -- Set the DGA Mouse Parameter
-
-        if VideoX11YUV_HWACCEL:
-            os.environ['SDL_VIDEO_YUV_HWACCEL'] = "True"# -- Set the YUV HWACCEL Parameter
+        # -- Set Input Enviroments -- #
+        os.environ['SDL_MOUSEDRV'] = str(InputMouseDriver) # -- Set the Mouse Driver
+        os.environ['SDL_NOMOUSE'] = str(InputDisableMouse) # -- Set the Mouse Driver
 
 
+
+        # -- Set X11 Enviroment Keys -- #
+        if VideoDriver == "x11":
+            if VideoX11CenterWindow:
+                os.environ['SDL_VIDEO_CENTERED'] = "True"# -- Set the Centered Window
+
+            if VideoX11DGAMouse:
+                os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "True"# -- Set the DGA Mouse Parameter
+
+            if VideoX11YUV_HWACCEL:
+                os.environ['SDL_VIDEO_YUV_HWACCEL'] = "True"# -- Set the YUV HWACCEL Parameter
+
+    else:
+        print("Taiyou.Runtime.InitEngine : SDL2 Parameters has been disabled")
 
 
     InitUserData()
