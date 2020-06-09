@@ -44,6 +44,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import REGISTRY as reg
+from ENGINE import TaiyouUI
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import TaiyouUI as TaiyouUI
 import os

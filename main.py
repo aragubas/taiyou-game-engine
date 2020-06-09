@@ -360,15 +360,14 @@ class GameInstance:
         if self.FPS > 0:
             self.clock.tick(self.FPS)
 
-        # -- Draw the Overlay, when it enabled -- #
-        if not self.OverlayLevel == -1:
-            self.render_overlay()
-
-
         # -- Update Main Game Functions -- #
         if self.IsMenuMode:
             SystemUI.Update()
             SystemUI.Draw(self.DISPLAY)
+
+            # -- Draw the Overlay, when it enabled -- #
+            if not self.OverlayLevel == -1:
+                self.render_overlay()
 
             # -- Flip the Screen -- #
             pygame.display.flip()
@@ -384,6 +383,11 @@ class GameInstance:
                 # -- Do Game Draw -- #
                 if self.GameUpdateEnabled and self.GameStarted:
                     self.GameObject.GameDraw(self.DISPLAY)
+
+                # -- Draw the Overlay, when it enabled -- #
+                if not self.OverlayLevel == -1:
+                    self.render_overlay()
+
                 # -- Flip the Screen -- #
                 pygame.display.flip()
 

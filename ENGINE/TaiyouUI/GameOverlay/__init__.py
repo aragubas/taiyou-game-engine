@@ -35,6 +35,16 @@ TopMenu_DeveloperConsoleButton = gtk.Button
 TopMenu_RestartGame = gtk.Button
 TopMenu_MainMenu = gtk.Button
 
+# -- System Volume Slider -- #
+SystemVolumeSlider = gtk.Slider
+SystemVolumeSlider_IconIndex = 0
+SystemVolumeSlider_AnimOpacity = 0
+SystemVolumeSlider_AnimY = 0
+SystemVolumeSlider_AnimYEnabled = True
+SystemVolumeSlider_ToggleButton = gtk.SpriteButton
+SystemVolumeSlider_AnimEnabled = True
+SystemVolumeSlider_AnimMode = 0
+
 
 # -- General -- #
 UIOpacity = 0
@@ -50,6 +60,7 @@ UIObjectsSurfaceUpdated = False
 ExitToInitializeGame = False
 OpenedInGameError = False
 AnimationNumb = 0
+ObjectsInitialized = False
 
 # -- Exit to Main Menu Anim -- #
 ExitToMainMenuAnim = False
@@ -82,6 +93,8 @@ def Initialize():
     global RestartGameConfirm_YesButton
     global RestartGameConfirm_NoButton
     global TopMenu_MainMenu
+    global SystemVolumeSlider
+    global SystemVolumeSlider_ToggleButton
 
     developWindow.Initialize()
     # -- Top Menu Buttons -- #
@@ -95,6 +108,9 @@ def Initialize():
 
     RestartGameConfirm_YesButton.CustomColisionRectangle = True
     RestartGameConfirm_NoButton.CustomColisionRectangle = True
+
+    SystemVolumeSlider = gtk.Slider(800 - 48, 32, 0)
+    SystemVolumeSlider_ToggleButton = gtk.SpriteButton(pygame.Rect(0,0,32,32), "/TAIYOU_UI/ICONS/SPEAKER/0.png")
 
 def Draw(Display):
     global UIObjectsSurface
@@ -124,6 +140,10 @@ def Draw(Display):
     global ExitToMainMenuAnim
     global ExitTOMainMenuSurfaceCreated
     global ExitToMainMenuOpacityAnimBG
+    global SystemVolumeSlider
+    global ObjectsInitialized
+    global SystemVolumeSlider_AnimY
+    global SystemVolumeSlider_ToggleButton
 
     DISPLAYObject = Display
     # -- Draw the Screenshot of Screen -- #
@@ -164,8 +184,17 @@ def Draw(Display):
     if ConsoleWindowEnabled:
         developWindow.Draw(UIObjectsSurface)
 
+    # -- Render Volume Icon -- #
+    SystemVolumeSlider_ToggleButton.Render(UIObjectsSurface)
+
+    # -- Render Volume Slider -- #
+    SystemVolumeSlider.Render(UIObjectsSurface)
+
+
+
     # -- Restart Game Confirm -- #
     RenderRestartGameConfirm(UIObjectsSurface)
+
 
     Display.blit(UIObjectsSurface, (0, 0))
 
@@ -175,6 +204,11 @@ def Draw(Display):
 
         Display.blit(ExitToMainMenuOpacityAnimBG, (0,0))
 
+    if not ObjectsInitialized:
+        ObjectsInitialized = True
+
+DefaultVolumeWasSet = False
+LastVolume = 0
 def Update():
     global TopBarRectangle
     global UIObjectsSurface
@@ -200,12 +234,101 @@ def Update():
     global ExitTOMainMenuSurfaceCreated
     global ExitToMainMenuAnim
     global ExitToMainMenuOpacityAnimBG
+    global SystemVolumeSlider
+    global ObjectsInitialized
+    global DefaultVolumeWasSet
+    global LastVolume
+    global SystemVolumeSlider_IconIndex
+    global SystemVolumeSlider_AnimOpacity
+    global SystemVolumeSlider_AnimEnabled
+    global SystemVolumeSlider_AnimMode
+    global SystemVolumeSlider_AnimY
+    global SystemVolumeSlider_AnimYEnabled
+    global SystemVolumeSlider_ToggleButton
+
+    if ObjectsInitialized:
+        if not DefaultVolumeWasSet:
+            SystemVolumeSlider.SetValue(reg.ReadKey_int("/TaiyouSystem/CONF/global_volume"))
+            LastVolume = SystemVolumeSlider.Value
+            DefaultVolumeWasSet = True
+
+        SystemVolumeSlider.Set_Y(SystemVolumeSlider_AnimY)
+        SystemVolumeSlider.Set_Opacity(max(0, SystemVolumeSlider_AnimOpacity)) 
+        SystemVolumeSlider.Set_X(UIObjectsSurface.get_width() - 42)
+
+        if not SystemVolumeSlider.Value == LastVolume:
+            reg.WriteKey("/TaiyouSystem/CONF/global_volume", str(SystemVolumeSlider.Value))
+            print("GlobalVolume was set to:\n" + str(SystemVolumeSlider.Value))
+            LastVolume = SystemVolumeSlider.Value
+
+        if SystemVolumeSlider.Value >= 100:
+            sound.GlobalVolume = 1.0
+        else:
+            sound.GlobalVolume = float("0." + str(SystemVolumeSlider.Value))
+
+        # -- Update the Icon -- #
+        if SystemVolumeSlider.Value <= 25:
+            SystemVolumeSlider_IconIndex = 0
+        if SystemVolumeSlider.Value >= 25 and SystemVolumeSlider.Value <= 75:
+            SystemVolumeSlider_IconIndex = 1
+        if SystemVolumeSlider.Value >= 75:
+            SystemVolumeSlider_IconIndex = 2
+
+        # -- Update the Animation -- #
+        if SystemVolumeSlider_AnimEnabled:
+            if SystemVolumeSlider_AnimMode == 0:
+                SystemVolumeSlider_AnimOpacity += 32
+
+                if SystemVolumeSlider_AnimYEnabled:
+                    SystemVolumeSlider_AnimY += 2
+
+                    if SystemVolumeSlider_AnimY >= 32:
+                        SystemVolumeSlider_AnimY = 32
+                        SystemVolumeSlider_AnimYEnabled = False
+
+                if SystemVolumeSlider_AnimOpacity >= 255:
+                    SystemVolumeSlider_AnimOpacity = 255
+                    SystemVolumeSlider_AnimY = 32
+                    SystemVolumeSlider_AnimMode = 1
+                    SystemVolumeSlider_AnimEnabled = False
+                    SystemVolumeSlider_AnimYEnabled = True
+
+            if SystemVolumeSlider_AnimMode == 1 and SystemVolumeSlider_AnimEnabled:
+                SystemVolumeSlider_AnimOpacity -= 48
+
+                if SystemVolumeSlider_AnimYEnabled:
+                    SystemVolumeSlider_AnimY -= 2
+
+                    if SystemVolumeSlider_AnimY <= 0:
+                        SystemVolumeSlider_AnimY = 0
+                        SystemVolumeSlider_AnimYEnabled = False
+
+                if SystemVolumeSlider_AnimOpacity <= -256:
+                    SystemVolumeSlider_AnimOpacity = -256
+                    SystemVolumeSlider_AnimY = 0
+                    SystemVolumeSlider_AnimMode = 0
+                    SystemVolumeSlider_AnimEnabled = False
+                    SystemVolumeSlider_AnimYEnabled = True
+
+        # -- Update System Slider Toggle Button -- #
+        SystemVolumeSlider_ToggleButton.Set_X(UIObjectsSurface.get_width() - 40)
+        SystemVolumeSlider_ToggleButton.Set_Y(TopBarRectangle[1] + 2)
+        SystemVolumeSlider_ToggleButton.Set_W(28)
+        SystemVolumeSlider_ToggleButton.Set_H(28)
+        SystemVolumeSlider_ToggleButton.Set_Sprite("/TAIYOU_UI/ICONS/SPEAKER/{0}.png".format(str(SystemVolumeSlider_IconIndex)))
+
+        # -- Toggle Volume Slider -- #
+        if SystemVolumeSlider_ToggleButton.ButtonState == "UP":
+            if not SystemVolumeSlider_AnimEnabled:
+                SystemVolumeSlider_AnimEnabled = True
+
 
     # -- Exit to Main Menu Anim -- #
     if ExitToMainMenuAnim:
         if not ExitTOMainMenuSurfaceCreated:
             ExitToMainMenuOpacityAnimBG = pygame.Surface((DISPLAYObject.get_width(), DISPLAYObject.get_height()))
             ExitTOMainMenuSurfaceCreated = True
+
 
     # -- Restart Game Dialog -- #
     if RestartGameConfirm_Enabled:
@@ -237,8 +360,8 @@ def Update():
 
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
-    TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 28)
-    DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 25)
+    TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 34)
+    DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 34)
 
     # -- Set Objects X -- #
     TopMenu_MainMenu.Set_X(TopMenu_RestartGame.Rectangle[0] + TopMenu_RestartGame.Rectangle[2] + 2)
@@ -286,6 +409,7 @@ def Update():
         developWindow.Update()
 
 
+
 def ShowRestartConfirm(Title, Text, ActionType):
     global RestartGameConfirm_MessageTitle
     global RestartGameConfirm_MessageText
@@ -325,7 +449,6 @@ def RenderRestartGameConfirm(UIObjectsSurface):
         gtk.Draw_Panel(RestartGameConfirm_Surface, (0, 0, RestartGameConfirm_Rectangle[2], RestartGameConfirm_Rectangle[3]), "BORDER", RestartGameConfirm_AnimOpacity)
 
         sprite.RenderRectangle(RestartGameConfirm_Surface, gtk.PANELS_INDICATOR_COLOR, (0, 0, RestartGameConfirm_Rectangle[2], 30))
-        #sprite.RenderFont(RestartGameConfirm_Surface, "/Ubuntu_Bold.ttf", 18, RestartGameConfirm_MessageTitle, (230, 230, 230, RestartGameConfirm_AnimOpacity), sprite.GetText_width("/PressStart2P.ttf", 18, "Are you sure?") / 2 - 18, 5)
 
         sprite.RenderFont(RestartGameConfirm_Surface, "/Ubuntu_Bold.ttf", 24, RestartGameConfirm_MessageTitle, (250, 250, 255), RestartGameConfirm_Surface.get_width() / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 24, RestartGameConfirm_MessageTitle) / 2, 1)
 
@@ -517,6 +640,9 @@ def EventUpdate(event):
     global RestartGameConfirm_Enabled
     global RestartGameConfirm_SurfacesUpdated
     global TopMenu_MainMenu
+    global SystemVolumeSlider
+    global SystemVolumeSlider_AnimEnabled
+    global SystemVolumeSlider_ToggleButton
 
     # -- Update Buttons Events -- #
     if not RestartGameConfirm_Enabled:
@@ -524,6 +650,8 @@ def EventUpdate(event):
         TopMenu_DeveloperConsoleButton.Update(event)
         TopMenu_RestartGame.Update(event)
         TopMenu_MainMenu.Update(event)
+        SystemVolumeSlider.EventUpdate(event)
+        SystemVolumeSlider_ToggleButton.EventUpdate(event)
 
     # -- Update the Surface when Window Size Changes -- #
     if event.type == pygame.VIDEORESIZE:

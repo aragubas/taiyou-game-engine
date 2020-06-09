@@ -52,6 +52,8 @@ BackgroundB = 0
 
 GameFolderToOpen = "null"
 
+SliderTest = gtk.Slider
+
 def Initialize():
     global LoadingSquare
     global GameIcon
@@ -70,6 +72,7 @@ def Draw(Display):
     global BackgroundB
     global GameIcon
     global GameTitle
+
     Display.fill((BackgroundR, BackgroundG, BackgroundB))
     CommonDisplay = Display
 
@@ -82,7 +85,6 @@ def Draw(Display):
     Display.blit(LogoSur, (800 / 2 - LogoSur.get_width() / 2, 50))
 
     sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (OpacityAnimation_Opacity, OpacityAnimation_Opacity, OpacityAnimation_Opacity), 800 / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
-
 
     LoadingSquare.Render(Display)
 
@@ -140,7 +142,6 @@ def Update():
             taiyouUI.Messages.append("TOGGLE_GAME_START")
 
             OpacityAnimation_Enabled = True
-
 
     if OpacityAnimation_Mode == 1 and not OpacityAnimation_Enabled and not AnimSlipeEnabled:
         LoadingNextStageDelay += 1

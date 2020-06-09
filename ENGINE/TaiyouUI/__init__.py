@@ -21,10 +21,11 @@ from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
+from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
 import ENGINE as tge
 
-CurrentMenuScreen = 2 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
+CurrentMenuScreen = 0 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
 SystemMenuEnabled = True
 Cursor_Position = (0,0)
 

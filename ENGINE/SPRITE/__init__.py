@@ -45,60 +45,60 @@ def LoadSpritesInFolder(FolderName):
 
     print("LoadSpritesInFolder : Loading all Sprites...")
 
-    try:
-        for line in sprite_meta_lines:
-            line = line.rstrip()
-            if not line.startswith('#') and not line == "":
-                currentLine = line.split(':')
-                spriteLocation = folder_name + currentLine[0]
-                print("[{0}]".format(spriteLocation))
-                Sprites_Name.append(currentLine[0])
+    for line in sprite_meta_lines:
+        line = line.rstrip()
+        if not line.startswith('#') and not line == "":
+            currentLine = line.split(':')
+            spriteLocation = folder_name + currentLine[0]
+            print("[{0}]".format(spriteLocation))
+            Sprites_Name.append(currentLine[0])
 
-                if currentLine[1] == "True":
+            if currentLine[1] == "True":
+                try:
                     if not SpriteTransparency:
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
                     else:
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                except FileNotFoundError:
+                    print("Sprite.LoadFolder : The last sprite was not found.")
+                    Sprites_Data.append(DefaultSprite)
 
-                elif currentLine[1] == "False":
-                    Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+            elif currentLine[1] == "False":
+                Sprites_Data.append(pygame.image.load(spriteLocation).convert())
+                print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+            else:
+                print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
+
+    # -- Install Font Files to the Shared Resources Path -- #
+    if utils.Directory_Exists(FolderName + "/FONT_PACKS"):
+        print("Sprite.LoadFolder : Directory have Font Packs to be installed.")
+        fontInstall_metadata = open(FolderName + "/FONT_PACKS/meta.data", "r")
+        fontInstall_meta_lines = fontInstall_metadata.readlines()
+
+        for font in fontInstall_meta_lines:
+            font = font.rstrip()
+
+            if not font.startswith("#"):
+                CurrentFileName = FolderName + "/FONT_PACKS" + font
+                DestinationDir = "Taiyou/SYSTEM/SOURCE/FONT" + font
+
+                if utils.File_Exists(DestinationDir):
+                    print("Sprite.LoadFolder.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
                 else:
-                    print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
+                    if not utils.File_Exists(CurrentFileName):
+                        raise FileNotFoundError("The listed Font-Pack \n[" + CurrentFileName + "] does not exist.")
 
-        # -- Install Font Files to the Shared Resources Path -- #
-        if utils.Directory_Exists(FolderName + "/FONT_PACKS"):
-            print("Sprite.LoadFolder : Directory have Font Packs to be installed.")
-            fontInstall_metadata = open(FolderName + "/FONT_PACKS/meta.data", "r")
-            fontInstall_meta_lines = fontInstall_metadata.readlines()
+                    utils.FileCopy(CurrentFileName, DestinationDir)
 
-            for font in fontInstall_meta_lines:
-                font = font.rstrip()
-
-                if not font.startswith("#"):
-                    CurrentFileName = FolderName + "/FONT_PACKS" + font
-                    DestinationDir = "Taiyou/SYSTEM/SOURCE/FONT" + font
-
-                    if utils.File_Exists(DestinationDir):
-                        print("Sprite.LoadFolder.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
+                    if not utils.File_Exists(DestinationDir):
+                        raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
                     else:
-                        if not utils.File_Exists(CurrentFileName):
-                            raise FileNotFoundError("The listed Font-Pack \n[" + CurrentFileName + "] does not exist.")
+                        print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
 
-                        utils.FileCopy(CurrentFileName, DestinationDir)
+    else:
+        print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
 
-                        if not utils.File_Exists(DestinationDir):
-                            raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
-                        else:
-                            print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
-
-        else:
-            print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
-
-    except FileNotFoundError as ex:
-        print("\n\nFILE_NOT_FOUND_ERROR:\n" + str(ex))
-        sys.exit()
 
     print("Sprite.LoadFolder : Operation Completed.")
 
@@ -154,14 +154,28 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 
-def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0):
+def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0, SmoothScaling=True):
+    """
+    Render a Sprite loaded to the Sprite System
+    :param DISPLAY:Surface to be rendered
+    :param spriteName:Sprite Resource Name [starting with /]
+    :param X:X Location
+    :param Y:Y Location
+    :param Width:Scale Width
+    :param Height:Scale Height
+    :param SmoothScaling:Smooth Pixels [This option can decrease peformace]
+    :return:
+    """
     if not SpriteRenderingDisabled:
         try:
             if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
                 if Width == 0 and Height == 0:
                     DISPLAY.blit(GetSprite(spriteName), (X, Y))
                 else:
-                    DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+                    if not SmoothScaling:
+                        DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+                    else:
+                        DISPLAY.blit(pygame.transform.smoothscale(GetSprite(spriteName), (Width, Height)), (X, Y))
 
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
@@ -169,6 +183,18 @@ def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0):
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
 def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
+    """
+    Render a Font
+    :param DISPLAY:Surface Name
+    :param FontFileLocation:Font Resource Name [starting with /]
+    :param Size:Font Size
+    :param Text:Text to be Rendered
+    :param ColorRGB:Color in RGB Format [R, G, B]
+    :param X:X Location
+    :param Y:Y Location
+    :param atialias:Smooth Pixels [This option can decrese peformace]
+    :return:
+    """
     if not FontRenderingDisabled:
         try:
             if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text) and not Text == "" or not Text == " ":
@@ -182,6 +208,12 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
             print("Sprite.RenderFont ; Detailed Error: " + str(ex))
 
 def GetFontObject(FontFileLocation, Size):
+    """
+    Returns a Font Object on the Taiyou Font Buffer
+    :param FontFileLocation:The name of font file [starting with /]
+    :param Size:Font Object Size
+    :return:Font Object
+    """
     if not FontRenderingDisabled:
         try:
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
@@ -193,6 +225,17 @@ def GetFontObject(FontFileLocation, Size):
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 
 def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
+    """
+    IN TESTING: Draw a Wrapped Text
+    :param text:Text to be drawn
+    :param font:Font File [starting with /]
+    :param colour:Font Color
+    :param x:X Location
+    :param y:Y Location
+    :param screen:Surface
+    :param allowed_width:Max Witdh
+    :return:
+    """
     if not FontRenderingDisabled:
         words = text.split()
         lines = []
@@ -221,6 +264,12 @@ def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
 
 
 def Surface_Blur(surface, amt):
+    """
+    Applies blur to a Surface
+    :param surface:Surface to the blurred
+    :param amt:Ammount of Blur [range is 1.0 to 99.99]
+    :return:Returns the Blurred Surface
+    """
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
         return surface
@@ -232,6 +281,12 @@ def Surface_Blur(surface, amt):
     return surf
 
 def Surface_Pixalizate(surface, amt):
+    """
+    Pixalizates a Surface
+    :param surface:Surface to be pixalizated
+    :param amt:Ammount of Blur [range is 1.0 to 99.99]
+    :return:
+    """
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
         return surface
