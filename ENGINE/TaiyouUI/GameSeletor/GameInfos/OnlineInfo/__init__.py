@@ -25,7 +25,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-from ENGINE.TaiyouUI import AplicationUpdateDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos as Handler
 from ENGINE.TaiyouUI import GameSeletor as HandlerOfHandler
 
@@ -44,14 +44,14 @@ def Draw(Display):
     UpdateMetadata_Button.Render(Display)
 
     if not reg.KeyExists("/TaiyouSystem/UPDATER/" + HandlerOfHandler.SelectedGameInfo[0] + "/ApplicationDataHasBeenDownloaded"):
-        sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 18, gtk.GetLangText("no_downloaded_data", "game_infos/online"), (230,230,230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25)
+        sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 18, gtk.GetLangText("no_downloaded_data", "game_infos/online"), (230, 230, 230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25)
     else:
         BasicInfosText = gtk.GetLangText("basic_infos", "game_infos/online").format(
             reg.ReadKey("/TaiyouSystem/UPDATER/" + HandlerOfHandler.SelectedGameInfo[0] + "/CurrentVersion"),
             reg.ReadKey("/TaiyouSystem/UPDATER/" + HandlerOfHandler.SelectedGameInfo[0] + "/PatchNotes")
         )
 
-        sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 18, BasicInfosText, (230, 230, 230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25)
+        sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 18, BasicInfosText, (230, 230, 230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25)
 
 
 def Initialize():

@@ -26,7 +26,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import GameSeletor as Handler
-
+from ENGINE.TaiyouUI import OverlayDialog as dialog
 
 OpacityAnimation_Enabled = True
 OpacityAnimation_Opacity = 0
@@ -54,13 +54,17 @@ GameFolderToOpen = "null"
 
 SliderTest = gtk.Slider
 
+# -- UI is Locked -- #
+DialogEnabled = False
+DialogExcp = Exception
+
 def Initialize():
     global LoadingSquare
     global GameIcon
-
     GameIcon = sprite.GetSprite("/TAIYOU_UI/no_icon.png")
 
     LoadingSquare = gtk.LoadingSquare(5, 5)
+    dialog.Initialize()
 
 def Draw(Display):
     global OpacityAnimation_Opacity
@@ -72,51 +76,62 @@ def Draw(Display):
     global BackgroundB
     global GameIcon
     global GameTitle
+    global DialogEnabled
 
     Display.fill((BackgroundR, BackgroundG, BackgroundB))
     CommonDisplay = Display
 
-
     LogoSur = pygame.Surface((240 * 2, 150 * 2), pygame.SRCALPHA)
-    LogoSur.set_alpha(OpacityAnimation_Opacity)
+    if not DialogEnabled:
+        LogoSur.set_alpha(OpacityAnimation_Opacity)
+    else:
+        LogoSur.set_alpha(OpacityAnimation_Opacity - 50)
 
     LogoSur.blit(pygame.transform.scale(GameIcon, (LogoSur.get_width(), LogoSur.get_height())), (0,0))
 
     Display.blit(LogoSur, (800 / 2 - LogoSur.get_width() / 2, 50))
 
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (OpacityAnimation_Opacity, OpacityAnimation_Opacity, OpacityAnimation_Opacity), 800 / 2 - sprite.GetText_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
+    sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (OpacityAnimation_Opacity, OpacityAnimation_Opacity, OpacityAnimation_Opacity), 800 / 2 - sprite.GetFont_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
 
     LoadingSquare.Render(Display)
 
-
+    if DialogEnabled:
+        dialog.Draw(Display)
 
 
 def Update():
-    global OpacityAnimation_Enabled
-    global OpacityAnimation_Opacity
-    global OpacityAnimation_Mode
-    global LoadingNextStage
-    global LoadingNextStageDelay
-    global LoadingStage
     global GameFolderToOpen
     global LoadingSquare
     global CommonDisplay
     global AnimSlipeEnabled
     global GameTitle
+    global DialogEnabled
 
-    AnimSlipeUpdate()
-    LoadingSquare.Update()
+    if not DialogEnabled:
+        AnimSlipeUpdate()
+        LoadingSquare.Update()
 
-    LoadingSquare.Y = CommonDisplay.get_height() - 38
-    LoadingSquare.X = CommonDisplay.get_width() - 38
-    LoadingSquare.Opacity = OpacityAnimation_Opacity
+        LoadingSquare.Y = CommonDisplay.get_height() - 38
+        LoadingSquare.X = CommonDisplay.get_width() - 38
+        LoadingSquare.Opacity = OpacityAnimation_Opacity
 
-    if Handler.SelectedGameInfo[1] == "nul":
-        GameTitle = GameFolderToOpen
+        OpacityAnimation()
+        UpdateLoadingStages()
+
+        # -- Workaround if Autoboot GameFolder was selected -- #
+        if Handler.SelectedGameInfo[1] == "nul":
+            GameTitle = GameFolderToOpen
+        else:
+            GameTitle = Handler.SelectedGameInfo[1]
+
     else:
-        GameTitle = Handler.SelectedGameInfo[1]
+        dialog.Update()
 
-
+def UpdateLoadingStages():
+    global LoadingNextStage
+    global LoadingNextStageDelay
+    global LoadingStage
+    global OpacityAnimation_Enabled
     if LoadingNextStage and not GameFolderToOpen == "null":
         LoadingStage += 1
         if LoadingStage == 0:
@@ -146,11 +161,18 @@ def Update():
     if OpacityAnimation_Mode == 1 and not OpacityAnimation_Enabled and not AnimSlipeEnabled:
         LoadingNextStageDelay += 1
 
-
         if LoadingNextStageDelay >= 5000:
             LoadingNextStageDelay = 0
             LoadingNextStage = True
 
+
+def OpacityAnimation():
+    global OpacityAnimation_Enabled
+    global OpacityAnimation_Opacity
+    global OpacityAnimation_Mode
+    global LoadingNextStage
+    global LoadingStage
+    global LoadingNextStageDelay
     if OpacityAnimation_Enabled:
         if OpacityAnimation_Mode == 0:
             OpacityAnimation_Opacity += 15
@@ -174,10 +196,10 @@ def Update():
 
                 taiyouUI.CurrentMenuScreen = 0
                 taiyouUI.Messages.append("SET_GAME_MODE")
-                taiyouUI.Messages.append("GAME_UPDATE:True")
 
                 taiyouUI.gameOverlay.UIOpacityAnimEnabled = False
                 taiyouUI.SystemMenuEnabled = False
+
 
 def AnimSlipeUpdate():
     global AnimSlipeEnabled

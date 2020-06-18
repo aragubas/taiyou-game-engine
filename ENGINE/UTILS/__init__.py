@@ -95,6 +95,8 @@ def Online_LinkExists(url):
         return conn.getcode()
     except HTTPError as e:
         return e.code
+    except:
+        return 404
 
 def Get_Percentage(Percentage, Max, MaxPercentage):
     return (Percentage * Max) / MaxPercentage

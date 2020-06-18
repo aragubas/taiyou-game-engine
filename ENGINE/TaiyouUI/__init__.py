@@ -22,12 +22,14 @@ from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import DeveloperConsole as devel
+from ENGINE.TaiyouUI import ScreenshotUI as screenshotUI
 from ENGINE import utils
 import ENGINE as tge
 
-CurrentMenuScreen = 0 # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
+CurrentMenuScreen = 2  # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
 SystemMenuEnabled = True
-Cursor_Position = (0,0)
+Cursor_Position = (0, 0)
+
 
 def Initialize():
     print("TaiyouUI.Initialize : Started")
@@ -35,14 +37,13 @@ def Initialize():
     # -- Load the Language -- #
     gtk.SetLang(reg.ReadKey("/TaiyouSystem/CONF/lang"))
 
-
     gameOverlay.Initialize()
     seletorScreen.Initialize()
     loadingScreen.Initialize()
     SetMenuMode_Changes()
 
-
     print("TaiyouUI.Initialize : Initialization Complete.")
+
 
 def Draw(Display):
     global SystemMenuEnabled
@@ -56,7 +57,8 @@ def Draw(Display):
         if CurrentMenuScreen == 0:
             gameOverlay.Draw(Display)
 
-    sprite.Render(Display, "/TAIYOU_UI/Cursor/0.png", Cursor_Position[0], Cursor_Position[1], 15, 22)
+    sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/0.png", Cursor_Position[0], Cursor_Position[1], 15, 22)
+
 
 def Update():
     global SystemMenuEnabled
@@ -73,6 +75,7 @@ def Update():
 
         # -- Set Cursor Position -- #
         Cursor_Position = pygame.mouse.get_pos()
+
 
 def EventUpdate(event):
     global SystemMenuEnabled
@@ -100,13 +103,18 @@ def SetMenuMode_Changes():
     CurrentRes = pygame.display.get_window_size()
     if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:
         Messages.append("SET_RESOLUTION:800:600")
-        print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
+        print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]),
+                                                                                                     str(CurrentRes[
+                                                                                                             1])))
     else:
-        print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
+        print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]),
+                                                                                                str(CurrentRes[1])))
 
 
 # -- Send the messages on the Message Quee to the Game Engine -- #
 Messages = list()
+
+
 def ReadCurrentMessages():
     global Messages
     try:

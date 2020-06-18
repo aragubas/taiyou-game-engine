@@ -27,7 +27,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI.GameSeletor.GameInfos import TitleInfo as titleInfos
 from ENGINE.TaiyouUI.GameSeletor.GameInfos import OnlineInfo as onlineInfos
 from ENGINE.TaiyouUI.GameSeletor.GameInfos import LocalInfo as localInfos
-from ENGINE.TaiyouUI import AplicationUpdateDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos as Handler
 from ENGINE.TaiyouUI import GameSeletor as HandlerOfHandler
 

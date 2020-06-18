@@ -61,7 +61,7 @@ def LoadSpritesInFolder(FolderName):
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
                 except FileNotFoundError:
-                    print("Sprite.LoadFolder : The last sprite was not found.")
+                    print("Sprite.LoadFolder : ERROR!\nCannot find the image[" + spriteLocation + "]")
                     Sprites_Data.append(DefaultSprite)
 
             elif currentLine[1] == "False":
@@ -98,7 +98,6 @@ def LoadSpritesInFolder(FolderName):
 
     else:
         print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
-
 
     print("Sprite.LoadFolder : Operation Completed.")
 
@@ -154,9 +153,9 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 
-def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0, SmoothScaling=True):
+def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False):
     """
-    Render a Sprite loaded to the Sprite System
+    Render a Image loaded to the Sprite System
     :param DISPLAY:Surface to be rendered
     :param spriteName:Sprite Resource Name [starting with /]
     :param X:X Location
@@ -182,9 +181,9 @@ def Render(DISPLAY, spriteName, X, Y, Width = 0, Height = 0, SmoothScaling=True)
 
 CurrentLoadedFonts_Name = list()
 CurrentLoadedFonts_Contents = list()
-def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=True):
+def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=(-1, -1, -1)):
     """
-    Render a Font
+    Render a Text using a font loaded into Taiyou Font Cache
     :param DISPLAY:Surface Name
     :param FontFileLocation:Font Resource Name [starting with /]
     :param Size:Font Size
@@ -192,82 +191,53 @@ def RenderFont(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, atialias=T
     :param ColorRGB:Color in RGB Format [R, G, B]
     :param X:X Location
     :param Y:Y Location
-    :param atialias:Smooth Pixels [This option can decrese peformace]
+    :param antialias:Smooth Pixels [This option can decrea se peformace]
     :return:
     """
     if not FontRenderingDisabled:
-        try:
-            if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetText_width(FontFileLocation,Size,Text) and Y >= -GetText_height(FontFileLocation,Size,Text) and not Text == "" or not Text == " ":
+        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetFont_width(FontFileLocation, Size, Text) and Y >= -GetFont_height(FontFileLocation, Size, Text) and not Text == "" or not Text == " ":
+            # -- Only Render Multiple Lines when needed -- #
+            if len(Text.splitlines()) > 1:
                 for i, l in enumerate(Text.splitlines()):
-                    DISPLAY.blit(CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))].render(l, atialias, ColorRGB), (X, Y + Size * i))
+                    if not backgroundColor == (-1, -1, -1):
+                        DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(l, antialias, ColorRGB, backgroundColor), (X, Y + Size * i))
+                    else:
+                        DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(l, antialias, ColorRGB), (X, Y + Size * i))
 
-        except Exception as ex:
-            CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size))
-            print("Sprite.RenderFont ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            print("Sprite.RenderFont ; Detailed Error: " + str(ex))
+            else:
+                if not backgroundColor == (-1, -1, -1):
+                    DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(Text, antialias, ColorRGB, backgroundColor), (X, Y))
+                else:
+                    DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(Text, antialias, ColorRGB), (X, Y))
 
-def GetFontObject(FontFileLocation, Size):
+def GetFont_object(FontFileLocation, Size):
     """
-    Returns a Font Object on the Taiyou Font Buffer
+    Returns a Font Object on the Taiyou Font Cache
     :param FontFileLocation:The name of font file [starting with /]
     :param Size:Font Object Size
     :return:Font Object
     """
     if not FontRenderingDisabled:
+        FontCacheName = FontFileLocation + ":" + str(Size)
         try:
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
-        except Exception as ex:
-            CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(FontCacheName)]
+
+        except ValueError: # -- Add font to the FontCache if was not found -- #
+            print("Sprite.GetFontObject ; Creating Font Cache Object")
+
+            CurrentLoadedFonts_Name.append(FontCacheName)
             CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size))
-            print("Sprite.GetFontObject ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))
-            print("Sprite.GetFontObject ; Detailed Error: " + str(ex))
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(Size))]
 
-def RenderWrappedFont(text, font, colour, x, y, screen, allowed_width):
-    """
-    IN TESTING: Draw a Wrapped Text
-    :param text:Text to be drawn
-    :param font:Font File [starting with /]
-    :param colour:Font Color
-    :param x:X Location
-    :param y:Y Location
-    :param screen:Surface
-    :param allowed_width:Max Witdh
-    :return:
-    """
-    if not FontRenderingDisabled:
-        words = text.split()
-        lines = []
-        while len(words) > 0:
-            # get as many words as will fit within allowed_width
-            line_words = []
-            while len(words) > 0:
-                line_words.append(words.pop(0))
-                fw, fh = font.size(' '.join(line_words + words[:1]))
-                if fw > allowed_width:
-                    break
+            print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 
-            # add a line consisting of those words
-            line = ' '.join(line_words)
-            lines.append(line)
+            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(FontCacheName)]
 
-        y_offset = 0
-        for line in lines:
-            fw, fh = font.size(line)
-            ty = y + y_offset
-
-            font_surface = font.render(line, True, colour)
-            screen.blit(font_surface, (x, ty))
-
-            y_offset += fh
-
-
-def Surface_Blur(surface, amt):
+def Surface_Blur(surface, amt, fast_scale=False):
     """
     Applies blur to a Surface
-    :param surface:Surface to the blurred
-    :param amt:Ammount of Blur [range is 1.0 to 99.99]
+    :param surface:Surface to be blurred
+    :param amt:Amount of Blur [minimun 1.0]
+    :param fast_scale:If true, pixalizate the surface insted of blurring
     :return:Returns the Blurred Surface
     """
     if amt < 1.0:
@@ -276,32 +246,20 @@ def Surface_Blur(surface, amt):
     scale = 1.0/float(amt)
     surf_size = surface.get_size()
     scale_size = (int(surf_size[0]*scale), int(surf_size[1]*scale))
-    surf = pygame.transform.smoothscale(surface, scale_size)
-    surf = pygame.transform.smoothscale(surf, surf_size)
+    if not fast_scale:
+        surf = pygame.transform.smoothscale(surface, scale_size)
+        surf = pygame.transform.smoothscale(surf, surf_size)
+    else:
+        surf = pygame.transform.scale(surface, scale_size)
+        surf = pygame.transform.scale(surf, surf_size)
     return surf
 
-def Surface_Pixalizate(surface, amt):
-    """
-    Pixalizates a Surface
-    :param surface:Surface to be pixalizated
-    :param amt:Ammount of Blur [range is 1.0 to 99.99]
-    :return:
-    """
-    if amt < 1.0:
-        print("Surface_Blue : Invalid Blur Amount.")
-        return surface
-    scale = 1.0/float(amt)
-    surf_size = surface.get_size()
-    scale_size = (int(surf_size[0]*scale), int(surf_size[1]*scale))
-    surf = pygame.transform.scale(surface, scale_size)
-    surf = pygame.transform.scale(surf, surf_size)
-    return surf
-
-def RenderRectangle(DISPLAY, Color, Rectangle):
+def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0):
     if RectangleRenderingDisabled:
         return
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
+        # -- Fix Color RGBA RGB Confusion -- #
         if len(Color) < 4:
             Color.append(255)
         if Color[0] <= 0:
@@ -312,25 +270,43 @@ def RenderRectangle(DISPLAY, Color, Rectangle):
             Color[2] = 0
         if Color[3] <= 0:
             Color[3] = 0
-        pygame.draw.rect(DISPLAY, Color, Rectangle)
 
-def GetText_width(FontFileLocation, FontSize, Text):
-    try:
-        for i, l in enumerate(Text.splitlines()):
-            return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(l, True, (255, 255, 255)).get_width()
+        # -- Border Radius-- #
+        if BorderRadius > 0 and Border_TopRight_Radius == 0 and Border_TopLeft_Radius == 0 and Border_BottomLeft_Radius == 0 and Border_BottomRight_Radius == 0:
+            Border_TopRight_Radius = BorderRadius
+            Border_TopLeft_Radius = BorderRadius
+            Border_BottomRight_Radius = BorderRadius
+            Border_BottomLeft_Radius = BorderRadius
 
-    except:
-        CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, FontSize))
-        print("GetText_width ; LoadedFont: " + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        return 0
+        # -- Render the Rectangle -- #
+        pygame.draw.rect(DISPLAY, Color, Rectangle, BorderWidth, BorderRadius, Border_TopLeft_Radius, Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
 
+def GetFont_width(FontFileLocation, FontSize, Text):
+    """
+    Get the width of a font, from a specified text.
+    :param FontFileLocation:FontFile Name
+    :param FontSize:FontSize
+    :param Text:Text
+    :return:Size (int)
+    """
 
-def GetText_height(FontFileLocation, FontSize, Text):
-    try:
-        return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))].render(Text, True, (255,255,255)).get_height() * len(Text.splitlines())
-    except:
-        CurrentLoadedFonts_Name.append("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, FontSize))
-        print("GetText_height ; LoadedFont:" + "Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation + ",S:" + str(FontSize))
-        return 0
+    TotalSize = 0
+    for i, l in enumerate(Text.splitlines()):
+        CurrentSize = 0
+        CurrentSize += GetFont_object(FontFileLocation, FontSize).render(l, True, (255, 255, 255)).get_width()
+
+        if CurrentSize > TotalSize:
+            TotalSize = CurrentSize
+
+    return TotalSize
+
+def GetFont_height(FontFileLocation, FontSize, Text):
+    """
+    Get the height of a font, from a specified text.
+    :param FontFileLocation:FontFile Name
+    :param FontSize:FontSize
+    :param Text:Text
+    :return:Size (int)
+    """
+
+    return GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(Text.splitlines())

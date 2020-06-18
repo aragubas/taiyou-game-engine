@@ -25,7 +25,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-from ENGINE.TaiyouUI import AplicationUpdateDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos as Handler
 
 Placeholder = "Place a Holder"
@@ -33,7 +33,7 @@ Placeholder = "Place a Holder"
 def Draw(Display):
     Text = gtk.GetLangText("title_info", "seletor/atribute_list/txt").format(Handler.SelectedGameInfosList[0], Handler.SelectedGameInfosList[1], Handler.SelectedGameInfosList[2], Handler.SelectedGameInfosList[3])
 
-    sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 14, Text, (230,230,230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25, True)
+    sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 14, Text, (230, 230, 230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25, True)
 
 def Update():
     global Placeholder

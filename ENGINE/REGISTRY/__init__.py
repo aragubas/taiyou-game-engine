@@ -24,8 +24,6 @@ print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
 
 
 # Variables
-system_reg_keys = list()
-system_reg_contents = list()
 reg_keys = list()
 reg_contents = list()
 
@@ -139,7 +137,7 @@ def ReadKey_bool(keyName):
     else:
         return False
 
-def WriteKey(keyName, keyValue):
+def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     """
     Write data to a Key
     :param keyName:Name of Key [starting with /]
@@ -147,7 +145,10 @@ def WriteKey(keyName, keyValue):
     :return:
     """
     keyName = CorrectKeyName(keyName)
-    FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
+    if not WriteOnSystemReg:
+        FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
+    else:
+        FileLocation = "Taiyou/SYSTEM/SOURCE/REG" + keyName + ".data"
 
     # -- Create the directory if not exists -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
@@ -242,4 +243,42 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
         else:
             return False
 
+# -- Read App Data Functions -- #
 
+def ReadAppData(FileName, DataType=str):
+    FileLocation = tge.Get_GlobalAppDataFolder() + "/" + FileName + ".data"
+    file = open(FileLocation, "r")
+
+    ReadData = file.read().rstrip()
+
+    if DataType == str:
+        return ReadData
+    if DataType == float:
+        return float(ReadData)
+    if DataType == int:
+        return int(ReadData)
+    if DataType == bool:
+        if ReadData == "True":
+            return True
+        else:
+            return False
+
+    print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
+
+
+def ReadAppData_WithTry(FileName, DataType, DefaultValue):
+    try:
+        return ReadAppData(FileName, DataType)
+    except:
+        WriteAppData(FileName, DefaultValue)
+        return ReadAppData(FileName, DataType)
+
+def WriteAppData(FileName, Data):
+    FileLocation = tge.Get_GlobalAppDataFolder() + "/" + FileName + ".data"
+    os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
+
+    f = open(FileLocation, "w+")
+    f.write(str(Data))
+    f.close()
+
+    print("Taiyou.Registry.WriteAppData : File[{0}] has been written.".format(FileName))

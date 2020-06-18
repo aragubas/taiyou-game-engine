@@ -20,16 +20,16 @@ from ENGINE import SOUND as sound
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import TaiyouUI as taiyouUI
 import ENGINE as tge
+from ENGINE.TaiyouUI.GameOverlay import SystemVolumeSlider as volumeSlider
 from ENGINE import utils
 from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-from ENGINE.TaiyouUI import AplicationUpdateDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos
 
 # -- Buttons -- #
-Exit_Button = gtk.Button
 RestartList_Button = gtk.Button
 SelectGame_Button = gtk.Button
 
@@ -97,11 +97,7 @@ def ListInstalledGames():
             print("ListInstalledGames : Directory is invalid.")
     return ValidGameFolders
 
-
-
-
 def Initialize():
-    global Exit_Button
     global InstalledGameList
     global ValidGameFolders
     global SelectGame_Button
@@ -109,7 +105,6 @@ def Initialize():
     global UIOpacity_StartDelay
     global RestartList_Button
     global DownloaderObj
-    Exit_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("options_button", "seletor"), 20)
     SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
     InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
     RestartList_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("restart_button", "seletor"), 20)
@@ -121,9 +116,10 @@ def Initialize():
     UpdateDiag.Initialize()
     GameInfos.Initialize()
 
+    # -- Initialize Volume Slider -- #
+    volumeSlider.Initialize()
+
     LoadGameList()
-
-
 
 
 def LoadGameList():
@@ -138,8 +134,6 @@ def LoadGameList():
     print("TaiyouUI.LoadGameList : Game List has been reloaded.")
 
 
-
-
 def UnloadGameList():
     print("TaiyouUI.UnloadGameList : Started")
     ValidGameFolders.clear()
@@ -147,10 +141,7 @@ def UnloadGameList():
     print("TaiyouUI.UnloadGameList : Game List has been unloaded.")
 
 
-
-
 def Draw(Display):
-    global Exit_Button
     global DisplaySurfaceInited
     global DisplaySurface
     global TopPanel_Rect
@@ -168,7 +159,7 @@ def Draw(Display):
         SeletorLoadingSquare.Render(Display)
 
         if not UIOpacity_EnableDelayEnabled and UIOpacity_EnableDelay <= UIOpacity_StartDelay:
-            sprite.RenderFont(Display, "/Ubuntu_Bold.ttf", 18, LoadingPauseMessage, (240,240,240), 5, 600 - 23)
+            sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 18, LoadingPauseMessage, (240, 240, 240), 5, 600 - 23)
 
     if DisplaySurfaceInited and not ApplicationUpdateDialogEnabled:
         DisplaySurface.fill((BackgroundR, BackgroundG, BackgroundB))
@@ -177,10 +168,9 @@ def Draw(Display):
         gtk.Draw_Panel(DisplaySurface, TopPanel_Rect, "DOWN")
 
         # -- Draw the Username -- #
-        sprite.RenderFont(DisplaySurface, "/UbuntuMono_Bold.ttf",24,tge.UserName, (240,240,240), 5, AnimationNumb + 5)
+        sprite.FontRender(DisplaySurface, "/UbuntuMono_Bold.ttf", 24, tge.UserName, (240, 240, 240), 5, AnimationNumb + 5)
 
         # -- Render Buttons -- #
-        Exit_Button.Render(DisplaySurface)
         SelectGame_Button.Render(DisplaySurface)
         RestartList_Button.Render(DisplaySurface)
 
@@ -189,6 +179,9 @@ def Draw(Display):
 
         if not InstalledGameList.SelectedItemIndex == -1:
             GameInfos.Draw(DisplaySurface)
+
+        # -- Render Volume Slider -- #
+        volumeSlider.Draw(DisplaySurface)
 
     Display.blit(DisplaySurface, (0,0))
 
@@ -201,10 +194,7 @@ def Draw(Display):
         DisplaySurfaceInited = True
 
 
-
-
 def Update():
-    global Exit_Button
     global AnimationNumb
     global TopPanel_Rect
     global DisplaySurface
@@ -242,15 +232,17 @@ def Update():
     if DisplaySurfaceInited and not ApplicationUpdateDialogEnabled:
         TopPanel_Rect = pygame.Rect(0, AnimationNumb, DisplaySurface.get_width(), 35)
 
-        Exit_Button.Set_X(TopPanel_Rect[2] - Exit_Button.Rectangle[2] - 5)
-
         InstalledGameList.SurfaceOpacity = AnimationNumb * 2.5 + 255
         InstalledGameList.Set_X(AnimationNumb * 1.5 + 20)
         SelectGame_Button.Set_X(InstalledGameList.Rectangle[0])
         SelectGame_Button.Set_Y(InstalledGameList.Rectangle[1] + InstalledGameList.Rectangle[3] + 5)
 
-        RestartList_Button.Set_X(Exit_Button.Rectangle[0] - RestartList_Button.Rectangle[2] - 5)
-        RestartList_Button.Set_Y(Exit_Button.Rectangle[1])
+        RestartList_Button.Set_X(TopPanel_Rect[2] - RestartList_Button.Rectangle[2] - 37)
+        RestartList_Button.Set_Y(AnimationNumb + 3)
+
+        volumeSlider.ObjX = DisplaySurface.get_width() - 35
+        volumeSlider.ObjY = RestartList_Button.Rectangle[1]
+        volumeSlider.Update()
 
 
         # -- Update Selected Game Infos List -- #
@@ -267,9 +259,6 @@ def Update():
                 UIOpacityAnimEnabled = True
                 UIOpacity_AnimExitToOpenGame = True
 
-        # -- Update Objects Position -- #
-        Exit_Button.Set_Y(AnimationNumb + 5)
-
     # -- Update the In/Out Animation -- #
     UpdateOpacityAnim()
 
@@ -277,7 +266,6 @@ def Update():
 
 
 def EventUpdate(event):
-    global Exit_Button
     global InstalledGameList
     global SelectGame_Button
     global UIOpacityAnimEnabled
@@ -287,7 +275,6 @@ def EventUpdate(event):
 
     # -- Update Buttons -- #
     if not ApplicationUpdateDialogEnabled:
-        Exit_Button.Update(event)
         SelectGame_Button.Update(event)
         RestartList_Button.Update(event)
 
@@ -301,6 +288,8 @@ def EventUpdate(event):
             if not InstalledGameList.SelectedItemIndex == -1:
                 UIOpacityAnimEnabled = True
                 UIOpacity_AnimExitToOpenGame = True
+        volumeSlider.EventUpdate(event)
+
 
     # -- Event Application Update Ready Message -- #
     if ApplicationUpdateDialogEnabled:

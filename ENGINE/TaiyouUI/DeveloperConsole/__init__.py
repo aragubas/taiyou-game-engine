@@ -38,8 +38,8 @@ def Initialize():
     global TextEnter
     global TerminalBuffer
 
-    WindowObject = gtk.Window(pygame.Rect(50,50,550, 350), "Developer Console", True)
-    WindowObject.Resiziable = False
+    WindowObject = gtk.Window(pygame.Rect(50,50,620, 350), "Developer Console", True)
+
     TextEnter = gtk.InputBox(0,0,200,20,"help")
     TextEnter.CustomColision = True
     TextEnter.CustomWidth = True
@@ -50,12 +50,12 @@ def ScrollConsole():
     global TerminalBuffer
     global WindowObject
 
-    if sprite.GetText_height("/PressStart2P.ttf", 9, TerminalBuffer) >= WindowObject.WindowSurface.get_height() - 10:
+    if sprite.GetFont_height("/PressStart2P.ttf", 8, TerminalBuffer) >= WindowObject.WindowSurface.get_height() - 10:
         try:
             RemoveAmount = 4
             TerminalBuffer = TerminalBuffer.split("\n", RemoveAmount)[RemoveAmount]
         except:
-            print("Oops, cannot clear more than this.")
+            print("Taiyou.DeveloperConsole : Oops, cannot clear more than this.")
 
 
 def Update():
@@ -65,8 +65,8 @@ def Update():
     global TextScrollWhenInitialized
     global WindowInitialized
     if not WindowObject.WindowMinimized:
-        TextEnter.colisionRect = pygame.Rect(WindowObject.WindowSurface_Dest[0], WindowObject.WindowSurface_Dest[1] + WindowObject.WindowSurface.get_height() - 11, WindowObject.WindowSurface.get_width(), 11)
-        TextEnter.rect[1] = WindowObject.WindowSurface.get_height() - 11
+        TextEnter.colisionRect = pygame.Rect(WindowObject.WindowSurface_Dest[0], WindowObject.WindowSurface_Dest[1] + WindowObject.WindowSurface.get_height() - 18, WindowObject.WindowSurface.get_width(), 18)
+        TextEnter.rect[1] = WindowObject.WindowSurface.get_height() - TextEnter.rect[3]
 
         TextEnter.width = WindowObject.WindowSurface.get_width()
 
@@ -99,8 +99,8 @@ def EventUpdate(event):
         # - Set the default text
         TextEnter.DefaultText = TextEnter_LastCommand
 
-TerminalBuffer = "Taiyou Developer Console v" + tge.Get_DeveloperConsoleVersion()
 
+TerminalBuffer = "Taiyou Developer Console v" + tge.Get_DeveloperConsoleVersion()
 def PrintToTerminalBuffer(text):
     global TerminalBuffer
     global WindowObject
@@ -111,6 +111,7 @@ def PrintToTerminalBuffer(text):
     else:
         TerminalBuffer += "\n" + str(text)
 
+
 def Draw(DISPLAY):
     global TextEnter
     global WindowInitialized
@@ -120,9 +121,9 @@ def Draw(DISPLAY):
 
         # -- Draw the Terminal Buffer -- #
         if WindowInitialized:
-            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 9, TerminalBuffer, (240,240,240), 0, 0)
+            sprite.FontRender(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, TerminalBuffer, (240, 240, 240), 0, 0)
         else:
-            sprite.RenderFont(WindowObject.WindowSurface, "/PressStart2P.ttf", 9, "Initializing the console, please wait...", (240, 240, 240), 0, 0)
+            sprite.FontRender(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, "Initializing the console, please wait...", (240, 240, 240), 0, 0)
 
         # -- Draw the Text Box -- #
         TextEnter.Render(WindowObject.WindowSurface)
@@ -135,6 +136,8 @@ def Draw(DISPLAY):
         DISPLAY.blit(WindowObject.WindowSurface, WindowObject.WindowSurface_Dest)
 
     WindowInitialized = True
+
+
 def ReadCommand(Input):
     global TerminalBuffer
 
@@ -159,6 +162,10 @@ def ReadCommand(Input):
             PrintToTerminalBuffer("versions{ver} - Print all Taiyou Game Engine components versions")
             PrintToTerminalBuffer("gameData{gmd} - Print loaded game data")
             PrintToTerminalBuffer("overlayLevel{oll} - Set the overlay level")
+            PrintToTerminalBuffer("send{snd} [SET_FPS,RESIZIABLE_WINDOW,KILL,OVERLAY_LEVEL,RELOAD_GAME")
+            PrintToTerminalBuffer("          SET_GAME_MODE,OPEN_GAME,REMOVE_GAME,SET_TITLE]")
+            PrintToTerminalBuffer("          - Send a message to the Message Queue, No Output is provided.")
+            PrintToTerminalBuffer("getProp{gpp} - [pygame.{smooth_scale_backend}]")
 
         # -- Reload Command -- #
         if SplitedComma[0] == "kill" or SplitedComma[0] == "kil":
@@ -166,6 +173,7 @@ def ReadCommand(Input):
             taiyouUI.Messages.append("KILL")
             PrintToTerminalBuffer("Goodbye...")
 
+        # -- Overlay Level Command -- #
         if SplitedComma[0] == "overlayLevel" or SplitedComma[0] == "oll":
             CommandWasValid = True
             try:
@@ -178,9 +186,7 @@ def ReadCommand(Input):
             except:
                 PrintToTerminalBuffer("ERROR!\n The value[" + str(SplitedComma[1]) + "] is not a valid Integer.")
 
-
-
-
+        # -- Game Data Command -- #
         if SplitedComma[0] == "gameData" or SplitedComma[0] == "gmd":
             CommandWasValid = True
             PrintToTerminalBuffer("==============================================")
@@ -190,6 +196,7 @@ def ReadCommand(Input):
             PrintToTerminalBuffer("GameVersion: " + tge.Get_GameVersion())
             PrintToTerminalBuffer("==============================================")
 
+        # -- Reload Command -- #
         if SplitedComma[0] == "reload" or SplitedComma[0] == "rel":
             CommandWasValid = True
             PrintToTerminalBuffer("Reload")
@@ -213,7 +220,6 @@ def ReadCommand(Input):
                 taiyouUI.Messages.append("RELOAD_GAME")
                 PrintToTerminalBuffer("Done?")
 
-
             elif SplitedComma[1] == "ALL":
                 PrintToTerminalBuffer("Reloading Registry...")
                 reg.Reload()
@@ -229,10 +235,10 @@ def ReadCommand(Input):
 
                 PrintToTerminalBuffer("Done!")
 
-
             else:
                 raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
 
+        # -- Unload Command -- #
         if SplitedComma[0] == "unload" or SplitedComma[0] == "unl":
             CommandWasValid = True
             PrintToTerminalBuffer("Unload")
@@ -254,7 +260,6 @@ def ReadCommand(Input):
             else:
                 raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
 
-
         # -- Clear Command -- #
         if SplitedComma[0] == "clear" or SplitedComma[0] == "cls":
             CommandWasValid = True
@@ -271,13 +276,30 @@ def ReadCommand(Input):
             PrintToTerminalBuffer("Taiyou Game Object Version " + tge.Get_GameObjVersion())
             PrintToTerminalBuffer("General Taiyou Version " + utils.FormatNumber(tge.TaiyouGeneralVersion))
 
+        # -- Send Message Command -- #
+        if SplitedComma[0] == "send" or SplitedComma[0] == "snd":
+            CommandWasValid = True
+
+            AllLine = ""
+            for i in range(1, len(SplitedComma)):
+                if i <= 1:
+                    AllLine += SplitedComma[i]
+                else:
+                    AllLine += " " + SplitedComma[i]
+
+            PrintToTerminalBuffer("Command: " + AllLine)
+
+            taiyouUI.Messages.append(AllLine)
+
+            PrintToTerminalBuffer("Command was ben sent.")
+
         if not CommandWasValid:
             raise TypeError("Command was not valid\nWrite 'help' to see the list of commands.")
         else:
             sound.PlaySound("/TAIYOU_UI/HUD_Click.wav")
     except IndexError:
         PrintToTerminalBuffer("ARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
-        sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")
+        sound.PlaySound("/TAIYOU_UI/HUD_Error.wav")
     except TypeError as ex:
         PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
         sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")

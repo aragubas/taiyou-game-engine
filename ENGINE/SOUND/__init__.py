@@ -76,16 +76,11 @@ def Unload():
     """
     if DisableSoundSystem:
         return
-    print("Sound.Unload : Unloading All Sounds...")
 
     AllLoadedSounds.clear()
     GameSoundChannels.clear()
 
-
-    print("Sound.Unload : Reloading TaiyouUI Sounds...")
     LoadAllSounds("Taiyou/SYSTEM/SOURCE")
-
-    print("Sound.Unload : Operation Completed Sucefully.")
 
 def Reload():
     """
@@ -94,34 +89,25 @@ def Reload():
     """
     global GameSoundChannels
     if not DisableSoundSystem:
-        print("Sound.Reload : Reloading All Sounds...")
-
         for i, Channel in enumerate(GameSoundChannels):
             Channel.stop()
 
         Unload()
         LoadAllSounds(tge.Get_GameSourceFolder())
 
-        print("Sound.Reload : Re-Loading TaiyouUI sounds...")
         LoadAllSounds("Taiyou/SYSTEM/SOURCE")
-
-
-
-        print("Sound.Reload : Operation Completed.")
 
 def PauseGameChannel():
     global GameSoundChannels
 
     for i, Channel in enumerate(GameSoundChannels):
         Channel.pause()
-        print("SoundChannel " + str(i) + " was been paused.")
 
 def UnpauseGameChannel():
     global GameSoundChannels
 
     for i, Channel in enumerate(GameSoundChannels):
         Channel.unpause()
-        print("SoundChannel " + str(i) + " was been resumed.")
 
 GlobalVolume = 1.0
 def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemChannel=False):
@@ -143,18 +129,12 @@ def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemCha
         sound = AllLoadedSounds.get(SourceName)
         sound.set_volume(Volume * GlobalVolume)
 
-        print("VOLUME\nSound Object Volume: " + str(sound.get_volume()) + "\nFunction Volume: " + str(Volume) + "\nGlobal Volume: " + str(GlobalVolume))
-
         if not PlayOnSystemChannel:
             for i, GameChannel in enumerate(GameSoundChannels):
                 if not GameChannel.get_busy():
                     GameChannel.set_volume(LeftPan, RightPan)
                     GameChannel.play(sound)
                     break
-                else:
-                    if i >= 248:
-                        tge.devel.PrintToTerminalBuffer("SoundSystem:\nCannot play:\n" + SourceName + "\nAll Channels is busy.")
-
 
         else:
             for i, SystemChannel in enumerate(SystemSoundChannels):
@@ -162,9 +142,6 @@ def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemCha
                     SystemChannel.set_volume(LeftPan, RightPan)
                     SystemChannel.play(sound)
                     break
-                else:
-                    if i >= 53:
-                        tge.devel.PrintToTerminalBuffer("SoundSystem:\nCannot play System Sound:\n" + SourceName + "\nAll Channels is busy.")
 
 
 def StopSound(SourceName):
