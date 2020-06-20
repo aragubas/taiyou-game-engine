@@ -50,12 +50,14 @@ from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import TaiyouUI as TaiyouUI
 import os, pygame
 
-# -- Variables --
+# -- Current Game Variables --
 CurrentGame_Title = "null"
 CurrentGame_ID = "null"
 CurrentGame_Version = "null"
 CurrentGame_SourceFolder = "null"
 CurrentGame_Folder = "null"
+
+# -- Arguments -- #
 IsGameRunning = False
 VideoDriver = "null"
 VideoX11CenterWindow = False
@@ -75,18 +77,18 @@ SmoothScaleTransform = "MMX"
 # -- User -- #
 UserName = ""
 UserLanguage = ""
-UserFormatCountry = ""
 
-
-TaiyouAppDataFolder = "Taiyou/HOME/AppsData"
+# -- Taiyou Paths -- #
+TaiyouPath_AppDataFolder = "Taiyou/HOME/AppsData"
+TaiyouPath_SystemPath = "Taiyou/SYSTEM/"
+TaiyouPath_TaiyouConfigFile = TaiyouPath_SystemPath + "Taiyou.config"
 
 def InitUserData():
     global UserName
     global UserLanguage
-    global UserFormatCountry
 
-    conf_file = open("Taiyou/HOME/meta.data","r")
     print("Taiyou.InitUserData : Started")
+    conf_file = open("Taiyou/HOME/meta.data")
 
     for x in conf_file:
         x = x.rstrip()
@@ -101,10 +103,9 @@ def InitUserData():
                 UserLanguage = str(SplitedParms[1])
                 print("Taiyou.InitUserData : Language was set to:[{0}]".format(UserLanguage))
 
-            if SplitedParms[0] == "Format":
-                UserFormatCountry = str(SplitedParms[1])
-                print("Taiyou.InitUserData : Format Type was set to:[{0}]".format(UserFormatCountry))
-
+    # -- Create Folders -- #
+    print("Taiyou.InitUserData : Creating default folders...")
+    # -- Home Directory -- #
     os.makedirs("Taiyou/HOME/Screenshots",exist_ok=True) # -- Screenshots Folder
     os.makedirs("Taiyou/HOME/Webcache",exist_ok=True) # -- Webcache Folder
     os.makedirs("Taiyou/HOME/Webcache/UPDATER/", exist_ok=True)  # -- Webcache Folder
@@ -112,17 +113,21 @@ def InitUserData():
     os.makedirs("Taiyou/HOME/Version",exist_ok=True)  # -- Version Folder
     os.makedirs("Taiyou/HOME/Cache",exist_ok=True)  # -- Cache Folder
 
+    print("Taiyou.InitUserData : Done!")
+
     # -- Make current Version File -- #
-    LastTaiyouVersionFile = open("Taiyou/HOME/Version/TaiyouModules.data", "w")
-    LastTaiyouVersionFile.write("TGE=" + Get_Version() + "\n")
-    LastTaiyouVersionFile.write("SPRITE=" + Get_SpriteVersion() + "\n")
-    LastTaiyouVersionFile.write("SOUND=" + Get_SoundVersion() + "\n")
-    LastTaiyouVersionFile.write("REGISTRY=" + Get_RegistryVersion() + "\n")
-    LastTaiyouVersionFile.write("UTILS=" + Get_UtilsVersion() + "\n")
-    LastTaiyouVersionFile.write("GAME_OBJ=" + Get_GameObjVersion() + "\n")
-    LastTaiyouVersionFile.write("DEVELOPER_CONSOLE=" + Get_DeveloperConsoleVersion() + "\n")
-    LastTaiyouVersionFile.write("TAIYOU_UI=" + Get_TaiyouUIVersion())
-    LastTaiyouVersionFile.close()
+    print("Taiyou.InitUserData : Writting modules version data...")
+    LastModulesVersion = open("Taiyou/HOME/Version/TaiyouModules.data", "w")
+    LastModulesVersion.write("TGE=" + Get_Version() + "\n")
+    LastModulesVersion.write("SPRITE=" + Get_SpriteVersion() + "\n")
+    LastModulesVersion.write("SOUND=" + Get_SoundVersion() + "\n")
+    LastModulesVersion.write("REGISTRY=" + Get_RegistryVersion() + "\n")
+    LastModulesVersion.write("UTILS=" + Get_UtilsVersion() + "\n")
+    LastModulesVersion.write("GAME_OBJ=" + Get_GameObjVersion() + "\n")
+    LastModulesVersion.write("DEVELOPER_CONSOLE=" + Get_DeveloperConsoleVersion() + "\n")
+    LastModulesVersion.write("TAIYOU_UI=" + Get_TaiyouUIVersion())
+    LastModulesVersion.close()
+    print("Taiyou.InitUserData : Done!")
 
 
 def LoadFolderMetaData(GameFolderDir):
@@ -131,13 +136,13 @@ def LoadFolderMetaData(GameFolderDir):
     global CurrentGame_Version
     global CurrentGame_SourceFolder
     global CurrentGame_Folder
-    global TaiyouAppDataFolder
+    global TaiyouPath_AppDataFolder
     global TaiyouGeneralVersion
 
     print("Taiyou.Runtime.LoadFolderMetaData : Loading Taiyou Options file...")
     InfFileLocation = GameFolderDir + "/meta.data"
 
-    inf_file = open(InfFileLocation,"r")
+    inf_file = open(InfFileLocation, "r")
 
     CurrentGame_Folder = GameFolderDir
 
@@ -146,25 +151,24 @@ def LoadFolderMetaData(GameFolderDir):
         LineIndex += 1
         if LineIndex == 1:
             CurrentGame_Title = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : GameTitle[" + CurrentGame_Title + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : Game Title[{0}]".format(CurrentGame_Title))
         
         if LineIndex == 2:
             CurrentGame_ID = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : GameID[" + CurrentGame_ID + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : Game ID[{0}]".format(CurrentGame_ID))
         
         if LineIndex == 3:
             CurrentGame_Version = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : GameVersion[" + CurrentGame_Version + "]")
+            print("Taiyou.Runtime.LoadFolderMetaData : Game Version[{0}]".format(CurrentGame_Version))
 
         if LineIndex == 4:
-            CurrentGame_SourceFolder = GameFolderDir + "/" +  x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : GameSourceFolder[" + CurrentGame_SourceFolder + "]")
-
-
-    print("Taiyou.Runtime.LoadFolderMetaData : Creating Temporary Files...")
+            CurrentGame_SourceFolder = GameFolderDir + "/" + x.rstrip()
+            print("Taiyou.Runtime.LoadFolderMetaData : Game Source Folder[{0}]".format(CurrentGame_SourceFolder))
 
     # -- Create Temporary File -- #
-    f = open(".OpenedGameInfos", "w")
+    print("Taiyou.Runtime.LoadFolderMetaData : Creating Temporary Files...")
+
+    f = open(TaiyouPath_SystemPath + ".LastOpenedGame", "w")
     f.write(str(CurrentGame_ID))
     f.write(str(CurrentGame_Folder))
     f.write(str(CurrentGame_Title))
@@ -172,15 +176,19 @@ def LoadFolderMetaData(GameFolderDir):
     f.write(str(CurrentGame_SourceFolder))
     f.close()
 
+    print("Taiyou.Runtime.LoadFolderMetaData : Done!")
 
     # -- Make Directories -- #
+    print("Taiyou.Runtime.LoadFolderMetaData : Creating AppData Folder...")
+
     utils.Directory_MakeDir(Get_GlobalAppDataFolder())
 
+    print("Taiyou.Runtime.LoadFolderMetaData : Done!")
 
     print("Taiyou.Runtime.LoadFolderMetaData : Metadata Loading complete.")
 
 def InitEngine():
-    global TaiyouAppDataFolder
+    global TaiyouPath_AppDataFolder
     global VideoDriver
     global AudioDriver
     global VideoX11CenterWindow
@@ -197,7 +205,7 @@ def InitEngine():
     global SmoothScaleTransform
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
-    conf_file = open("Taiyou.config","r")
+    conf_file = open(TaiyouPath_TaiyouConfigFile)
 
     for x in conf_file:
         x = x.rstrip()
@@ -251,7 +259,7 @@ def InitEngine():
 
             # -- AppData Folder Path -- #
             if SplitedParms[0] == "AppDataFolder":
-                TaiyouAppDataFolder = SplitedParms[1].rstrip()
+                TaiyouPath_AppDataFolder = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:" + str(SplitedParms[1].rstrip()))
 
@@ -377,7 +385,6 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : SmoothScaleBackend was set to:" + str(SplitedParms[1].rstrip()))
 
 
-
     if not IgnoreSDL2Parameters:
         # -- Set the Enviroments Variables -- #
         os.environ['SDL_VIDEODRIVER'] = str(VideoDriver) # -- Set the Video Driver
@@ -420,10 +427,10 @@ def CloseGameFolder():
     CurrentGame_Version = "null"
     CurrentGame_SourceFolder = "null"
     CurrentGame_Folder = "null"
-    os.remove(".OpenedGameInfos")
+    os.remove(".LastOpenedGame")
 
 
-# -- Return Infos -- #
+#region return Game Infos Functions
 def Get_GameTitle():
     global CurrentGame_Title
     return CurrentGame_Title
@@ -449,18 +456,11 @@ def Get_GameFolder():
 def Get_GlobalAppDataFolder():
     global CurrentGame_ID
     global CurrentGame_Version
-    global TaiyouAppDataFolder
-    return TaiyouAppDataFolder + "{0}/{1}/".format(str(CurrentGame_ID), str(CurrentGame_Version))
-
-def Get_IsSoundEnabled():
-    return not sound.DisableSoundSystem
-
-def Get_IsFontRenderingEnabled():
-    return sprite.FontRenderingDisabled
+    global TaiyouPath_AppDataFolder
+    return TaiyouPath_AppDataFolder + "{0}/{1}/".format(str(CurrentGame_ID), str(CurrentGame_Version))
 
 def Get_MainGameModuleName(GameFolder):
-    return GameFolder.replace("/", ".") + ".MAIN"
-
+    return "{0}{1}".format(GameFolder.replace("/", "."), ".MAIN")
 
 def GetData_InGameMetaDataFile(metaDataFilePath, MetaPartToReturn):
     # -- Read Meta Data File -- #
@@ -497,3 +497,26 @@ def GetData_InGameMetaDataFile(metaDataFilePath, MetaPartToReturn):
             if LineNumber == 6:  # -- Animation Banner Frames Delay
                 if MetaPartToReturn == "GAME_ANIMATION_BANNER_DELAY":
                     return int(line)
+
+
+#endregion
+
+
+#region return IsEnabled Functions
+def Get_IsSoundEnabled():
+    return not sound.DisableSoundSystem
+
+def Get_IsFontRenderingEnabled():
+    return sprite.FontRenderingDisabled
+
+#endregions
+
+
+#region return User Information
+def Get_UserLanguage():
+    return UserLanguage
+
+def Get_Username():
+    return UserName
+
+#endregion
