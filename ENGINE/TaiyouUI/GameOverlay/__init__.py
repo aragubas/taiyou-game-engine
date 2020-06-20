@@ -34,7 +34,6 @@ CopyOfTheScreen = pygame.Surface((5, 5))
 DISPLAYObject = pygame.Surface((5, 5))
 TopMenu_BackToGame_Button = gtk.Button
 TopMenu_DeveloperConsoleButton = gtk.Button
-TopMenu_RestartGame = gtk.Button
 TopMenu_MainMenu = gtk.Button
 
 # -- Animation -- #
@@ -79,7 +78,6 @@ def Initialize():
     # -- Top Menu Buttons -- #
     TopMenu_BackToGame_Button = gtk.Button(pygame.Rect(3, 1, 5, 5), gtk.GetLangText("back", "overlay"), 18)
     TopMenu_DeveloperConsoleButton = gtk.Button(pygame.Rect(3, 1, 5, 5), gtk.GetLangText("console", "overlay"), 18)
-    TopMenu_RestartGame = gtk.Button(pygame.Rect(3, 1, 3, 3), gtk.GetLangText("restart", "overlay"), 18)
     TopMenu_MainMenu = gtk.Button(pygame.Rect(3, 1, 1, 3), gtk.GetLangText("exit", "overlay"), 18)
 
     warnDialog.Initialize()
@@ -92,7 +90,6 @@ def Draw(Display):
     global TopBarRectangle
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
-    global TopMenu_RestartGame
     global UIOpacity
     global UIOpacityAnimEnabled
     global UIOpacityAnimState
@@ -135,7 +132,6 @@ def Draw(Display):
     # -- Draw Buttons -- #
     TopMenu_BackToGame_Button.Render(UIObjectsSurface)
     TopMenu_DeveloperConsoleButton.Render(UIObjectsSurface)
-    TopMenu_RestartGame.Render(UIObjectsSurface)
     TopMenu_MainMenu.Render(UIObjectsSurface)
 
     # -- Draw Taiyou Version -- #
@@ -206,7 +202,6 @@ def Update():
     global UIOpacityAnimEnabled
     global AnimationNumb
     global UIOpacityAnimSpeed
-    global TopMenu_RestartGame
     global DownBarRectangle
     global ConsoleWindowEnabled
     global ExitToInitializeGame
@@ -238,17 +233,13 @@ def Update():
                                    34)
 
     # -- Set Objects X -- #
-    TopMenu_MainMenu.Set_X(TopMenu_RestartGame.Rectangle[0] + TopMenu_RestartGame.Rectangle[2] + 2)
-    TopMenu_DeveloperConsoleButton.Set_X(
-        TopMenu_BackToGame_Button.Rectangle[0] + TopMenu_BackToGame_Button.Rectangle[2] + 2)
-    TopMenu_RestartGame.Set_X(
-        TopMenu_DeveloperConsoleButton.Rectangle[0] + TopMenu_DeveloperConsoleButton.Rectangle[2] + 2)
     TopMenu_BackToGame_Button.Set_X(AnimationNumb + 2)
+    TopMenu_MainMenu.Set_X(TopMenu_BackToGame_Button.Rectangle[0] + TopMenu_BackToGame_Button.Rectangle[2] + 2)
+    TopMenu_DeveloperConsoleButton.Set_X(TopMenu_MainMenu.Rectangle[0] + TopMenu_MainMenu.Rectangle[2] + 2)
 
     # -- Set Objects Y -- #
     TopMenu_BackToGame_Button.Set_Y(AnimationNumb + 2)
     TopMenu_DeveloperConsoleButton.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
-    TopMenu_RestartGame.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
     TopMenu_MainMenu.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
 
     if TopMenu_BackToGame_Button.ButtonState == "UP" and not warnDialog.Enabled:
@@ -262,11 +253,6 @@ def Update():
             ConsoleWindowEnabled = False
         else:
             ConsoleWindowEnabled = True
-
-    if TopMenu_RestartGame.ButtonState == "UP" and not warnDialog.Enabled:
-        # -- Alert to Restart -- #
-        ShowWarnDialog(gtk.GetLangText("restartconfirm_title_generic", "overlay"),
-                       gtk.GetLangText("restartconfirm_text_restart", "overlay"), 0)
 
     if TopMenu_MainMenu.ButtonState == "UP" and not warnDialog.Enabled:
         # -- Alert to Exit -- #
@@ -430,7 +416,6 @@ def ExitToMainMenu_UpdateAnim():
 def EventUpdate(event):
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
-    global TopMenu_RestartGame
     global ConsoleWindowEnabled
     global UIObjectsSurfaceUpdated
     global TopMenu_MainMenu
@@ -439,7 +424,6 @@ def EventUpdate(event):
     if not warnDialog.Enabled:
         TopMenu_BackToGame_Button.Update(event)
         TopMenu_DeveloperConsoleButton.Update(event)
-        TopMenu_RestartGame.Update(event)
         TopMenu_MainMenu.Update(event)
         volumeSlider.EventUpdate(event)
 

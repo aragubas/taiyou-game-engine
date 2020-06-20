@@ -1,2 +1,3 @@
-Did you really want to exit?%n
-Any unsaved data will be lost.
+Did you really want to exit?
+The application will be suspended, and unloaded if suspended 
+for longer. 

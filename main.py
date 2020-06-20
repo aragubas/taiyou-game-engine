@@ -48,12 +48,13 @@ class GameInstance:
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
         self.WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
-        self.OverlayLevel = -1
+        self.OverlayLevel = 0
         self.UpdateTime_Calculated = 0
         self.UpdateTime_MaxMS = 0
         self.UpdateTime_MaxDelta = 0
         self.Messages_DeveloperConsoleOutput = True
         self.GameObject = None
+        self.LastFPSValue = 0
 
         # -- Load Engine Options -- #
         tge.InitEngine()
@@ -109,6 +110,10 @@ class GameInstance:
                 CommandWasValid = True
                 splitedArg = Command.split(':')
                 self.FPS = int(splitedArg[1])
+
+                if not self.IsMenuMode:
+                    self.LastFPSValue = self.FPS
+
                 print("Taiyou.GameObject.ReceiveCommand : MaxFPS Set to:" + str(self.FPS))
 
             if Command.startswith("ENABLE_DCO") if Command else False:
@@ -126,7 +131,8 @@ class GameInstance:
             if Command.startswith("SET_RESOLUTION") if Command else False:
                 CommandWasValid = True
                 splitedArg = Command.split(':')
-                print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: W;" + str(splitedArg[1]) + " H;" + str(splitedArg[2]))
+                print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: {0}x{1}".format(str(splitedArg[1]), str(splitedArg[2])))
+
                 self.CurrentRes_W = int(splitedArg[1])
                 self.CurrentRes_H = int(splitedArg[2])
                 if self.ResiziableWindow and not tge.RunInFullScreen:
@@ -187,12 +193,6 @@ class GameInstance:
 
                 print("Taiyou.GameObject.ReceiveCommand : Set OVERLAY_LEVEL to " + splitedArg[1])
 
-            if Command.startswith("RELOAD_GAME") if Command else False:
-                CommandWasValid = True
-                print("Taiyou.GameObject.ReceiveCommand : Reload Game")
-
-                self.ReloadGame()
-
             if Command.startswith("SET_GAME_MODE") if Command else False:
                 CommandWasValid = True
                 print("Taiyou.GameObject.ReceiveCommand : Set Game Mode")
@@ -200,6 +200,10 @@ class GameInstance:
                 self.IsMenuMode = False
                 if not self.GameStarted:
                     self.GameStart()
+
+                # -- Set the Last FPS Value set by the Game -- #
+                self.FPS = self.LastFPSValue
+
                 sound.UnpauseGameChannel()
                 print("Taiyou.GameObject.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
 
@@ -223,6 +227,7 @@ class GameInstance:
                 pygame.display.set_caption(splitedArg[1])
 
                 print("Taiyou.GameObject.ReceiveCommand : Window Title was set to [" + splitedArg[1] + "]")
+
 
             if self.Messages_DeveloperConsoleOutput and not CommandWasValid:
                 tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")
@@ -250,6 +255,15 @@ class GameInstance:
     def RemoveGame(self, UnloadGameAssts=True, CloseGameFolder=True):
         print("Taiyou.GameObject.RemoveGame : Remove Game Object")
 
+        # -- Reload All Modules -- #
+        importlib.reload(sys)
+
+        # -- Delete Game Instance -- #
+        importlib.reload(self.GameObject)
+
+        if tge.Get_MainGameModuleName(tge.Get_GameFolder()) in sys.modules:
+            del sys.modules[tge.Get_MainGameModuleName(tge.Get_GameFolder())]
+
         del self.GameObject
 
         if UnloadGameAssts:
@@ -268,35 +282,13 @@ class GameInstance:
 
         print("Taiyou.GameObject.RemoveGame : Operation Complete.")
 
-    def ReloadGame(self):
-        print("Taiyou.GameObject.ReloadGame : Reload Game Assets")
-        self.GameStarted = False
-
-        # -- Reload all game assets -- #
-        sound.Reload()
-        sprite.Reload()
-        reg.Reload()
-
-        # -- Reload Game Object -- #
-        print("Taiyou.GameObject.ReloadGame : Remove Game Object")
-        self.RemoveGame(False, False)
-
-        print("Taiyou.GameObject.ReloadGame : Re-Import game object")
-        self.GameObject = importlib.import_module(tge.Get_MainGameModuleName(tge.Get_GameFolder()))
-
-        print("Taiyou.GameObject.ReloadGame : Re-Initialize game")
-        #self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
-
-        self.GameStarted = True
-        print("Taiyou.GameObject.ReloadGame : Operation Completed.")
-
-
     def SetGameObject(self, GameFolder):
         try:
             print("Taiyou.GameObject.SetGameObject : Open Game [" + GameFolder + "]")
             print("Taiyou.GameObject.SetGameObject : MainModuleName is: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
 
             self.GameObject = importlib.import_module(tge.Get_MainGameModuleName(GameFolder))
+
 
         except Exception as ex:
             self.SystemException(ex, "SetGameObject")
@@ -315,6 +307,7 @@ class GameInstance:
                     SystemUI.gameOverlay.CopyOfTheScreen = self.DISPLAY.copy()
                     sound.PauseGameChannel()
                     print("Taiyou.GameObject.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
+                    self.FPS = 60 # -- Default TaiyouUI FPS
 
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
@@ -356,7 +349,7 @@ class GameInstance:
             self.UpdateTime_MaxDelta = 0
 
     def GameStart(self):
-        print("Taiyou.GameObject.GameStart : Initialized Called")
+        print("Taiyou.GameObject.GameStart : Call Initialize")
         self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
         self.GameStarted = True
 
@@ -377,33 +370,27 @@ class GameInstance:
 
             print(ExceptionText)
 
-    def SystemException(self, Exception, ErrorPart="Unknown"):
-        raise Exception
-
     def Run(self):
         # -- Run the Clock -- #
         self.clock.tick(self.FPS)
 
+        # -- If MenuMode, update the Menu -- #
         if self.IsMenuMode:
-            try:
-                SystemUI.Update()
-                SystemUI.Draw(self.DISPLAY)
+            SystemUI.Update()
+            SystemUI.Draw(self.DISPLAY)
 
-                # -- Draw the Overlay, when it enabled -- #
-                if not self.OverlayLevel == -1:
-                    self.RenderOverlay()
+            # -- Draw the Overlay, when it enabled -- #
+            if not self.OverlayLevel == -1:
+                self.RenderOverlay()
 
-                # -- Flip the Screen -- #
-                pygame.display.flip()
+            # -- Flip the Screen -- #
+            pygame.display.flip()
 
-                # -- Receive Commands from System Menu -- #
-                if len(SystemUI.Messages) >= 1:
-                    self.ReceiveCommand(SystemUI.ReadCurrentMessages())
+            # -- Receive Commands from System Menu -- #
+            if len(SystemUI.Messages) >= 1:
+                self.ReceiveCommand(SystemUI.ReadCurrentMessages())
 
-            except Exception as ex:
-                self.SystemException(ex, "SystemUI Update/Draw")
-
-        else:
+        else: # -- Else, Update the Game -- #
             try:
                 # -- Do Game Update -- #
                 if self.GameStarted:
@@ -420,7 +407,7 @@ class GameInstance:
                 # -- Flip the Screen -- #
                 pygame.display.flip()
 
-                # -- Receive command from the Current Game --
+                # -- Receive command from the Current Game -- #
                 if self.GameStarted:
                     if len(self.GameObject.Messages) >= 1:
                         self.ReceiveCommand(self.GameObject.ReadCurrentMessages())

@@ -195,20 +195,26 @@ def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=
     :return:
     """
     if not FontRenderingDisabled:
-        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -GetFont_width(FontFileLocation, Size, Text) and Y >= -GetFont_height(FontFileLocation, Size, Text) and not Text == "" or not Text == " ":
+        # -- Get the FontFileObject, required for all functions here -- #
+        FontFileObject = GetFont_object(FontFileLocation, Size)
+
+
+        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(Text, antialias, ColorRGB).get_height() and not Text == "":
             # -- Only Render Multiple Lines when needed -- #
             if len(Text.splitlines()) > 1:
                 for i, l in enumerate(Text.splitlines()):
-                    if not backgroundColor == (-1, -1, -1):
-                        DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(l, antialias, ColorRGB, backgroundColor), (X, Y + Size * i))
+                    if not backgroundColor == (-1, -1, -1): # -- If background was provided, render with Background
+                        DISPLAY.blit(FontFileObject.render(l, antialias, ColorRGB, backgroundColor), (X, Y + Size * i))
+
                     else:
-                        DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(l, antialias, ColorRGB), (X, Y + Size * i))
+                        DISPLAY.blit(FontFileObject.render(l, antialias, ColorRGB), (X, Y + Size * i))
 
             else:
-                if not backgroundColor == (-1, -1, -1):
-                    DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(Text, antialias, ColorRGB, backgroundColor), (X, Y))
+                if not backgroundColor == (-1, -1, -1): # -- If background was provided, render with Background
+                    DISPLAY.blit(FontFileObject.render(Text, antialias, ColorRGB, backgroundColor), (X, Y))
+
                 else:
-                    DISPLAY.blit(GetFont_object(FontFileLocation, Size).render(Text, antialias, ColorRGB), (X, Y))
+                    DISPLAY.blit(FontFileObject.render(Text, antialias, ColorRGB), (X, Y))
 
 def GetFont_object(FontFileLocation, Size):
     """
@@ -260,15 +266,15 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
         # -- Fix Color RGBA RGB Confusion -- #
-        if len(Color) < 4:
+        if len(Color) < 4: # -- If no Alfa argument was suplied, add 255 alfa value
             Color.append(255)
-        if Color[0] <= 0:
+        if Color[0] <= 0: # -- R
             Color[0] = 0
-        if Color[1] <= 0:
+        if Color[1] <= 0: # -- G
             Color[1] = 0
-        if Color[2] <= 0:
+        if Color[2] <= 0: # -- B
             Color[2] = 0
-        if Color[3] <= 0:
+        if Color[3] <= 0: # -- A
             Color[3] = 0
 
         # -- Border Radius-- #
