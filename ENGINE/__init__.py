@@ -415,6 +415,7 @@ def InitEngine():
 
     InitUserData()
 
+# -- Reset Game Folder Variables -- #
 def CloseGameFolder():
     global CurrentGame_Title
     global CurrentGame_ID
@@ -422,12 +423,13 @@ def CloseGameFolder():
     global CurrentGame_SourceFolder
     global CurrentGame_Folder
 
+    print("TGE.RestartGameFolder : Removing all LoadedGame Variables and Temporary files...")
     CurrentGame_Title = "null"
     CurrentGame_ID = "null"
     CurrentGame_Version = "null"
     CurrentGame_SourceFolder = "null"
     CurrentGame_Folder = "null"
-    os.remove(".LastOpenedGame")
+    os.remove(TaiyouPath_SystemPath + ".LastOpenedGame")
 
 
 #region return Game Infos Functions

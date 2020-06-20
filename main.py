@@ -15,10 +15,6 @@
 #
 #
 
-# -- Set Console Color -- #
-print("\033[95m")
-
-
 # Import some stuff
 import os
 import ENGINE as tge
@@ -228,12 +224,10 @@ class GameInstance:
 
                 print("Taiyou.GameObject.ReceiveCommand : Window Title was set to [" + splitedArg[1] + "]")
 
-
             if self.Messages_DeveloperConsoleOutput and not CommandWasValid:
                 tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")
             else:
                 tge.devel.PrintToTerminalBuffer("TaiyouMessage: Command Processed:\n'" + Command + "'")
-
 
         except IndexError as ex:
             tge.devel.PrintToTerminalBuffer("TaiyouMessage EXCEPTION\nThe last command does not have the necessary number of arguments.")
@@ -253,18 +247,9 @@ class GameInstance:
                 self.ReceiveCommand(SystemUI.screenshotUI.ReadCurrentMessages())
 
     def RemoveGame(self, UnloadGameAssts=True, CloseGameFolder=True):
-        print("Taiyou.GameObject.RemoveGame : Remove Game Object")
+        print("Taiyou.GameObject.RemoveGame : Suspend Game Code")
 
-        # -- Reload All Modules -- #
-        importlib.reload(sys)
-
-        # -- Delete Game Instance -- #
         importlib.reload(self.GameObject)
-
-        if tge.Get_MainGameModuleName(tge.Get_GameFolder()) in sys.modules:
-            del sys.modules[tge.Get_MainGameModuleName(tge.Get_GameFolder())]
-
-        del self.GameObject
 
         if UnloadGameAssts:
             print("Taiyou.GameObject.RemoveGame : Unload Game Assets")
@@ -272,6 +257,7 @@ class GameInstance:
             sprite.Unload()
             sound.Unload()
             reg.Unload()
+
         if CloseGameFolder:
             print("Taiyou.GameObject.RemoveGame : Close Game Folder")
 
@@ -289,6 +275,13 @@ class GameInstance:
 
             self.GameObject = importlib.import_module(tge.Get_MainGameModuleName(GameFolder))
 
+            if tge.Get_MainGameModuleName(tge.Get_GameFolder()) in sys.modules:  # -- If the module is not loaded
+                print("Taiyou.GameObject.GameStart : Game Code was not loaded yet.\nCalling Initialize")
+
+                self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
+
+            else:
+                print("Taiyou.GameObject.GameStart : Game Code was already loaded.")
 
         except Exception as ex:
             self.SystemException(ex, "SetGameObject")
@@ -307,7 +300,7 @@ class GameInstance:
                     SystemUI.gameOverlay.CopyOfTheScreen = self.DISPLAY.copy()
                     sound.PauseGameChannel()
                     print("Taiyou.GameObject.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
-                    self.FPS = 60 # -- Default TaiyouUI FPS
+                    self.FPS = 60  # -- Default TaiyouUI FPS
 
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
@@ -349,8 +342,8 @@ class GameInstance:
             self.UpdateTime_MaxDelta = 0
 
     def GameStart(self):
-        print("Taiyou.GameObject.GameStart : Call Initialize")
-        self.GameObject.Initialize(self.DISPLAY)  # -- Call the Game Initialize Function --
+        print("Taiyou.GameObject.GameStart : Load Game Code")
+
         self.GameStarted = True
 
     def GameException(self, Exception, ErrorPart="Unknown"):
@@ -390,7 +383,7 @@ class GameInstance:
             if len(SystemUI.Messages) >= 1:
                 self.ReceiveCommand(SystemUI.ReadCurrentMessages())
 
-        else: # -- Else, Update the Game -- #
+        else:  # -- Else, Update the Game -- #
             try:
                 # -- Do Game Update -- #
                 if self.GameStarted:
