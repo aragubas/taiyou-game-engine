@@ -146,7 +146,7 @@ def Render(DISPLAY):
 
         gtk.Draw_Panel(Surface, (0, 0, Rectangle[2], Rectangle[3]), "BORDER", AnimOpacity)
 
-        sprite.Shape_Rectangle(Surface, gtk.PANELS_INDICATOR_COLOR, (0, 0, Rectangle[2], 30))
+        sprite.Shape_Rectangle(Surface, gtk.Panels_IndicatorColor, (0, 0, Rectangle[2], 30))
 
         sprite.FontRender(Surface, "/Ubuntu_Bold.ttf", 24, MessageTitle, (250, 250, 255), Surface.get_width() / 2 - sprite.GetFont_width("/Ubuntu_Bold.ttf", 24, MessageTitle) / 2, 1)
 

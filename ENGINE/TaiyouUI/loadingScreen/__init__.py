@@ -37,7 +37,7 @@ LoadingNextStageDelay = 0
 LoadingSquare = gtk.LoadingSquare
 CommonDisplay = pygame.Surface((5,5))
 GameIcon = pygame.image
-GameTitle = "nul"
+GameTitle = "null"
 
 
 # -- Anim Slipe -- #
@@ -119,7 +119,7 @@ def Update():
         UpdateLoadingStages()
 
         # -- Workaround if Autoboot GameFolder was selected -- #
-        if Handler.SelectedGameInfo[1] == "nul":
+        if Handler.SelectedGameInfo[1] == "null":
             GameTitle = GameFolderToOpen
         else:
             GameTitle = Handler.SelectedGameInfo[1]

@@ -38,7 +38,7 @@ def Initialize():
     global TextEnter
     global TerminalBuffer
 
-    WindowObject = gtk.Window(pygame.Rect(50,50,620, 350), "Developer Console", True)
+    WindowObject = gtk.Window(pygame.Rect(50,50,620, 350), gtk.GetLangText("title", "developer_console/window"), True)
 
     TextEnter = gtk.InputBox(0,0,200,20,"help")
     TextEnter.CustomColision = True
@@ -123,7 +123,7 @@ def Draw(DISPLAY):
         if WindowInitialized:
             sprite.FontRender(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, TerminalBuffer, (240, 240, 240), 0, 0)
         else:
-            sprite.FontRender(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, "Initializing the console, please wait...", (240, 240, 240), 0, 0)
+            sprite.FontRender(WindowObject.WindowSurface, "/PressStart2P.ttf", 8, gtk.GetLangText("initial", "developer_console"), (240, 240, 240), 0, 0)
 
         # -- Draw the Text Box -- #
         TextEnter.Render(WindowObject.WindowSurface)
@@ -141,168 +141,31 @@ def Draw(DISPLAY):
 def ReadCommand(Input):
     global TerminalBuffer
 
-    CurrentInput = str(Input)
-    CommandWasValid = False
+    CurrentInput = str(Input)  # -- Convert INPUT to String -- #
     SplitedComma = CurrentInput.split(' ')
 
     try:
-        # -- Help Command -- #
-        if SplitedComma[0] == "help" or SplitedComma[0] == "hlp":
-            CommandWasValid = True
-            PrintToTerminalBuffer("Taiyou DC [Developer Console] version " + tge.Get_DeveloperConsoleVersion())
-            PrintToTerminalBuffer("RuntimeVersion: " + tge.Get_Version())
-            PrintToTerminalBuffer("Template: [Command][ShortName] [ARGUMENTS] - [Description]")
-            PrintToTerminalBuffer("\n\n")
-            PrintToTerminalBuffer("help{hlp} - This list of commands")
-            PrintToTerminalBuffer("kill{kil} - Kill the current game")
-            PrintToTerminalBuffer("reload{rel} [REGISTRY,SPRITE/FONT,SOUND,CODE,ALL] - Reload")
-            PrintToTerminalBuffer("unload{unl} [REGISTRY,SPRITE/FONT,SOUND] - Unload")
-            PrintToTerminalBuffer("clear{cls} - Clear the Screen")
-            PrintToTerminalBuffer("continue{cnt} - Continue game execution")
-            PrintToTerminalBuffer("versions{ver} - Print all Taiyou Game Engine components versions")
-            PrintToTerminalBuffer("gameData{gmd} - Print loaded game data")
-            PrintToTerminalBuffer("overlayLevel{oll} - Set the overlay level")
-            PrintToTerminalBuffer("send{snd} [SET_FPS,RESIZIABLE_WINDOW,KILL,OVERLAY_LEVEL,RELOAD_GAME")
-            PrintToTerminalBuffer("          SET_GAME_MODE,OPEN_GAME,REMOVE_GAME,SET_TITLE]")
-            PrintToTerminalBuffer("          - Send a message to the Message Queue, No Output is provided.")
-            PrintToTerminalBuffer("getProp{gpp} - [pygame.{smooth_scale_backend}]")
+        # -- Process Command on Other Module -- #
+        commands.processCommand(SplitedComma)
 
-        # -- Reload Command -- #
-        if SplitedComma[0] == "kill" or SplitedComma[0] == "kil":
-            CommandWasValid = True
-            taiyouUI.Messages.append("KILL")
-            PrintToTerminalBuffer("Goodbye...")
-
-        # -- Overlay Level Command -- #
-        if SplitedComma[0] == "overlayLevel" or SplitedComma[0] == "oll":
-            CommandWasValid = True
-            try:
-                int(SplitedComma[1])
-
-                taiyouUI.Messages.append("OVERLAY_LEVEL:" + str(SplitedComma[1]))
-
-                PrintToTerminalBuffer("OverlayLevel was set to:\n " + str(SplitedComma[1]) + ".")
-
-            except:
-                PrintToTerminalBuffer("ERROR!\n The value[" + str(SplitedComma[1]) + "] is not a valid Integer.")
-
-        # -- Game Data Command -- #
-        if SplitedComma[0] == "gameData" or SplitedComma[0] == "gmd":
-            CommandWasValid = True
-            PrintToTerminalBuffer("==============================================")
-            PrintToTerminalBuffer("GameTitle: " + tge.Get_GameTitle())
-            PrintToTerminalBuffer("SourceFolder: " + tge.Get_GameSourceFolder())
-            PrintToTerminalBuffer("GameID: " + tge.Get_GameID())
-            PrintToTerminalBuffer("GameVersion: " + tge.Get_GameVersion())
-            PrintToTerminalBuffer("==============================================")
-
-        # -- Reload Command -- #
-        if SplitedComma[0] == "reload" or SplitedComma[0] == "rel":
-            CommandWasValid = True
-            PrintToTerminalBuffer("Reload")
-
-            if SplitedComma[1] == "REGISTRY":
-                PrintToTerminalBuffer("Reloading Registry...")
-                reg.Reload()
-                PrintToTerminalBuffer("Done!")
-            elif SplitedComma[1] == "SPRITE":
-                PrintToTerminalBuffer("Reloading Sprites...")
-                sprite.Reload()
-                PrintToTerminalBuffer("Done!")
-
-            elif SplitedComma[1] == "SOUND":
-                PrintToTerminalBuffer("Reloading Sound...")
-                sound.Reload()
-                PrintToTerminalBuffer("Done!")
-
-            elif SplitedComma[1] == "CODE":
-                PrintToTerminalBuffer("Reloading Game Code...")
-                taiyouUI.Messages.append("RELOAD_GAME")
-                PrintToTerminalBuffer("Done?")
-
-            elif SplitedComma[1] == "ALL":
-                PrintToTerminalBuffer("Reloading Registry...")
-                reg.Reload()
-
-                PrintToTerminalBuffer("Reloading Sprites...")
-                sprite.Reload()
-
-                PrintToTerminalBuffer("Reloading Sound...")
-                sound.Reload()
-
-                PrintToTerminalBuffer("Reloading Game Code...")
-                taiyouUI.Messages.append("RELOAD_GAME")
-
-                PrintToTerminalBuffer("Done!")
-
-            else:
-                raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
-
-        # -- Unload Command -- #
-        if SplitedComma[0] == "unload" or SplitedComma[0] == "unl":
-            CommandWasValid = True
-            PrintToTerminalBuffer("Unload")
-
-            if SplitedComma[1] == "REGISTRY":
-                PrintToTerminalBuffer("Unloading Registry...")
-                reg.Unload()
-                PrintToTerminalBuffer("Done!")
-            elif SplitedComma[1] == "SPRITE":
-                PrintToTerminalBuffer("Unloading Sprites...")
-                sprite.Unload()
-                PrintToTerminalBuffer("Done!")
-
-            elif SplitedComma[1] == "SOUND":
-                PrintToTerminalBuffer("Unloading Sound...")
-                sound.Unload()
-                PrintToTerminalBuffer("Done!")
-
-            else:
-                raise TypeError("[" + SplitedComma[1] + "] is not a valid argument.")
-
-        # -- Clear Command -- #
-        if SplitedComma[0] == "clear" or SplitedComma[0] == "cls":
-            CommandWasValid = True
-            TerminalBuffer = ""
-
-        # -- Versions Command -- #
-        if SplitedComma[0] == "versions" or SplitedComma[0] == "ver":
-            CommandWasValid = True
-            PrintToTerminalBuffer("Taiyou Developer Console [DC] Version " + tge.Get_DeveloperConsoleVersion())
-            PrintToTerminalBuffer("Taiyou Runtime Version " + tge.Get_Version())
-            PrintToTerminalBuffer("Taiyou Sprite/Font Version " + tge.Get_SpriteVersion())
-            PrintToTerminalBuffer("Taiyou Sound System Version " + tge.Get_SoundVersion())
-            PrintToTerminalBuffer("Taiyou Registry Version " + tge.Get_RegistryVersion())
-            PrintToTerminalBuffer("Taiyou Game Object Version " + tge.Get_GameObjVersion())
-            PrintToTerminalBuffer("General Taiyou Version " + utils.FormatNumber(tge.TaiyouGeneralVersion))
-
-        # -- Send Message Command -- #
-        if SplitedComma[0] == "send" or SplitedComma[0] == "snd":
-            CommandWasValid = True
-
-            AllLine = ""
-            for i in range(1, len(SplitedComma)):
-                if i <= 1:
-                    AllLine += SplitedComma[i]
-                else:
-                    AllLine += " " + SplitedComma[i]
-
-            PrintToTerminalBuffer("Command: " + AllLine)
-
-            taiyouUI.Messages.append(AllLine)
-
-            PrintToTerminalBuffer("Command was ben sent.")
-
-        if not CommandWasValid:
-            raise TypeError("Command was not valid\nWrite 'help' to see the list of commands.")
-        else:
-            sound.PlaySound("/TAIYOU_UI/HUD_Click.wav")
     except IndexError:
-        PrintToTerminalBuffer("ARGUMENTS ERROR!\nThe command: [{0}] does not have the correct amount of arguments.".format(str(SplitedComma[0])))
-        sound.PlaySound("/TAIYOU_UI/HUD_Error.wav")
+        PrintToTerminalBuffer(gtk.GetLangText("error/arguments_error", "developer_console").format(str(SplitedComma[0])))
+        # -- Play Sound Error -- #
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
+
     except TypeError as ex:
         PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
-        sound.PlaySound("/TAIYOU_UI/HUD_Notify.wav")
+        # -- Play Notify Sound -- #
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
+
     except Exception as ex:
-        PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
-        sound.PlaySound("/TAIYOU_UI/HUD_Error.wav")
+        try:
+            PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+        except IndexError:
+            PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [ERROR_OBTAINING_MODULE_NAME]")
+
+        # -- Play Error Sound -- #
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Error"))
+
+# -- When module was fully initialized, import Commands Module -- #
+from ENGINE.TaiyouUI.DeveloperConsole import commands as commands

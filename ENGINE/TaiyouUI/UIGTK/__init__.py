@@ -22,24 +22,27 @@ import ENGINE as tge
 import pygame, sys, importlib
 
 # -- Panels Color -- #
-PANELS_BACKGROUND_COLOR = (0, 12, 29)
-PANELS_INDICATOR_COLOR = (1, 22, 39)
-# -- Buttons Color -- #
-BUTTON_ACTIVE_INDICATOR_COLOR = (46, 196, 182)
-BUTTON_INACTIVE_INDICATOR_COLOR = (255, 51, 102)
-BUTTON_ACTIVE_BACKGROUND_COLOR = (15, 27, 44, 150)
-BUTTON_INACTIVE_BACKGROUND_COLOR = (1, 22, 39, 150)
+Panels_BackgroundColor = (0, 12, 29)
+Panels_IndicatorColor = (1, 22, 39)
 
-PANELS_INDICATOR_SIZE = 2
+# -- Buttons Color -- #
+Button_Active_IndicatorColor = (46, 196, 182)
+Button_Active_BackgroundColor = (15, 27, 44, 150)
+Button_Inactive_IndicatorColor = (255, 51, 102)
+Button_Inactive_BackgroundColor = (1, 22, 39, 150)
+
+Panels_Indicator_Size = 2
 
 # -- Font Files -- #
-BUTTONS_FONT_FILE = "/Ubuntu_Bold.ttf"
-WINDOW_TITLE_TEXT_FONT_FILE = "/Ubuntu_Bold.ttf"
-HORIZONTAL_LIST_FONT_FILE = "/Ubuntu_Bold.ttf"
-INPUT_BOX_FONT_FILE = "/Ubuntu_Bold.ttf"
-VERTICALLIST_FONT_FILE = "/Ubuntu_Bold.ttf"
+Button_FontFile = "/Ubuntu_Bold.ttf"
+Window_Title_FontFile = "/Ubuntu_Bold.ttf"
+HorizontalList_FontFile = "/Ubuntu_Bold.ttf"
+InputBox_FontFile = "/Ubuntu_Bold.ttf"
+VerticalList_FontFile = "/Ubuntu_Bold.ttf"
 
+# -- Language System -- #
 CurrentLanguage = "en"
+LangErrorAppered = False
 
 
 def SetLang(lang):
@@ -48,10 +51,6 @@ def SetLang(lang):
     CurrentLanguage = lang
     LangErrorAppered = False
     print("TaiyouUI.GTK : Language was set to[" + lang + "]")
-
-
-LangErrorAppered = False
-
 
 def GetLangText(lang_name, lang_prefix="generic"):
     global CurrentLanguage
@@ -66,22 +65,23 @@ def GetLangText(lang_name, lang_prefix="generic"):
             LangErrorAppered = True
         return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name))
 
+
 def Draw_Panel(DISPLAY, Rectangle, IndicatorPosition="UP", Opacity=255):
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
     if not Opacity == 255:
         ResultPanel.set_alpha(Opacity)
 
     # -- Render the Background -- #
-    sprite.Shape_Rectangle(ResultPanel, PANELS_BACKGROUND_COLOR, (0, 0, Rectangle[2], Rectangle[3]))
+    sprite.Shape_Rectangle(ResultPanel, Panels_BackgroundColor, (0, 0, Rectangle[2], Rectangle[3]))
 
     if IndicatorPosition == "BORDER":
-        sprite.Shape_Rectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0, Rectangle[3] - PANELS_INDICATOR_SIZE, Rectangle[2], PANELS_INDICATOR_SIZE))
+        sprite.Shape_Rectangle(ResultPanel, Panels_IndicatorColor, (0, Rectangle[3] - Panels_Indicator_Size, Rectangle[2], Panels_Indicator_Size))
 
     if IndicatorPosition == "DOWN":
-        sprite.Shape_Rectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0, Rectangle[3] - PANELS_INDICATOR_SIZE, Rectangle[2], PANELS_INDICATOR_SIZE))
+        sprite.Shape_Rectangle(ResultPanel, Panels_IndicatorColor, (0, Rectangle[3] - Panels_Indicator_Size, Rectangle[2], Panels_Indicator_Size))
 
     if IndicatorPosition == "UP":
-        sprite.Shape_Rectangle(ResultPanel, PANELS_INDICATOR_COLOR, (0, 0, Rectangle[2], PANELS_INDICATOR_SIZE))
+        sprite.Shape_Rectangle(ResultPanel, Panels_IndicatorColor, (0, 0, Rectangle[2], Panels_Indicator_Size))
 
     DISPLAY.blit(ResultPanel, (Rectangle[0], Rectangle[1]))
     del ResultPanel
@@ -92,7 +92,7 @@ class Button:
         self.ButtonText = ButtonText
         self.TextSize = TextSize
         self.ButtonState = "INATIVE"
-        self.FontFile = BUTTONS_FONT_FILE
+        self.FontFile = Button_FontFile
         self.IsButtonEnabled = True
         self.WhiteButton = False
         self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
@@ -172,20 +172,20 @@ class Button:
 
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
-                self.BackgroundColor = BUTTON_INACTIVE_BACKGROUND_COLOR
+                self.BackgroundColor = Button_Inactive_BackgroundColor
 
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, BUTTON_INACTIVE_INDICATOR_COLOR, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
+                sprite.Shape_Rectangle(self.ButtonSurface, Button_Inactive_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
 
                 # -- Text -- #
                 sprite.FontRender(self.ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3)
 
             else:
                 # -- Background -- #
-                self.BackgroundColor = BUTTON_ACTIVE_BACKGROUND_COLOR
+                self.BackgroundColor = Button_Active_BackgroundColor
 
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, BUTTON_ACTIVE_INDICATOR_COLOR, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
+                sprite.Shape_Rectangle(self.ButtonSurface, Button_Active_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
 
                 # -- Text -- #
                 sprite.FontRender(self.ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (255, 255, 255), 3, 3)
@@ -291,9 +291,9 @@ class Window:
             self.MinimizeButton.Render(DISPLAY)
 
         # -- Draw the window title -- #
-        sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 18, self.Title, (250, 250, 255),
+        sprite.FontRender(DISPLAY, Window_Title_FontFile, 18, self.Title, (250, 250, 255),
                           self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetFont_width(
-                              "/PressStart2P.ttf", 18, self.Title) / 2, self.TitleBarRectangle[1] + 1, reg.ReadKey_bool("/OPTIONS/font_aa"))
+                              Window_Title_FontFile, 18, self.Title) / 2, self.TitleBarRectangle[1] + 1, reg.ReadKey_bool("/OPTIONS/font_aa"))
 
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
@@ -420,9 +420,9 @@ class InputBox:
         # -- Resize the Textbox -- #
         try:
             if not self.CustomWidth:
-                self.width = max(100, sprite.GetFont_width(INPUT_BOX_FONT_FILE, 10, self.text) + 10)
+                self.width = max(100, sprite.GetFont_width(InputBox_FontFile, 10, self.text) + 10)
             self.rect.w = self.width
-            self.rect.h = sprite.GetFont_height(INPUT_BOX_FONT_FILE, 12, self.text)
+            self.rect.h = sprite.GetFont_height(InputBox_FontFile, 12, self.text)
             self.LastHeight = self.rect.h
         except:
             if not self.CustomWidth:
@@ -436,10 +436,10 @@ class InputBox:
         Draw_Panel(screen, self.rect, "UP")
 
         if self.text == self.DefaultText:
-            sprite.FontRender(screen, INPUT_BOX_FONT_FILE, 12, self.text, (140, 140, 140), self.rect[0], self.rect[1])
+            sprite.FontRender(screen, InputBox_FontFile, 12, self.text, (140, 140, 140), self.rect[0], self.rect[1])
         else:
             if not self.text == "":
-                sprite.FontRender(screen, INPUT_BOX_FONT_FILE, 12, self.text, (240, 240, 240), self.rect[0], self.rect[1])
+                sprite.FontRender(screen, InputBox_FontFile, 12, self.text, (240, 240, 240), self.rect[0], self.rect[1])
 
         if not self.active:
             sprite.Shape_Rectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
@@ -496,7 +496,7 @@ class HorizontalItemsView:
         self.ListSurface.set_alpha(self.SurfaceOpacity)
 
         # -- Render the Selected Item text -- #
-        sprite.FontRender(self.ListSurface, HORIZONTAL_LIST_FONT_FILE, 24, self.SelectedItem, (250, 250, 250), 3, 3)
+        sprite.FontRender(self.ListSurface, HorizontalList_FontFile, 24, self.SelectedItem, (250, 250, 250), 3, 3)
 
         for i, itemNam in enumerate(self.GameName):
             if self.SelectedItemIndex == i:
@@ -543,7 +543,7 @@ class HorizontalItemsView:
             # -- Render the Item Sprite -- #
             if self.ItemSelected[i]:
                 if self.ItemSelected[i]:
-                    Draw_Panel(ItemSurface, (PANELS_INDICATOR_SIZE, PANELS_INDICATOR_SIZE, ItemRect[2] - PANELS_INDICATOR_SIZE * 2, ItemRect[3] - PANELS_INDICATOR_SIZE * 2), "BORDER")
+                    Draw_Panel(ItemSurface, (Panels_Indicator_Size, Panels_Indicator_Size, ItemRect[2] - Panels_Indicator_Size * 2, ItemRect[3] - Panels_Indicator_Size * 2), "BORDER")
 
                 self.ItemSelectedCurrentFrameUpdateDelay[i] += 1
 
@@ -813,8 +813,8 @@ class VerticalListWithDescription:
                 sprite.Shape_Rectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Name and Description -- #
-            sprite.FontRender(self.ListSurface, VERTICALLIST_FONT_FILE, 18, itemNam, (250, 250, 250), ItemRect[0] + 5, ItemRect[1] + 5, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
-            sprite.FontRender(self.ListSurface, VERTICALLIST_FONT_FILE, 12, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 3, ItemRect[1] + 28, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
+            sprite.FontRender(self.ListSurface, VerticalList_FontFile, 18, itemNam, (250, 250, 250), ItemRect[0] + 5, ItemRect[1] + 5, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
+            sprite.FontRender(self.ListSurface, VerticalList_FontFile, 12, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 3, ItemRect[1] + 28, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
@@ -863,23 +863,40 @@ class VerticalListWithDescription:
 
 
 class LoadingSquare:
-    def __init__(self, X, Y):
+    def __init__(self, X, Y, AnimationSelected=0):
         self.X = X
         self.Y = Y
-        self.FramesPrefix = "/FRAMES/loading/"
+        self.FramesPrefix = reg.ReadKey("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_prefix")
         self.CurrentFrame = 1
         self.UpdateAnimDelay = 0
         self.Opacity = 255
         self.OpacityAddMode = 0
+        self.Animation = AnimationSelected
+        self.AnimationTotalFrames = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/total_frames")
+        self.AnimationFramesDelay = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_delay")
+        self.LastFrameLock =  reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/last_frame_lock")
+        self.IsLastFrame = False
+        self.LastFrameDelay = 0
 
     def Update(self):
         # -- Do the Aniamtion Loop -- #
-        self.UpdateAnimDelay += 1
-        if self.UpdateAnimDelay >= 2:
+        if not self.IsLastFrame:
+            self.UpdateAnimDelay += 1
+        else:
+            self.LastFrameDelay += 1
+
+            if self.LastFrameDelay >= self.LastFrameLock:
+                self.LastFrameDelay = 0
+                self.IsLastFrame = False
+                self.CurrentFrame = 1
+
+
+        if self.UpdateAnimDelay >= self.AnimationFramesDelay and not self.IsLastFrame:
             self.CurrentFrame += 1
 
-            if self.CurrentFrame >= 36:
-                self.CurrentFrame = 1
+            if self.CurrentFrame >= self.AnimationTotalFrames:
+                self.IsLastFrame = True
+                self.CurrentFrame = self.AnimationTotalFrames # -- Set to the last frame
 
             self.UpdateAnimDelay = 0
 
@@ -983,13 +1000,13 @@ class SpriteButton:
             self.BackgroundColor = (1, 22, 39, 50)
 
             # -- Indicator Bar -- #
-            sprite.Shape_Rectangle(DISPLAY, BUTTON_INACTIVE_INDICATOR_COLOR, (self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], 2), 0, 2, 2, 2)
+            sprite.Shape_Rectangle(DISPLAY, Button_Inactive_IndicatorColor, (self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], 2), 0, 2, 2, 2)
 
         elif self.ButtonState == "DOWN":
             # -- Background -- #
             self.BackgroundColor = (15, 27, 44, 100)
             # -- Indicator Bar -- #
-            sprite.Shape_Rectangle(DISPLAY, BUTTON_ACTIVE_INDICATOR_COLOR, (self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], 2), 0, 2, 2, 2)
+            sprite.Shape_Rectangle(DISPLAY, Button_Active_IndicatorColor, (self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], 2), 0, 2, 2, 2)
 
         sprite.ImageRender(DISPLAY, self.Sprite, self.Rectangle[0], self.Rectangle[1], self.Rectangle[2], self.Rectangle[3], True)
 

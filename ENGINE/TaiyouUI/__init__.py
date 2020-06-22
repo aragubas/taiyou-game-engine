@@ -28,8 +28,10 @@ import ENGINE as tge
 
 CurrentMenuScreen = 2  # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
 SystemMenuEnabled = True
-Cursor_Position = (0, 0)
 
+# -- Cursor Variables -- #
+Cursor_Position = (0, 0)
+Cursor_CurrentLevel = 0
 
 def Initialize():
     print("TaiyouUI.Initialize : Started")
@@ -57,7 +59,7 @@ def Draw(Display):
         if CurrentMenuScreen == 0:
             gameOverlay.Draw(Display)
 
-    sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/0.png", Cursor_Position[0], Cursor_Position[1], 15, 22)
+    sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
 
 
 def Update():
@@ -91,7 +93,7 @@ def EventUpdate(event):
 
 
 def SetMenuMode_Changes():
-    print("TaiyouUI.SetMenuModeChanges")
+    print("TaiyouUI.SetMenuModeChanges ; No Description")
 
     # -- Set the Window Title -- #
     Messages.append("SET_TITLE;" + "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
@@ -99,6 +101,8 @@ def SetMenuMode_Changes():
     Messages.append("RESIZIABLE_WINDOW:FalseIfTrue")
     # -- Set the Default Icon -- #
     Messages.append("SET_ICON_BY_SPRITE:/TAIYOU_UI/icon.png")
+    # -- Set to 60FPS -- #
+    Messages.append("SET_FPS:60")
 
     CurrentRes = pygame.display.get_window_size()
     if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:

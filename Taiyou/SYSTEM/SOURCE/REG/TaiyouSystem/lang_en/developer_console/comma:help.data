@@ -1,0 +1,15 @@
+Template: [Command][ShortName] [ARGUMENTS] - [Description] 
+
+help{hlp} - This list of commands 
+kill{kil} - Kill the current game 
+reload{rel} [REGISTRY,SPRITE/FONT,SOUND,SYS_OPTS,ALL] - Reload 
+unload{unl} [REGISTRY,SPRITE/FONT,SOUND] - Unload  
+clear{cls} - Clear the Screen 
+continue{cnt} - Continue game execution 
+versions{ver} - Print all Taiyou Game Engine components versions 
+gameData{gmd} - Print loaded game data 
+overlayLevel{oll} - Set the overlay level 
+send{snd} [SET_FPS,RESIZIABLE_WINDOW,KILL,OVERLAY_LEVEL,SET_GAME_MODE
+            OPEN_GAME,REMOVE_GAME,SET_TITLE] 
+            - Send a message to the Message Queue
+getProp{gpp} - [pygame.{smooth_scale_backend}]

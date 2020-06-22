@@ -87,9 +87,9 @@ def Run(DISPLAY):
 
         DISPLAY.blit(BirchedColor, (0, 0))
 
-        pygame.draw.rect(DISPLAY, gtk.PANELS_INDICATOR_COLOR, ScreenshotBordersRect, int(ScreenshotBorderAnimValue * gtk.PANELS_INDICATOR_SIZE))
+        pygame.draw.rect(DISPLAY, gtk.Panels_IndicatorColor, ScreenshotBordersRect, int(ScreenshotBorderAnimValue * gtk.Panels_Indicator_Size))
 
-        pygame.draw.rect(DISPLAY, gtk.PANELS_BACKGROUND_COLOR, ScreenshotBordersRect, ScreenshotBorderAnimValue)
+        pygame.draw.rect(DISPLAY, gtk.Panels_BackgroundColor, ScreenshotBordersRect, ScreenshotBorderAnimValue)
 
 
 # -- Send the messages on the Message Quee to the Game Engine -- #

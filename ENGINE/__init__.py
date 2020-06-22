@@ -72,6 +72,7 @@ RunInFullScreen = False
 InputMouseDriver = "fbcon"
 InputDisableMouse = False
 IgnoreSDL2Parameters = True
+PygameFastEvent = True
 SmoothScaleTransform = "MMX"
 
 # -- User -- #
@@ -203,6 +204,7 @@ def InitEngine():
     global InputDisableMouse
     global IgnoreSDL2Parameters
     global SmoothScaleTransform
+    global PygameFastEvent
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open(TaiyouPath_TaiyouConfigFile)
@@ -261,43 +263,43 @@ def InitEngine():
             if SplitedParms[0] == "AppDataFolder":
                 TaiyouPath_AppDataFolder = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:" + str(TaiyouPath_AppDataFolder))
 
             # -- SDL Option: Video Driver -- #
             if SplitedParms[0] == "VideoDriver":
                 VideoDriver = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : Video Driver was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Video Driver was set to:" + str(VideoDriver))
 
             # -- SDL Option: Audio Driver -- #
             if SplitedParms[0] == "AudioDriver":
                 AudioDriver = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : Audio Driver was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Audio Driver was set to:" + str(AudioDriver))
 
             # -- SoundSystem: Audio Device Frequency -- #
             if SplitedParms[0] == "AudioFrequency":
                 AudioFrequency = int(SplitedParms[1].rstrip())
 
-                print("Taiyou.Runtime.InitEngine : Audio Frequency was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Audio Frequency was set to:" + str(AudioFrequency))
 
             # -- SoundSystem: Audio Device Frame Size -- #
             if SplitedParms[0] == "AudioSize":
                 AudioSize = int(SplitedParms[1].rstrip())
 
-                print("Taiyou.Runtime.InitEngine : Audio Size was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Audio Size was set to:" + str(AudioSize))
 
             # -- SoundSystem: Audio Device Audio Channels -- #
             if SplitedParms[0] == "AudioChannels":
                 AudioChannels = int(SplitedParms[1].rstrip())
 
-                print("Taiyou.Runtime.InitEngine : Audio Channels was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Audio Channels was set to:" + str(AudioChannels))
 
             # -- SoundSystem: Audio Device Buffer Size -- #
             if SplitedParms[0] == "AudioBufferSize":
                 AudioBufferSize = int(SplitedParms[1].rstrip())
 
-                print("Taiyou.Runtime.InitEngine : Audio Buffer Size was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Audio Buffer Size was set to:" + str(AudioBufferSize))
 
             # -- Run in Fullscreen -- #
             if SplitedParms[0] == "RunInFullScreen":
@@ -308,7 +310,7 @@ def InitEngine():
                 else:
                     RunInFullScreen = False
 
-                print("Taiyou.Runtime.InitEngine : Run in Fullscreen was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : Run in Fullscreen was set to:" + str(RunInFullScreen))
 
             # -- SDL Option: Center Window -- #
             if SplitedParms[0] == "VideoX11_CenterWindow":
@@ -319,7 +321,7 @@ def InitEngine():
                 else:
                     VideoX11CenterWindow = False
 
-                print("Taiyou.Runtime.InitEngine : VideoX11CenterWindow was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : VideoX11CenterWindow was set to:" + str(VideoX11CenterWindow))
 
             # -- SDL Option: DGA Mouse -- #
             if SplitedParms[0] == "VideoX11_DGAMouse":
@@ -330,7 +332,7 @@ def InitEngine():
                 else:
                     VideoX11DGAMouse = False
 
-                print("Taiyou.Runtime.InitEngine : VideoX11DGAMouse was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : VideoX11DGAMouse was set to:" + str(VideoX11DGAMouse))
 
             # -- SDL Option: YUV Hardware Acelleration -- #
             if SplitedParms[0] == "VideoX11_YUV_HWACCEL":
@@ -341,20 +343,20 @@ def InitEngine():
                 else:
                     VideoX11YUV_HWACCEL = False
 
-                print("Taiyou.Runtime.InitEngine : VideoX11YUV_HWACCEL was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : VideoX11YUV_HWACCEL was set to:" + str(VideoX11YUV_HWACCEL))
 
             # -- TaiyouUi: Autoboot Game Folder -- #
-            if SplitedParms[0] == "AutoBootGameFolder":
+            if SplitedParms[0] == "AutoBoot":
                 TaiyouUI.CurrentMenuScreen = 4
                 TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(TaiyouUI.loadingScreen.GameFolderToOpen))
 
             # -- SDL Option: Mouse Driver -- #
             if SplitedParms[0] == "InputMouseDriver":
                 InputMouseDriver = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : InputMouseDriver was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : InputMouseDriver was set to:" + str(InputMouseDriver))
 
             # -- SDL Option: Disable Mouse -- #
             if SplitedParms[0] == "InputDisableMouse":
@@ -365,7 +367,7 @@ def InitEngine():
                 else:
                     InputDisableMouse = False
 
-                print("Taiyou.Runtime.InitEngine : InputDisableMouse was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : InputDisableMouse was set to:" + str(InputDisableMouse))
 
             # -- Ignore all SDL Parameters -- #
             if SplitedParms[0] == "IgnoreSDL2Parameters":
@@ -376,36 +378,44 @@ def InitEngine():
                 else:
                     IgnoreSDL2Parameters = False
 
-                print("Taiyou.Runtime.InitEngine : IgnoreSDL2Parameters was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : IgnoreSDL2Parameters was set to:" + str(IgnoreSDL2Parameters))
 
             # -- Sprite: SmoothScaleBackend Backend -- #
             if SplitedParms[0] == "SmoothScaleBackend":
                 SmoothScaleTransform = SplitedParms[1].rstrip()
 
-                print("Taiyou.Runtime.InitEngine : SmoothScaleBackend was set to:" + str(SplitedParms[1].rstrip()))
+                print("Taiyou.Runtime.InitEngine : SmoothScaleBackend was set to:" + str(SmoothScaleTransform))
 
+            # -- Pygame: FastEvent -- #
+            if SplitedParms[0] == "FastEvent":
+                if SplitedParms[1].rstrip() == "True":
+                    PygameFastEvent = True
+                elif SplitedParms[1].rstrip() == "False":
+                    PygameFastEvent = False
+                else:
+                    PygameFastEvent = False
 
-    if not IgnoreSDL2Parameters:
+                print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
+
+    if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #
-        os.environ['SDL_VIDEODRIVER'] = str(VideoDriver) # -- Set the Video Driver
-        os.environ['SDL_AUDIODRIVER'] = str(AudioDriver) # -- Set the Audio Driver
+        os.environ['SDL_VIDEODRIVER'] = str(VideoDriver)  # -- Set the Video Driver
+        os.environ['SDL_AUDIODRIVER'] = str(AudioDriver)  # -- Set the Audio Driver
 
         # -- Set Input Enviroments -- #
-        os.environ['SDL_MOUSEDRV'] = str(InputMouseDriver) # -- Set the Mouse Driver
-        os.environ['SDL_NOMOUSE'] = str(InputDisableMouse) # -- Set the Mouse Driver
+        os.environ['SDL_MOUSEDRV'] = str(InputMouseDriver)  # -- Set the Mouse Driver
+        os.environ['SDL_NOMOUSE'] = str(InputDisableMouse)  # -- Set the Mouse Driver
 
-
-
-        # -- Set X11 Enviroment Keys -- #
+        # -- Set X11 Environment Keys -- #
         if VideoDriver == "x11":
             if VideoX11CenterWindow:
-                os.environ['SDL_VIDEO_CENTERED'] = "True"# -- Set the Centered Window
+                os.environ['SDL_VIDEO_CENTERED'] = "True"  # -- Set the Centered Window
 
             if VideoX11DGAMouse:
-                os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "True"# -- Set the DGA Mouse Parameter
+                os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "True"  # -- Set the DGA Mouse Parameter
 
             if VideoX11YUV_HWACCEL:
-                os.environ['SDL_VIDEO_YUV_HWACCEL'] = "True"# -- Set the YUV HWACCEL Parameter
+                os.environ['SDL_VIDEO_YUV_HWACCEL'] = "True"  # -- Set the YUV HWACCEL Parameter
 
     else:
         print("Taiyou.Runtime.InitEngine : SDL2 Parameters has been disabled")

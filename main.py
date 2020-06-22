@@ -37,20 +37,18 @@ class GameInstance:
         self.ResiziableWindow = False
         self.clock = pygame.time.Clock()
         self.FPS = 60
-        self.GameStarted = False
         self.DISPLAY = pygame.display
         self.IsFullscreen = False
         self.IsMenuMode = True
         self.CurrentRes_W = 800
         self.CurrentRes_H = 600
         self.WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
-        self.OverlayLevel = 0
+        self.OverlayLevel = -1
         self.UpdateTime_Calculated = 0
         self.UpdateTime_MaxMS = 0
         self.UpdateTime_MaxDelta = 0
-        self.Messages_DeveloperConsoleOutput = True
         self.GameObject = None
-        self.LastFPSValue = 0
+        self.LastFPSValue = 60
 
         # -- Load Engine Options -- #
         tge.InitEngine()
@@ -59,11 +57,13 @@ class GameInstance:
         if tge.Get_IsSoundEnabled():
             print("Taiyou.GameObject.Initialize : Initializing Pygame and Sound...")
 
+            # -- Set some Variables -- #
             Frequency = int(tge.AudioFrequency)
             Size = int(tge.AudioSize)
             Channels = int(tge.AudioChannels)
             BufferSize = int(tge.AudioBufferSize)
 
+            # -- WORKAROUND: for removing audio delay -- #
             pygame.mixer.pre_init(Frequency, Size, Channels, BufferSize)
             pygame.init()
             pygame.mixer.quit()
@@ -77,7 +77,14 @@ class GameInstance:
             sound.DisableSoundSystem = True
 
         # -- Initialize FastEvent -- #
+        print("Taiyou.GameObject.Initialize : Initializing FastEvent")
         pygame.fastevent.init()
+
+        if not pygame.fastevent.get_init() and tge.Get_IsSoundEnabled():
+            print("Taiyou.GameObject.Initialize : Cannot initialize FastEvent.\nUsing default events instead.")
+            sound.DisableSoundSystem = True
+
+
 
         # -- Set Variables -- #
         print("Taiyou.GameObject.Initialize : Set Variables")
@@ -101,9 +108,13 @@ class GameInstance:
 
     def ReceiveCommand(self, Command):
         CommandWasValid = False
+        IsSpecialEvent = False
+
         try:
             if Command.startswith("SET_FPS") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 splitedArg = Command.split(':')
                 self.FPS = int(splitedArg[1])
 
@@ -112,20 +123,10 @@ class GameInstance:
 
                 print("Taiyou.GameObject.ReceiveCommand : MaxFPS Set to:" + str(self.FPS))
 
-            if Command.startswith("ENABLE_DCO") if Command else False:
-                CommandWasValid = True
-                self.Messages_DeveloperConsoleOutput = True
-
-                tge.devel.PrintToTerminalBuffer("TaiyouMessage: DCO has been enabled.")
-
-            if Command.startswith("DISABLE_DCO") if Command else False:
-                CommandWasValid = True
-                self.Messages_DeveloperConsoleOutput = False
-
-                tge.devel.PrintToTerminalBuffer("TaiyouMessage: DCO has been disabled.")
-
             if Command.startswith("SET_RESOLUTION") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 splitedArg = Command.split(':')
                 print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: {0}x{1}".format(str(splitedArg[1]), str(splitedArg[2])))
 
@@ -146,6 +147,8 @@ class GameInstance:
 
             if Command.startswith("RESIZIABLE_WINDOW") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 splitedArg = Command.split(':')
 
                 if splitedArg[1] == "True":
@@ -177,12 +180,16 @@ class GameInstance:
 
             if Command.startswith("KILL") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 print("Taiyou.GameObject.ReceiveCommand : Killing Game Process")
 
                 self.Destroy()
 
             if Command.startswith("OVERLAY_LEVEL") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 splitedArg = Command.split(':')
 
                 self.OverlayLevel = int(splitedArg[1])
@@ -191,11 +198,11 @@ class GameInstance:
 
             if Command.startswith("SET_GAME_MODE") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 print("Taiyou.GameObject.ReceiveCommand : Set Game Mode")
 
                 self.IsMenuMode = False
-                if not self.GameStarted:
-                    self.GameStart()
 
                 # -- Set the Last FPS Value set by the Game -- #
                 self.FPS = self.LastFPSValue
@@ -205,6 +212,8 @@ class GameInstance:
 
             if Command.startswith("OPEN_GAME") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 print("Taiyou.GameObject.ReceiveCommand : Open Game")
                 splitedArg = Command.split(':')
 
@@ -212,6 +221,8 @@ class GameInstance:
 
             if Command.startswith("REMOVE_GAME") if Command else False:
                 CommandWasValid = True
+                IsSpecialEvent = True
+
                 print("Taiyou.GameObject.ReceiveCommand : Remove Game Object, and unload all data related to it")
 
                 self.RemoveGame()
@@ -222,11 +233,9 @@ class GameInstance:
 
                 pygame.display.set_caption(splitedArg[1])
 
-                print("Taiyou.GameObject.ReceiveCommand : Window Title was set to [" + splitedArg[1] + "]")
-
-            if self.Messages_DeveloperConsoleOutput and not CommandWasValid:
+            if not CommandWasValid:
                 tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")
-            else:
+            elif IsSpecialEvent:
                 tge.devel.PrintToTerminalBuffer("TaiyouMessage: Command Processed:\n'" + Command + "'")
 
         except IndexError as ex:
@@ -249,7 +258,16 @@ class GameInstance:
     def RemoveGame(self, UnloadGameAssts=True, CloseGameFolder=True):
         print("Taiyou.GameObject.RemoveGame : Suspend Game Code")
 
+        # -- Call the Game Unload Function on Game -- #
+        try:
+            self.GameObject.Unload()
+        except AttributeError:
+            print("Taiyou.GameObject.RemoveGame : Game has no Unload Function.")
+
+        # -- Try to delete the Game Object -- #
         importlib.reload(self.GameObject)
+        self.GameObject = None
+
 
         if UnloadGameAssts:
             print("Taiyou.GameObject.RemoveGame : Unload Game Assets")
@@ -263,7 +281,6 @@ class GameInstance:
 
             tge.CloseGameFolder()
 
-        self.GameStarted = False
         self.IsMenuMode = True
 
         print("Taiyou.GameObject.RemoveGame : Operation Complete.")
@@ -287,6 +304,9 @@ class GameInstance:
             self.SystemException(ex, "SetGameObject")
 
     def EventUpdate(self):
+        # -- Internaly Process Pygame Events -- #
+        pygame.fastevent.pump()
+
         for event in pygame.fastevent.get():
             # -- Closes the Game when clicking on the X button
             if event.type == pygame.QUIT:
@@ -319,16 +339,15 @@ class GameInstance:
 
             # -- Do Game Events -- #
             try:
-                if self.GameStarted and not self.IsMenuMode:
+                if not self.IsMenuMode:
                     self.GameObject.EventUpdate(event)
 
-            except Exception as ex:
+            except Exception as ex:  # -- Exception Handler
                 self.GameException(ex, "Game Events")
 
+            # -- Do SystemMenu Events -- #
             if self.IsMenuMode:
                 SystemUI.EventUpdate(event)
-
-        pygame.fastevent.pump()
 
     def CalculateDelta(self):
         self.UpdateTime_MaxDelta += 1
@@ -340,11 +359,6 @@ class GameInstance:
                 self.UpdateTime_MaxMS = self.UpdateTime_Calculated
 
             self.UpdateTime_MaxDelta = 0
-
-    def GameStart(self):
-        print("Taiyou.GameObject.GameStart : Load Game Code")
-
-        self.GameStarted = True
 
     def GameException(self, Exception, ErrorPart="Unknown"):
         if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler"):
@@ -386,24 +400,20 @@ class GameInstance:
         else:  # -- Else, Update the Game -- #
             try:
                 # -- Do Game Update -- #
-                if self.GameStarted:
-                    self.GameObject.Update()
+                self.GameObject.Update()
 
                 # -- Do Game Draw -- #
-                if self.GameStarted:
-                    self.GameObject.GameDraw(self.DISPLAY)
+                self.GameObject.GameDraw(self.DISPLAY)
 
                 # -- Draw the Overlay, when its enabled -- #
-                if not self.OverlayLevel == -1:
-                    self.RenderOverlay()
+                self.RenderOverlay()
 
                 # -- Flip the Screen -- #
                 pygame.display.flip()
 
                 # -- Receive command from the Current Game -- #
-                if self.GameStarted:
-                    if len(self.GameObject.Messages) >= 1:
-                        self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
+                if len(self.GameObject.Messages) >= 1:
+                    self.ReceiveCommand(self.GameObject.ReadCurrentMessages())
 
             except Exception as ex:
                 self.GameException(ex, "Game Update/Draw")
