@@ -5,18 +5,19 @@
 -Features **current version**
 1. Sprite Loading/Unloading Functions
 2. Registry System
-
+3. Sound System *(with Stereo Support)*
+4. TaiyouUI _**a Nintendo WII Menu style**_
 
 ## How game it loads games?
-It loades the games importing the python script in: ``/game_name/MAIN/__init__.py``
+It loades the games importing the Game's Main Module
 
-## How to Change the Game?
-*Just put the name of the Game Folder on the file ´/currentGame´ on the root folder.*
+## With Programming Language it supports?
+**It is enterely made in Python, and all games is written in Python too**
 
 ## What type of games this Game Engine can create?
 *Everthing in 2D Base, but it can do everthing that Pygames does, it is not limited to it's Rendering functions.*
 
-## Official Discord Servers
+## Some random stuff
 ![Fogoso Discord Server](https://discord.gg/Ek5QmBs)
 ![Fogoso Project](https://github.com/aragubas/fogoso/)
 ![Taiyou Game Engine Server](https://discord.gg/RGhzjHU)
