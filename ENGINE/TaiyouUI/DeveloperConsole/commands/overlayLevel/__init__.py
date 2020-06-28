@@ -17,11 +17,15 @@
 
 from ENGINE.TaiyouUI.DeveloperConsole import PrintToTerminalBuffer
 from ENGINE.TaiyouUI import UIGTK as gtk
+from ENGINE import TaiyouUI as taiyouUI
 import ENGINE as tge
 
 def Run(SplitedComma):
-    int(SplitedComma[1])
+    # -- Convert the Value to string -- #
+    Value = int(SplitedComma[0])
 
-    taiyouUI.Messages.append("OVERLAY_LEVEL:" + str(SplitedComma[1]))
+    # -- Send the Message -- #
+    taiyouUI.Messages.append("OVERLAY_LEVEL:" + str(Value))
 
-    PrintToTerminalBuffer(gtk.GetLangText("comma:overlayLevel", "developer_console").format(str(SplitedComma[1])))
+    # -- Print to Termianl Buffer -- #
+    PrintToTerminalBuffer(gtk.GetLangText("comma:overlayLevel", "developer_console").format(str(SplitedComma[0])))

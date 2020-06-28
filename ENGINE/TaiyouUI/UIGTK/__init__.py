@@ -291,9 +291,8 @@ class Window:
             self.MinimizeButton.Render(DISPLAY)
 
         # -- Draw the window title -- #
-        sprite.FontRender(DISPLAY, Window_Title_FontFile, 18, self.Title, (250, 250, 255),
-                          self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetFont_width(
-                              Window_Title_FontFile, 18, self.Title) / 2, self.TitleBarRectangle[1] + 1, reg.ReadKey_bool("/OPTIONS/font_aa"))
+        TextX = self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetFont_width(Window_Title_FontFile, 18, self.Title) / 2
+        sprite.FontRender(DISPLAY, Window_Title_FontFile, 18, self.Title, (250, 250, 255), TextX, self.TitleBarRectangle[1] - 2, reg.ReadKey_bool("/TaiyouSystem/CONF/font_aa"))
 
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
@@ -922,7 +921,6 @@ class Slider():
         self.LastCursorPos = (0, 0)
         self.IsBeingMoved = False
         self.SliderRectangle = pygame.Rect
-        self.Surface = pygame.Surface((32, 128))
         self.Opacity = 255
 
     def Render(self, Display):
@@ -936,22 +934,28 @@ class Slider():
         if self.SliderRectangle[1] >= self.Rectangle[1] + self.Rectangle[3] - 10:
             self.SliderRectangle[1] = self.Rectangle[1] + self.Rectangle[3] - 15
 
+        # -- Set the Surface -- #
+        Surface = pygame.Surface((32, 128))
+
         # -- Set Surface Opacity -- #
-        self.Surface.set_alpha(self.Opacity)
+        Surface.set_alpha(self.Opacity)
 
         # -- Render Background -- #
-        Draw_Panel(self.Surface, (0, 0, self.Rectangle[2], self.Rectangle[3]))
+        Surface.fill(Panels_BackgroundColor)
+        # -- Render the Borders -- #
+        sprite.Shape_Rectangle(Surface, Panels_IndicatorColor, (0, 0, 32, 128), Panels_Indicator_Size)
+
 
         # -- Render the Slider Background -- #
-        sprite.Shape_Rectangle(self.Surface, (100, 101, 103), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, self.Rectangle[3] - 15), 0, 5)
+        sprite.Shape_Rectangle(Surface, (100, 101, 103), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, self.Rectangle[3] - 15), 0, 5)
 
         # -- Render the Slider Percentage -- #
-        sprite.Shape_Rectangle(self.Surface, (255, 51, 102), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, (self.SliderRectangle[1] - self.Rectangle[1]) - self.SliderRectangle[3]), 0, 0, 5, 5)
+        sprite.Shape_Rectangle(Surface, (255, 51, 102), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, (self.SliderRectangle[1] - self.Rectangle[1]) - self.SliderRectangle[3]), 0, 0, 5, 5)
 
         # -- Render the Slider Notch -- #
-        sprite.Shape_Rectangle(self.Surface, (218, 218, 218), (5, self.SliderRectangle[1] - self.Rectangle[1], self.SliderRectangle[2], self.SliderRectangle[3]), 0, 15)
+        sprite.Shape_Rectangle(Surface, (218, 218, 218), (5, self.SliderRectangle[1] - self.Rectangle[1], self.SliderRectangle[2], self.SliderRectangle[3]), 0, 15)
 
-        Display.blit(self.Surface, (self.Rectangle[0], self.Rectangle[1]))
+        Display.blit(Surface, (self.Rectangle[0], self.Rectangle[1]))
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value

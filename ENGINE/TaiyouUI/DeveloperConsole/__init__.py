@@ -149,18 +149,18 @@ def ReadCommand(Input):
         commands.processCommand(SplitedComma)
 
     except IndexError:
-        PrintToTerminalBuffer(gtk.GetLangText("error/arguments_error", "developer_console").format(str(SplitedComma[0])))
+        PrintToTerminalBuffer(gtk.GetLangText("error/arguments_error", "developer_console").format(str(CurrentInput.split(' ')[0])))
         # -- Play Sound Error -- #
         sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
 
     except TypeError as ex:
-        PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+        PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + CurrentInput.split(' ')[0] + "]")
         # -- Play Notify Sound -- #
         sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
 
     except Exception as ex:
         try:
-            PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + SplitedComma[0] + "]")
+            PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [" + CurrentInput.split(' ')[0] + "]")
         except IndexError:
             PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [ERROR_OBTAINING_MODULE_NAME]")
 

@@ -4,6 +4,9 @@
 # Format:
 # [sprite_location]:[True or False, transparency]
 #
+# -- Taiyou Logo -- #
+/taiyou.png:True
+
 # -- Cursor -- #
 /TAIYOU_UI/Cursor/0.png:True
 /TAIYOU_UI/Cursor/1.png:True

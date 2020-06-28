@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,81 +14,100 @@
 #   limitations under the License.
 #
 #
-import pygame
+from ENGINE import TaiyouUI as taiyouUI
 from ENGINE import SPRITE as sprite
+from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import REGISTRY as reg
-from ENGINE import TaiyouUI as SystemUIHandler
+import pygame
 
-LicenseText = "Lorem ipsum dolor sit amet"
-AragubasLogoRect = pygame.Rect(0,0,0,0)
+WaitTime = 0
+WaitTimeEnabled = False
+CenterLogoRectangle = (0, 0, 384, 300)
+LicenseText = "poyo poyO poYO pOYO POYO"
+GlobalOpacity = 0
+OpacityAnimMode = 0
+OpacityAnimEnabled = True
 
-DISPLAY = pygame.Surface
-SurfaceCreated = False
-Animation_Enabled = True
-Animation_Mode = 0
-Animation_Opacity = 0
-Animation_StartDelay = 0
 
-def Draw(Display):
-    global Animation_Opacity
+def Initialize():
     global LicenseText
-    global AragubasLogoRect
-    global DISPLAY
-    global SurfaceCreated
-    # -- Set the Display Global Variable -- #
-    DISPLAY = Display
-    Display.fill((0,0,0))
+    # -- Set the License Text -- #
 
-    if len(LicenseText) > 0:
-        sprite.RenderFont(Display, "/PressStart2P.ttf", 18, LicenseText, (Animation_Opacity, Animation_Opacity, Animation_Opacity), 5,5)
+    LicenseText = gtk.GetLangText("license_text")
 
-    SurfaceCreated = True
 
 def Update():
-    global AragubasLogoRect
-    global DISPLAY
-    global Animation_Opacity
-    global Animation_Enabled
-    global Animation_Mode
-    global Animation_StartDelay
+    global WaitTime
+    global WaitTimeEnabled
+    global GlobalOpacity
+    global OpacityAnimMode
+    global OpacityAnimEnabled
+    global CenterLogoRectangle
+
+    # -- Update the Center Image -- #
+    CenterLogoRectangle = (800 / 2 - CenterLogoRectangle[2] / 2, 600 / 2 - CenterLogoRectangle[3] / 1.2, CenterLogoRectangle[2], CenterLogoRectangle[3])
+
+    if OpacityAnimEnabled:
+        if OpacityAnimMode == 0:
+            GlobalOpacity += 10
+
+            if GlobalOpacity >= 255:
+                GlobalOpacity = 255
+                WaitTimeEnabled = True
+                OpacityAnimEnabled = False
+
+        if OpacityAnimMode == 1 and OpacityAnimEnabled:
+            GlobalOpacity -= 10
+
+            if GlobalOpacity <= 0:
+                GlobalOpacity = 0
+                WaitTimeEnabled = True
+                OpacityAnimEnabled = False
+
+
+    # -- If Wait Time is enabled -- #
+    if WaitTimeEnabled:
+        WaitTime += 1
+
+        if OpacityAnimMode == 0:
+            if WaitTime >= 150:
+                OpacityAnimMode = 1  # -- Last Animation Thing
+                OpacityAnimEnabled = True
+                WaitTimeEnabled = False
+                WaitTime = 0
+
+        if OpacityAnimMode == 1 and WaitTimeEnabled:
+            WaitTime += 1
+
+            if WaitTime >= 70:  # -- Restart Variables
+                taiyouUI.CurrentMenuScreen = 2
+                WaitTimeEnabled = False
+                WaitTime = 0
+                OpacityAnimMode = 0
+                OpacityAnimEnabled = True
+
+
+
+
+
+def Draw(DISPLAY):
+    global CenterLogoRectangle
+    global GlobalOpacity
     global LicenseText
 
-    if SurfaceCreated:
-        AragubasLogoRect = pygame.Rect(5, DISPLAY.get_height() - 69, 64, 64)
+    DISPLAY.fill((GlobalOpacity, GlobalOpacity, GlobalOpacity))
 
-    LicenseText = reg.ReadKey("/TaiyouSystem/licenseText")
+    LogoSur = pygame.Surface((CenterLogoRectangle[2], CenterLogoRectangle[3]), pygame.SRCALPHA)
+    LogoSur.set_alpha(GlobalOpacity)
 
-    if Animation_Enabled:
-        if Animation_StartDelay < 5:
-            Animation_StartDelay += 1
+    # -- Render the Logo -- #
+    sprite.ImageRender(LogoSur, "/taiyou.png", 0, 0, CenterLogoRectangle[2], CenterLogoRectangle[3], True)
 
-        if Animation_Mode == 0 and Animation_StartDelay >= 5:
-            Animation_Opacity += 15
-
-            if Animation_Opacity >= 255:
-                Animation_Opacity = 255
-                Animation_Mode = 1
-                Animation_Enabled = False
-                Animation_StartDelay = 0
-                print("TaiyouUI.LicenseScreen.AnimationTrigger : Animation Start")
-
-        if Animation_Mode == 1 and Animation_StartDelay >= 5:
-            Animation_Opacity -= 15
-
-            if Animation_Opacity <= -50:
-                Animation_Opacity = 0
-                Animation_Mode = 0
-                Animation_Enabled = True
-                Animation_StartDelay = 0
-
-                SystemUIHandler.CurrentMenuScreen = 2
+    DISPLAY.blit(LogoSur, (CenterLogoRectangle[0], CenterLogoRectangle[1]))
 
 
-                print("TaiyouUI.LicenseScreen.AnimationTrigger : Animation End")
+    # -- Render the License Text -- #
+    sprite.FontRender(DISPLAY, "/Ubuntu_Lite.ttf", 15, LicenseText, (0, 0, 0), CenterLogoRectangle[0] / 2, CenterLogoRectangle[1] + 320, True)
 
 def EventUpdate(event):
-    global DISPLAY
-    global Animation_Enabled
-
-    if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
-        Animation_Enabled = True
+    pass

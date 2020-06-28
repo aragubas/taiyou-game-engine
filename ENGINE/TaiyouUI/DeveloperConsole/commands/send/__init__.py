@@ -22,11 +22,11 @@ import ENGINE as tge
 
 def Run(SplitedCommand):
     AllLine = ""
-    for i in range(1, len(SplitedComma)):
-        if i <= 1:
-            AllLine += SplitedComma[i]
+    for i in range(0, len(SplitedCommand)):
+        if i <= 0:
+            AllLine += SplitedCommand[i]
         else:
-            AllLine += " " + SplitedComma[i]
+            AllLine += " " + SplitedCommand[i]
 
     PrintToTerminalBuffer(gtk.GetLangText("comma:send_1", "developer_console").format(AllLine))
 

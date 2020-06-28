@@ -20,13 +20,14 @@ from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
+from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE.TaiyouUI import ScreenshotUI as screenshotUI
 from ENGINE import utils
 import ENGINE as tge
 
-CurrentMenuScreen = 2  # 0 = Game Overlay, 1 = Option, 2 = Main Menu, 3 = Application Updater, 4 = Loading Screen
+CurrentMenuScreen = 1  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = License Screen, 4 = Loading Screen
 SystemMenuEnabled = True
 
 # -- Cursor Variables -- #
@@ -39,9 +40,11 @@ def Initialize():
     # -- Load the Language -- #
     gtk.SetLang(reg.ReadKey("/TaiyouSystem/CONF/lang"))
 
+    # -- Initialize All Screens -- #
     gameOverlay.Initialize()
     seletorScreen.Initialize()
     loadingScreen.Initialize()
+    licenseScreen.Initialize()
     SetMenuMode_Changes()
 
     print("TaiyouUI.Initialize : Initialization Complete.")
@@ -54,8 +57,13 @@ def Draw(Display):
     if SystemMenuEnabled:
         if CurrentMenuScreen == 4:
             loadingScreen.Draw(Display)
+
         if CurrentMenuScreen == 2:
             seletorScreen.Draw(Display)
+
+        if CurrentMenuScreen == 1:
+            licenseScreen.Draw(Display)
+
         if CurrentMenuScreen == 0:
             gameOverlay.Draw(Display)
 
@@ -70,8 +78,13 @@ def Update():
     if SystemMenuEnabled:
         if CurrentMenuScreen == 4:
             loadingScreen.Update()
+
         if CurrentMenuScreen == 2:
             seletorScreen.Update()
+
+        if CurrentMenuScreen == 1:
+            licenseScreen.Update()
+
         if CurrentMenuScreen == 0:
             gameOverlay.Update()
 
@@ -86,8 +99,13 @@ def EventUpdate(event):
     if SystemMenuEnabled:
         if CurrentMenuScreen == 4:
             loadingScreen.EventUpdate(event)
+
         if CurrentMenuScreen == 2:
             seletorScreen.EventUpdate(event)
+
+        if CurrentMenuScreen == 1:
+            licenseScreen.EventUpdate(event)
+
         if CurrentMenuScreen == 0:
             gameOverlay.EventUpdate(event)
 

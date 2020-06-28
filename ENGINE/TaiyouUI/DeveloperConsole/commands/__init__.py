@@ -72,11 +72,17 @@ def GetCommandObject_byID(commandObjName):
     return None # -- If command was not found
 
 def processCommand(SplitedComma):
+    """
+
+    :param SplitedComma:
+    """
     commandObj = GetCommandObject_byID(SplitedComma[0])
 
     if not commandObj is None:
-        SplitedComma = SplitedComma.pop(0)
+        # -- Remove the First Splited [the command] -- #
+        SplitedComma.pop(0)
 
+        # -- Call the Run Function on the Specified Module -- #
         commandObj.Run(SplitedComma)
 
         # -- Play Click Sound -- #
