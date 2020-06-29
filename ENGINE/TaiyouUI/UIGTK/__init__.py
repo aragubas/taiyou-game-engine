@@ -283,8 +283,7 @@ class Window:
 
         # -- Draw the Resize Block -- #
         if self.Resiziable:
-            sprite.ImageRender(DISPLAY, "/window/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1],
-                               self.ResizeRectangle[2], self.ResizeRectangle[3])
+            sprite.ImageRender(DISPLAY, "/TAIYOU_UI/ICONS/resize.png", self.ResizeRectangle[0], self.ResizeRectangle[1], self.ResizeRectangle[2], self.ResizeRectangle[3])
 
         # -- Render the Minimize Button -- #
         if self.Minimizable:

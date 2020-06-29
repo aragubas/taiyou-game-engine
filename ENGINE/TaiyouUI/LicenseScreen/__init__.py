@@ -23,7 +23,7 @@ import pygame
 WaitTime = 0
 WaitTimeEnabled = False
 CenterLogoRectangle = (0, 0, 384, 300)
-LicenseText = "poyo poyO poYO pOYO POYO"
+LicenseText = "Why this variable was not set?"
 GlobalOpacity = 0
 OpacityAnimMode = 0
 OpacityAnimEnabled = True
@@ -63,7 +63,6 @@ def Update():
                 GlobalOpacity = 0
                 WaitTimeEnabled = True
                 OpacityAnimEnabled = False
-
 
     # -- If Wait Time is enabled -- #
     if WaitTimeEnabled:
