@@ -35,6 +35,10 @@ SpriteRenderingDisabled = False
 RectangleRenderingDisabled = False
 SpriteTransparency = False
 
+CurrentLoadedFonts_Name = list()
+CurrentLoadedFonts_Contents = list()
+
+
 def LoadSpritesInFolder(FolderName):
     pygame.font.init()
     folder_name = FolderName + "/SPRITE"
@@ -59,14 +63,16 @@ def LoadSpritesInFolder(FolderName):
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
                     else:
                         Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(
+                        index) + "] Transparent: True\n")
                 except FileNotFoundError:
                     print("Sprite.LoadFolder : ERROR!\nCannot find the image[" + spriteLocation + "]")
                     Sprites_Data.append(DefaultSprite)
 
             elif currentLine[1] == "False":
                 Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+                print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(
+                    index) + "] Transparent: True\n")
             else:
                 print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
 
@@ -92,7 +98,8 @@ def LoadSpritesInFolder(FolderName):
                     utils.FileCopy(CurrentFileName, DestinationDir)
 
                     if not utils.File_Exists(DestinationDir):
-                        raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
+                        raise FileNotFoundError(
+                            "An error occoured while copying the \n[" + CurrentFileName + "] font file.")
                     else:
                         print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
 
@@ -100,6 +107,7 @@ def LoadSpritesInFolder(FolderName):
         print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
 
     print("Sprite.LoadFolder : Operation Completed.")
+
 
 def LoadSprite(SpritePath, Transparency=False):
     if utils.Directory_Exists(SpritePath):
@@ -110,12 +118,14 @@ def LoadSprite(SpritePath, Transparency=False):
         else:
             Sprites_Data.append(pygame.image.load(SpritePath).convert())
 
+
 def GetSprite(SpriteResourceName):
     try:
         return Sprites_Data[Sprites_Name.index(SpriteResourceName)]
     except:
         print("GetSprite : Sprite[" + SpriteResourceName + "] does not exist.")
         return DefaultSprite
+
 
 def Unload():
     print("Sprite.Unload : Unloading Sprites...")
@@ -142,6 +152,7 @@ def Reload():
     # -- Reload Menu Sprites -- #
     LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
 
+
 def UnloadSprite(SpriteResourceName):
     try:
         sprite_index = Sprites_Name.index(SpriteResourceName)
@@ -153,7 +164,7 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 
-def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False):
+def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=(0, 0, 0)):
     """
     Render a Image loaded to the Sprite System
     :param DISPLAY:Surface to be rendered
@@ -166,22 +177,56 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
     :return:
     """
     if not SpriteRenderingDisabled:
+        # -- Workaround to make Opacity Value not raise exception -- #
+        if Opacity <= 0:
+            Opacity = 0
+        if Opacity >= 255:
+            Opacity = 255
+
         try:
             if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
-                if Width == 0 and Height == 0:
-                    DISPLAY.blit(GetSprite(spriteName), (X, Y))
+                if Width == 0 and Height == 0:  # -- Render Images With no Transformation -- #
+                    if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
+                        target = GetSprite(spriteName)
+                        target.set_alpha(Opacity)
+
+                        if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
+                            target.set_colorkey(ColorKey)
+
+                        DISPLAY.blit(target, (X, Y))
+                    else:  # -- Render Images without Alpha Transparency -- #
+                        DISPLAY.blit(GetSprite(spriteName), (X, Y))
+
                 else:
-                    if not SmoothScaling:
-                        DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
+                    if not SmoothScaling:  # -- Render Images without SmoothScaling -- #
+                        if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
+                            target = GetSprite(spriteName)
+                            target.set_alpha(Opacity)
+
+                            if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
+                                target.set_colorkey(ColorKey)
+
+                            DISPLAY.blit(pygame.transform.scale(target, (Width, Height)), (X, Y))
+                        else:  # -- Render Images without Alpha Transparency -- #
+                            DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
                     else:
-                        DISPLAY.blit(pygame.transform.smoothscale(GetSprite(spriteName), (Width, Height)), (X, Y))
+                        if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
+                            target = GetSprite(spriteName)
+                            target.set_alpha(Opacity)
+
+                            if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
+                                target.set_colorkey(ColorKey)
+
+                            DISPLAY.blit(pygame.transform.smoothscale(target, (Width, Height)), (X, Y))
+                        else:  # -- Render Images without Alpha Transparency -- #
+                            DISPLAY.blit(pygame.transform.smoothscale(GetSprite(spriteName), (Width, Height)), (X, Y))
+
 
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
-CurrentLoadedFonts_Name = list()
-CurrentLoadedFonts_Contents = list()
-def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=(-1, -1, -1)):
+def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=(-1, -1, -1),
+               Opacity=255):
     """
     Render a Text using a font loaded into Taiyou Font Cache
     :param DISPLAY:Surface Name
@@ -198,23 +243,50 @@ def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=
         # -- Get the FontFileObject, required for all functions here -- #
         FontFileObject = GetFont_object(FontFileLocation, Size)
 
+        # -- Workaround to make Opacity Value not raise exception -- #
+        if Opacity <= 0:
+            Opacity = 0
+        if Opacity >= 255:
+            Opacity = 255
 
-        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(Text, antialias, ColorRGB).get_height() and not Text == "":
-            # -- Only Render Multiple Lines when needed -- #
+        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(
+                Text, antialias, ColorRGB).get_height() and not Text == "":
+            # -- Render Multiple Lines -- #
             if len(Text.splitlines()) > 1:
                 for i, l in enumerate(Text.splitlines()):
-                    if not backgroundColor == (-1, -1, -1): # -- If background was provided, render with Background
-                        DISPLAY.blit(FontFileObject.render(l, antialias, ColorRGB, backgroundColor), (X, Y + Size * i))
+                    if not backgroundColor == (-1, -1, -1):  # -- If background was provided, render with Background
+                        FontSurface = FontFileObject.render(l, antialias, ColorRGB, backgroundColor)
 
-                    else:
-                        DISPLAY.blit(FontFileObject.render(l, antialias, ColorRGB), (X, Y + Size * i))
+                        if not Opacity == 255:  # -- Set the Font Opacity, if needed
+                            FontSurface.set_alpha(Opacity)
 
-            else:
-                if not backgroundColor == (-1, -1, -1): # -- If background was provided, render with Background
-                    DISPLAY.blit(FontFileObject.render(Text, antialias, ColorRGB, backgroundColor), (X, Y))
+                        DISPLAY.blit(FontSurface, (X, Y + Size * i))
+
+                    else:  # -- Render Without Background -- #
+                        FontSurface = FontFileObject.render(l, antialias, ColorRGB)
+
+                        if not Opacity == 255:  # -- Set the Font Opacity, if needed
+                            FontSurface.set_alpha(Opacity)
+
+                        DISPLAY.blit(FontSurface, (X, Y + Size * i))
+
+            else:  # -- Render Single Line Text -- #
+                if not backgroundColor == (-1, -1, -1):  # -- If background was provided, render with Background
+                    FontSurface = FontFileObject.render(Text, antialias, ColorRGB, backgroundColor)
+
+                    if not Opacity == 255:  # -- Set the Font Opacity, if needed
+                        FontSurface.set_alpha(Opacity)
+
+                    DISPLAY.blit(FontSurface, (X, Y))
 
                 else:
-                    DISPLAY.blit(FontFileObject.render(Text, antialias, ColorRGB), (X, Y))
+                    FontSurface = FontFileObject.render(Text, antialias, ColorRGB)
+
+                    if not Opacity == 255:  # -- Set the Font Opacity, if needed
+                        FontSurface.set_alpha(Opacity)
+
+                    DISPLAY.blit(FontSurface, (X, Y))
+
 
 def GetFont_object(FontFileLocation, Size):
     """
@@ -228,7 +300,7 @@ def GetFont_object(FontFileLocation, Size):
         try:
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(FontCacheName)]
 
-        except ValueError: # -- Add font to the FontCache if was not found -- #
+        except ValueError:  # -- Add font to the FontCache if was not found -- #
             print("Sprite.GetFontObject ; Creating Font Cache Object")
 
             CurrentLoadedFonts_Name.append(FontCacheName)
@@ -237,6 +309,7 @@ def GetFont_object(FontFileLocation, Size):
             print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 
             return CurrentLoadedFonts_Contents[CurrentLoadedFonts_Name.index(FontCacheName)]
+
 
 def Surface_Blur(surface, amt, fast_scale=False):
     """
@@ -249,9 +322,9 @@ def Surface_Blur(surface, amt, fast_scale=False):
     if amt < 1.0:
         print("Surface_Blue : Invalid Blur Amount.")
         return surface
-    scale = 1.0/float(amt)
+    Scale = 1.0 / float(amt)
     surf_size = surface.get_size()
-    scale_size = (int(surf_size[0]*scale), int(surf_size[1]*scale))
+    scale_size = (int(surf_size[0] * Scale), int(surf_size[1] * Scale))
     if not fast_scale:
         surf = pygame.transform.smoothscale(surface, scale_size)
         surf = pygame.transform.smoothscale(surf, surf_size)
@@ -260,21 +333,23 @@ def Surface_Blur(surface, amt, fast_scale=False):
         surf = pygame.transform.scale(surf, surf_size)
     return surf
 
+
 def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0):
     if RectangleRenderingDisabled:
         return
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         Color = list(Color)
+
         # -- Fix Color RGBA RGB Confusion -- #
-        if len(Color) < 4: # -- If no Alfa argument was suplied, add 255 alfa value
+        if len(Color) < 4:  # -- If no Alfa argument was suplied, add 255 alfa value
             Color.append(255)
-        if Color[0] <= 0: # -- R
+        if Color[0] <= 0:  # -- R
             Color[0] = 0
-        if Color[1] <= 0: # -- G
+        if Color[1] <= 0:  # -- G
             Color[1] = 0
-        if Color[2] <= 0: # -- B
+        if Color[2] <= 0:  # -- B
             Color[2] = 0
-        if Color[3] <= 0: # -- A
+        if Color[3] <= 0:  # -- A
             Color[3] = 0
 
         # -- Border Radius-- #
@@ -285,7 +360,9 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
             Border_BottomLeft_Radius = BorderRadius
 
         # -- Render the Rectangle -- #
-        pygame.draw.rect(DISPLAY, Color, Rectangle, BorderWidth, BorderRadius, Border_TopLeft_Radius, Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
+        pygame.draw.rect(DISPLAY, Color, Rectangle, BorderWidth, BorderRadius, Border_TopLeft_Radius,
+                         Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
+
 
 def GetFont_width(FontFileLocation, FontSize, Text):
     """
@@ -306,6 +383,7 @@ def GetFont_width(FontFileLocation, FontSize, Text):
 
     return TotalSize
 
+
 def GetFont_height(FontFileLocation, FontSize, Text):
     """
     Get the height of a font, from a specified text.
@@ -315,4 +393,5 @@ def GetFont_height(FontFileLocation, FontSize, Text):
     :return:Size (int)
     """
 
-    return GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(Text.splitlines())
+    return GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(
+        Text.splitlines())

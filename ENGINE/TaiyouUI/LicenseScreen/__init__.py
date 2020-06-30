@@ -101,19 +101,16 @@ def Draw(DISPLAY):
     global GlobalOpacity
     global LicenseText
 
-    DISPLAY.fill((GlobalOpacity, GlobalOpacity, GlobalOpacity))
 
-    LogoSur = pygame.Surface((CenterLogoRectangle[2], CenterLogoRectangle[3]), pygame.SRCALPHA)
-    LogoSur.set_alpha(GlobalOpacity)
+    DISPLAY.fill((0, 0, 0))
+    # -- Render Background -- #
+    sprite.ImageRender(DISPLAY, "/TAIYOU_UI/BG/loading_bg.png", 0, 0, SmoothScaling=True, Opacity=GlobalOpacity)
 
     # -- Render the Logo -- #
-    sprite.ImageRender(LogoSur, "/taiyou.png", 0, 0, CenterLogoRectangle[2], CenterLogoRectangle[3], True)
-
-    DISPLAY.blit(LogoSur, (CenterLogoRectangle[0], CenterLogoRectangle[1]))
-
+    sprite.ImageRender(DISPLAY, "/taiyou.png", CenterLogoRectangle[0], CenterLogoRectangle[1], CenterLogoRectangle[2], CenterLogoRectangle[3], True, GlobalOpacity)
 
     # -- Render the License Text -- #
-    sprite.FontRender(DISPLAY, "/Ubuntu_Lite.ttf", 15, LicenseText, (0, 0, 0), CenterLogoRectangle[0] / 2, CenterLogoRectangle[1] + 320, True)
+    sprite.FontRender(DISPLAY, "/Ubuntu_Lite.ttf", 15, LicenseText, (150, 150, 150), CenterLogoRectangle[0] / 2, CenterLogoRectangle[1] + 320, True, Opacity=GlobalOpacity)
 
 def EventUpdate(event):
     pass

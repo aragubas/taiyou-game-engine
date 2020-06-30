@@ -246,9 +246,7 @@ class GameInstance:
         if self.OverlayLevel == 0:
             text = "FPS Set:{0} Current:{1}; Tick Max:{2} Current{3}".format(str(self.FPS), utils.FormatNumber(self.clock.get_fps(), 3), utils.FormatNumber(self.UpdateTime_MaxMS, 2, ["ms", "sec", "min", "h", "INSANE"]), utils.FormatNumber(self.clock.get_time(), 2, ["ms", "sec", "min", "h", "INSANE"]))
 
-            sprite.Shape_Rectangle(self.DISPLAY, (15, 15, 15), (13, 13, sprite.GetFont_width("/PressStart2P.ttf", 9, text) + 3, sprite.GetFont_height("/PressStart2P.ttf", 9, text) + 3))
-
-            sprite.FontRender(self.DISPLAY, "/PressStart2P.ttf", 9, text, (255, 255, 255), 15, 15, False)
+            sprite.FontRender(self.DISPLAY, "/PressStart2P.ttf", 9, text, (255, 255, 255), 15, 15, False, (20, 30, 23), Opacity=200)
 
         if self.OverlayLevel == 1:
             SystemUI.screenshotUI.Run(self.DISPLAY)

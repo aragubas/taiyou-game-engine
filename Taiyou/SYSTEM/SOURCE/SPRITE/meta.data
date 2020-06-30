@@ -24,6 +24,9 @@
 /TAIYOU_UI/ICONS/SPEAKER/2.png:True
 /TAIYOU_UI/ICONS/resize.png:True
  
+# -- Backgrounds -- #
+/TAIYOU_UI/BG/loading_bg.png:False
+
 # -- Loading animation -- #
 /TAIYOU_UI/FRAMES/loading/1.png:True
 /TAIYOU_UI/FRAMES/loading/2.png:True
