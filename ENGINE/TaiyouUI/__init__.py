@@ -125,17 +125,13 @@ def SetMenuMode_Changes():
     CurrentRes = pygame.display.get_window_size()
     if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:
         Messages.append("SET_RESOLUTION:800:600")
-        print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]),
-                                                                                                     str(CurrentRes[
-                                                                                                             1])))
+        print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
     else:
-        print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]),
-                                                                                                str(CurrentRes[1])))
+        print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
 
 
 # -- Send the messages on the Message Quee to the Game Engine -- #
 Messages = list()
-
 
 def ReadCurrentMessages():
     global Messages

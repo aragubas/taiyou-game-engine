@@ -80,18 +80,12 @@ class GameInstance:
         print("Taiyou.GameObject.Initialize : Initializing FastEvent")
         pygame.fastevent.init()
 
-        if not pygame.fastevent.get_init() and tge.Get_IsSoundEnabled():
-            print("Taiyou.GameObject.Initialize : Cannot initialize FastEvent.\nUsing default events instead.")
-            sound.DisableSoundSystem = True
-
-
-
         # -- Set Variables -- #
         print("Taiyou.GameObject.Initialize : Set Variables")
         if not tge.RunInFullScreen:
-            self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL)
+            self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
         else:
-            self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
+            self.DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
 
         # -- Set Invisible Cursor -- #
         pygame.mouse.set_visible(False)
@@ -128,55 +122,22 @@ class GameInstance:
                 IsSpecialEvent = True
 
                 splitedArg = Command.split(':')
-                print("Taiyou.GameObject.ReceiveCommand : Set Resoltion to: {0}x{1}".format(str(splitedArg[1]), str(splitedArg[2])))
+                print("Taiyou.GameObject.ReceiveCommand : Set Resolution to: {0}x{1}".format(str(splitedArg[1]), str(splitedArg[2])))
 
                 self.CurrentRes_W = int(splitedArg[1])
                 self.CurrentRes_H = int(splitedArg[2])
                 if self.ResiziableWindow and not tge.RunInFullScreen:
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
 
                 if self.ResiziableWindow and tge.RunInFullScreen:
                     self.ResiziableWindow = False
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
+                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
 
                 if not self.ResiziableWindow:
                     if not tge.RunInFullScreen:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
+                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
                     else:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
-
-            if Command.startswith("RESIZIABLE_WINDOW") if Command else False:
-                CommandWasValid = True
-                IsSpecialEvent = True
-
-                splitedArg = Command.split(':')
-
-                if splitedArg[1] == "True":
-                    if tge.RunInFullScreen:
-                        return
-
-                    self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
-
-                    self.ResiziableWindow = True
-                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: True")
-
-                if splitedArg[1] == "False":
-                    if not tge.RunInFullScreen:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
-                    else:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
-
-                    self.ResiziableWindow = False
-                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
-
-                if splitedArg[1] == "FalseIfTrue":
-                    if not tge.RunInFullScreen:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL)
-                    else:
-                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.FULLSCREEN)
-
-                    self.ResiziableWindow = False
-                    print("Taiyou.GameObject.ReceiveCommand : Set RESIZIABLE_WINDOW to: False")
+                        self.DISPLAY = pygame.display.set_mode((self.CurrentRes_W, self.CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
 
             if Command.startswith("KILL") if Command else False:
                 CommandWasValid = True
@@ -338,7 +299,6 @@ class GameInstance:
                 else:
                     self.OverlayLevel = 0
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
-
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow and not tge.RunInFullScreen:

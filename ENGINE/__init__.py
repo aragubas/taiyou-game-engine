@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "2.5"
+    return "2.6"
 def Get_SpriteVersion():
     return "2.1"
 def Get_SoundVersion():
@@ -27,9 +27,9 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.5"
 def Get_GameObjVersion():
-    return "2.5"
+    return "2.6"
 def Get_DeveloperConsoleVersion():
-    return "1.8"
+    return "1.9"
 def Get_TaiyouUIVersion():
     return "2.6"
 
@@ -74,6 +74,7 @@ InputDisableMouse = False
 IgnoreSDL2Parameters = True
 PygameFastEvent = True
 SmoothScaleTransform = "MMX"
+BitDepth = 32
 
 # -- User -- #
 UserName = ""
@@ -205,6 +206,7 @@ def InitEngine():
     global IgnoreSDL2Parameters
     global SmoothScaleTransform
     global PygameFastEvent
+    global BitDepth
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open(TaiyouPath_TaiyouConfigFile)
@@ -396,6 +398,13 @@ def InitEngine():
                     PygameFastEvent = False
 
                 print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
+
+            # -- BitDepth Value -- #
+            if SplitedParms[0] == "BitDepth":
+                BitDepth = int(SplitedParms[1].rstrip())
+
+                print("Taiyou.Runtime.InitEngine : BitDepth was set to:" + str(BitDepth))
+
 
     if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #
