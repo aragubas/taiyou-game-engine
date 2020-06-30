@@ -27,11 +27,11 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.5"
 def Get_GameObjVersion():
-    return "2.4"
+    return "2.5"
 def Get_DeveloperConsoleVersion():
     return "1.8"
 def Get_TaiyouUIVersion():
-    return "2.5"
+    return "2.6"
 
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0

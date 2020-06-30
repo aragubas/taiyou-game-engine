@@ -18,6 +18,7 @@ from ENGINE import TaiyouUI as taiyouUI
 from ENGINE import SPRITE as sprite
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import REGISTRY as reg
+from ENGINE import SOUND as sound
 import pygame
 
 WaitTime = 0
@@ -27,7 +28,7 @@ LicenseText = "Why this variable was not set?"
 GlobalOpacity = 0
 OpacityAnimMode = 0
 OpacityAnimEnabled = True
-
+IntroSoundPlayed = False
 
 def Initialize():
     global LicenseText
@@ -43,6 +44,7 @@ def Update():
     global OpacityAnimMode
     global OpacityAnimEnabled
     global CenterLogoRectangle
+    global IntroSoundPlayed
 
     # -- Update the Center Image -- #
     CenterLogoRectangle = (800 / 2 - CenterLogoRectangle[2] / 2, 600 / 2 - CenterLogoRectangle[3] / 1.2, CenterLogoRectangle[2], CenterLogoRectangle[3])
@@ -55,6 +57,11 @@ def Update():
                 GlobalOpacity = 255
                 WaitTimeEnabled = True
                 OpacityAnimEnabled = False
+
+                # -- Play Intro Sound -- #
+                if not IntroSoundPlayed:
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Startup"), PlayOnSystemChannel=True)
+                    IntroSoundPlayed = True
 
         if OpacityAnimMode == 1 and OpacityAnimEnabled:
             GlobalOpacity -= 10
@@ -84,7 +91,7 @@ def Update():
                 WaitTime = 0
                 OpacityAnimMode = 0
                 OpacityAnimEnabled = True
-
+                IntroSoundPlayed = False
 
 
 

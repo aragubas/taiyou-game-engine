@@ -101,7 +101,6 @@ class Button:
         self.ColisionRectangle = self.Rectangle
         self.CustomColisionRectangle = False
         self.BackgroundColor = (1, 22, 39)
-        self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
         self.SurfaceUpdated = False
         self.LastRect = pygame.Rect(0, 0, 0, 0)
 
@@ -156,55 +155,54 @@ class Button:
         self.ButtonText = Value
 
     def Render(self, DISPLAY):
+        # -- Update the Surface -- #
+        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
+        ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+
         # -- Render the Background -- #
-        sprite.Shape_Rectangle(self.ButtonSurface, self.BackgroundColor, (0, 0, self.Rectangle[2], self.Rectangle[3]), 0, 0, 5, 5)
+        sprite.Shape_Rectangle(ButtonSurface, self.BackgroundColor, (0, 0, self.Rectangle[2], self.Rectangle[3]), 0, 0, 5, 5)
 
         # -- Update Surface when the size is changed -- #
         if not self.LastRect == self.Rectangle:
             self.SurfaceUpdated = False
             self.LastRect = self.Rectangle
 
-        # -- Update the Surface -- #
-        self.Rectangle = pygame.rect.Rect(self.Rectangle[0], self.Rectangle[1], sprite.GetFont_width(self.FontFile, self.TextSize, self.ButtonText) + 5, sprite.GetFont_height(self.FontFile, self.TextSize, self.ButtonText) + 6)
-        if not self.SurfaceUpdated:
-            self.SurfaceUpdated = True
-            self.ButtonSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
                 self.BackgroundColor = Button_Inactive_BackgroundColor
 
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, Button_Inactive_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
+                sprite.Shape_Rectangle(ButtonSurface, Button_Inactive_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
 
                 # -- Text -- #
-                sprite.FontRender(self.ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3)
+                sprite.FontRender(ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (200, 200, 200), 3, 3)
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = Button_Active_BackgroundColor
 
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, Button_Active_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
+                sprite.Shape_Rectangle(ButtonSurface, Button_Active_IndicatorColor, (0, 0, self.Rectangle[2], 2), 0, 2, 2, 2)
 
                 # -- Text -- #
-                sprite.FontRender(self.ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (255, 255, 255), 3, 3)
+                sprite.FontRender(ButtonSurface, self.FontFile, self.TextSize, self.ButtonText, (255, 255, 255), 3, 3)
         else:
             if self.ButtonState == "INATIVE":
                 # -- Background -- #
                 self.BackgroundColor = (1, 22, 39, 50)
 
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 4))
+                sprite.Shape_Rectangle(ButtonSurface, (255, 51, 102), (0, 0, self.Rectangle[2], 4))
 
             else:
                 # -- Background -- #
                 self.BackgroundColor = (15, 27, 44, 100)
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 2))
+                sprite.Shape_Rectangle(ButtonSurface, (46, 196, 182), (0, 0, self.Rectangle[2], 2))
 
         # -- Draw the Button -- #
-        DISPLAY.blit(self.ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
+        DISPLAY.blit(ButtonSurface, (self.Rectangle[0], self.Rectangle[1]))
 
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"

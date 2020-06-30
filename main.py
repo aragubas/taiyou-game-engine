@@ -268,7 +268,6 @@ class GameInstance:
         importlib.reload(self.GameObject)
         self.GameObject = None
 
-
         if UnloadGameAssts:
             print("Taiyou.GameObject.RemoveGame : Unload Game Assets")
 
@@ -303,6 +302,9 @@ class GameInstance:
         except Exception as ex:
             self.SystemException(ex, "SetGameObject")
 
+    def SystemException(self, ex, ErrorPart="Unknown"):
+        raise ex
+
     def EventUpdate(self):
         # -- Internaly Process Pygame Events -- #
         pygame.fastevent.pump()
@@ -330,6 +332,15 @@ class GameInstance:
             # -- Screenshot Key -- #
             if event.type == pygame.KEYUP and event.key == pygame.K_F11:
                 self.OverlayLevel = 1
+
+            # -- FPS Overlay Key -- #
+            if event.type == pygame.KEYUP and event.key == pygame.K_F10:
+                if self.OverlayLevel == 0:
+                    self.OverlayLevel = -1
+                else:
+                    self.OverlayLevel = 0
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
+
 
             # -- Resize Window Event -- #
             if self.ResiziableWindow and not tge.RunInFullScreen:
