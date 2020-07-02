@@ -27,14 +27,16 @@ def Get_RegistryVersion():
 def Get_UtilsVersion():
     return "1.5"
 def Get_GameObjVersion():
-    return "2.6"
+    return "2.9"
 def Get_DeveloperConsoleVersion():
     return "1.9"
 def Get_TaiyouUIVersion():
-    return "2.6"
+    return "2.7"
+def Get_DebuggingVersion():
+    return "1.0"
 
 
-TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) - 8.0
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) - 9.0
 
 
 # -- Print Runtime Version -- #
@@ -48,6 +50,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE import TaiyouUI
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import TaiyouUI as TaiyouUI
+from ENGINE import DEBUGGING as debug
 import os, pygame
 
 # -- Current Game Variables --

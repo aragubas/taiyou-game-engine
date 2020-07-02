@@ -23,7 +23,6 @@ from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import DeveloperConsole as devel
-from ENGINE.TaiyouUI import ScreenshotUI as screenshotUI
 from ENGINE import utils
 import ENGINE as tge
 

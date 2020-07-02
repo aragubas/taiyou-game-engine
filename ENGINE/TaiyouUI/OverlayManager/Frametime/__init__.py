@@ -1,4 +1,4 @@
-#! /usr/bin/python3.7
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,22 @@
 #   limitations under the License.
 #
 #
-from ENGINE import TaiyouMain as Taiyou
+import pygame
+from ENGINE import SPRITE as sprite
+from ENGINE import TaiyouMain as main
+from ENGINE import UTILS as utils
 
-print("Taiyou Bootstraper version 1.0")
+TextToBeDisplayed = "FPS"
 
-Taiyou.__init__()  # -- Initialize Taiyou Game Engine
+def Update():
+    global TextToBeDisplayed
+    TextToBeDisplayed = "FPS {0}/{1}; Tick: {2}".format(str(main.FPS), utils.FormatNumber(main.clock.get_fps(), 3), utils.FormatNumber(main.clock.get_time(), 3))
 
-# -- Run GameLoop -- #
-while True:
-    Taiyou.Run()
+def Draw(DISPLAY):
+    global TextToBeDisplayed
+
+    sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, TextToBeDisplayed, (255, 255, 255), 15, 15, False, (20, 30, 23), Opacity=200)
+
+
+def EventUpdate(event):
+    pass
