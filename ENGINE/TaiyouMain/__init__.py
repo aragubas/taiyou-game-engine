@@ -51,8 +51,7 @@ LastFPSValue = 60
 
 def __init__():
     global DISPLAY
-
-    print("TaiyouGameObject version " + tge.Get_GameObjVersion())
+    print("Taiyou Main version " + tge.Get_GameObjVersion())
 
     # -- Load Engine Options -- #
     tge.InitEngine()
@@ -110,6 +109,7 @@ def ReceiveCommand(Command):
     global ResiziableWindow
     global FPS
     global LastFPSValue
+    global GameUpdateEnabled
 
     CommandWasValid = False
     IsSpecialEvent = False
@@ -203,6 +203,23 @@ def ReceiveCommand(Command):
             splitedArg = Command.split(';')
 
             pygame.display.set_caption(splitedArg[1])
+
+        elif Command.startswith("INITIALIZE_SAVE_FOLDER") if Command else False:
+            CommandWasValid = True
+            if not IsMenuMode:
+                IsMenuMode = True
+                GameUpdateEnabled = False
+                SystemUI.saveFolderSelectScreen.CopyOfTheScreen = DISPLAY.copy()
+                sound.PauseGameChannel()
+                print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
+                FPS = 60  # -- Default TaiyouUI FPS
+                SystemUI.CurrentMenuScreen = 3
+
+                if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 3:
+                    SystemUI.SystemMenuEnabled = True
+                    SystemUI.saveFolderSelectScreen.UIOpacityAnimEnabled = True
+                    SystemUI.saveFolderSelectScreen.UIOpacityScreenCopyied = False
+
 
         if not CommandWasValid:
             tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")

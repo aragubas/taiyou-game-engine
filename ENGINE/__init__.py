@@ -33,7 +33,7 @@ def Get_DeveloperConsoleVersion():
 def Get_TaiyouUIVersion():
     return "2.7"
 def Get_DebuggingVersion():
-    return "1.0"
+    return "1.1"
 
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) - 9.0
@@ -53,12 +53,14 @@ from ENGINE import TaiyouUI as TaiyouUI
 from ENGINE import DEBUGGING as debug
 import os, pygame
 
-# -- Current Game Variables --
+# -- Current Game Variables -- #
 CurrentGame_Title = "null"
 CurrentGame_ID = "null"
 CurrentGame_Version = "null"
 CurrentGame_SourceFolder = "null"
 CurrentGame_Folder = "null"
+CurrentGame_SaveFolderDecided = False
+CurrentGame_SaveFolderSelected = "null"
 
 # -- Arguments -- #
 IsGameRunning = False
@@ -144,7 +146,7 @@ def LoadFolderMetaData(GameFolderDir):
     global TaiyouPath_AppDataFolder
     global TaiyouGeneralVersion
 
-    print("Taiyou.Runtime.LoadFolderMetaData : Loading Taiyou Options file...")
+    print("Taiyou.Runtime.LoadFolderMetaData : Loading Game Metadata file...")
     InfFileLocation = GameFolderDir + "/meta.data"
 
     inf_file = open(InfFileLocation, "r")
@@ -444,6 +446,8 @@ def CloseGameFolder():
     global CurrentGame_Version
     global CurrentGame_SourceFolder
     global CurrentGame_Folder
+    global CurrentGame_SaveFolderDecided
+    global CurrentGame_SaveFolderSelected
 
     print("TGE.RestartGameFolder : Removing all LoadedGame Variables and Temporary files...")
     CurrentGame_Title = "null"
@@ -451,8 +455,10 @@ def CloseGameFolder():
     CurrentGame_Version = "null"
     CurrentGame_SourceFolder = "null"
     CurrentGame_Folder = "null"
-    os.remove(TaiyouPath_SystemPath + ".LastOpenedGame")
+    CurrentGame_SaveFolderSelected = "null"
+    CurrentGame_SaveFolderDecided = False
 
+    os.remove(TaiyouPath_SystemPath + ".LastOpenedGame")
 
 #region return Game Infos Functions
 def Get_GameTitle():
@@ -476,6 +482,29 @@ def Get_GameSourceFolder():
 def Get_GameFolder():
     global CurrentGame_Folder
     return CurrentGame_Folder
+
+def Get_SaveFolder():
+    global CurrentGame_SaveFolderDecided
+    global CurrentGame_SaveFolderSelected
+
+    if CurrentGame_SaveFolderDecided:
+        return CurrentGame_SaveFolderSelected
+
+def Get_SaveFolderInitialized():
+    global CurrentGame_SaveFolderDecided
+
+    return CurrentGame_SaveFolderDecided
+
+def Set_SaveFolder(path):
+    global CurrentGame_SaveFolderDecided
+    global CurrentGame_SaveFolderSelected
+
+    if not CurrentGame_SaveFolderDecided:
+        CurrentGame_SaveFolderSelected = str(path)
+        CurrentGame_SaveFolderDecided = True
+    else:
+        raise Exception("Game Folder has been already decided.")
+
 
 def Get_GlobalAppDataFolder():
     global CurrentGame_ID

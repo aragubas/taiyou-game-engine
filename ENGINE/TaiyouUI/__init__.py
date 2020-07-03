@@ -22,11 +22,12 @@ from ENGINE.TaiyouUI import GameOverlay as gameOverlay
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
+from ENGINE.TaiyouUI import SaveFolderSelect as saveFolderSelectScreen
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
 import ENGINE as tge
 
-CurrentMenuScreen = 1  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = License Screen, 4 = Loading Screen
+CurrentMenuScreen = 1  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = Save Folder Select, 4 = Loading Screen
 SystemMenuEnabled = True
 
 # -- Cursor Variables -- #
@@ -44,6 +45,7 @@ def Initialize():
     seletorScreen.Initialize()
     loadingScreen.Initialize()
     licenseScreen.Initialize()
+    saveFolderSelectScreen.Initialize()
     SetMenuMode_Changes()
 
     print("TaiyouUI.Initialize : Initialization Complete.")
@@ -57,13 +59,16 @@ def Draw(Display):
         if CurrentMenuScreen == 4:
             loadingScreen.Draw(Display)
 
-        if CurrentMenuScreen == 2:
+        elif CurrentMenuScreen == 3:
+            saveFolderSelectScreen.Draw(Display)
+
+        elif CurrentMenuScreen == 2:
             seletorScreen.Draw(Display)
 
-        if CurrentMenuScreen == 1:
+        elif CurrentMenuScreen == 1:
             licenseScreen.Draw(Display)
 
-        if CurrentMenuScreen == 0:
+        elif CurrentMenuScreen == 0:
             gameOverlay.Draw(Display)
 
     sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
@@ -78,13 +83,16 @@ def Update():
         if CurrentMenuScreen == 4:
             loadingScreen.Update()
 
-        if CurrentMenuScreen == 2:
+        elif CurrentMenuScreen == 3:
+            saveFolderSelectScreen.Update()
+
+        elif CurrentMenuScreen == 2:
             seletorScreen.Update()
 
-        if CurrentMenuScreen == 1:
+        elif CurrentMenuScreen == 1:
             licenseScreen.Update()
 
-        if CurrentMenuScreen == 0:
+        elif CurrentMenuScreen == 0:
             gameOverlay.Update()
 
         # -- Set Cursor Position -- #
@@ -99,13 +107,16 @@ def EventUpdate(event):
         if CurrentMenuScreen == 4:
             loadingScreen.EventUpdate(event)
 
-        if CurrentMenuScreen == 2:
+        elif CurrentMenuScreen == 3:
+            saveFolderSelectScreen.EventUpdate(event)
+
+        elif CurrentMenuScreen == 2:
             seletorScreen.EventUpdate(event)
 
-        if CurrentMenuScreen == 1:
+        elif CurrentMenuScreen == 1:
             licenseScreen.EventUpdate(event)
 
-        if CurrentMenuScreen == 0:
+        elif CurrentMenuScreen == 0:
             gameOverlay.EventUpdate(event)
 
 

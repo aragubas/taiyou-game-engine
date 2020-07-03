@@ -54,7 +54,7 @@ def LoadAllSounds(FolderName):
     if DisableSoundSystem:
         return
     FolderName = FolderName + "/SOUND"
-    temp_sound_files = utils.GetFileInDir(FolderName)
+    temp_sound_files = utils.Directory_FilesList(FolderName)
     index = -1
 
     print("Sound.LoadAllSounds : Loading Sounds")

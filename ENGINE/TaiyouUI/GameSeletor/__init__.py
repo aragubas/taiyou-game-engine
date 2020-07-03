@@ -34,7 +34,7 @@ RestartList_Button = gtk.Button
 SelectGame_Button = gtk.Button
 
 # -- Lists -- #
-InstalledGameList = gtk.HorizontalItemsView
+InstalledGameList = gtk.InstalledGamesSelecter
 
 # -- Rects -- #
 TopPanel_Rect = pygame.Rect(0,0,30,30)
@@ -106,7 +106,7 @@ def Initialize():
     global RestartList_Button
     global DownloaderObj
     SelectGame_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("select_button", "seletor"), 20)
-    InstalledGameList = gtk.HorizontalItemsView(pygame.Rect(20, 50, 760, 200))
+    InstalledGameList = gtk.InstalledGamesSelecter(pygame.Rect(20, 50, 760, 200))
     RestartList_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("restart_button", "seletor"), 20)
     SeletorLoadingSquare = gtk.LoadingSquare(5,5)
     DownloaderObj = utils.Downloader()

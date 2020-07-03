@@ -373,7 +373,7 @@ COLOR_ACTIVE = (15, 27, 44)
 
 
 class InputBox:
-    def __init__(self, x, y, w, h, text='LO'):
+    def __init__(self, x, y, w, h, text='LO', FontSize=12):
         self.rect = pygame.Rect(x, y, w, h)
         self.colisionRect = pygame.Rect(x, y, w, h)
         self.CustomColision = False
@@ -384,6 +384,8 @@ class InputBox:
         self.LastHeight = 1
         self.CustomWidth = False
         self.width = 1
+        self.FontSize = FontSize
+        self.CharacterLimit = 0
 
     def Set_X(self, Value):
         self.rect = pygame.Rect(Value, self.rect[1], self.rect[2], self.rect[3])
@@ -410,15 +412,19 @@ class InputBox:
                         self.text = self.DefaultText
 
                 else:
-                    self.text += event.unicode
+                    if not self.CharacterLimit == 0:
+                        if len(self.text) < self.CharacterLimit:
+                            self.text += event.unicode
+                    else:
+                        self.text += event.unicode
 
     def Render(self, screen):
         # -- Resize the Textbox -- #
         try:
             if not self.CustomWidth:
-                self.width = max(100, sprite.GetFont_width(InputBox_FontFile, 10, self.text) + 10)
+                self.width = max(100, sprite.GetFont_width(InputBox_FontFile, self.FontSize, self.text) + 10)
             self.rect.w = self.width
-            self.rect.h = sprite.GetFont_height(InputBox_FontFile, 12, self.text)
+            self.rect.h = sprite.GetFont_height(InputBox_FontFile, self.FontSize, self.text)
             self.LastHeight = self.rect.h
         except:
             if not self.CustomWidth:
@@ -432,10 +438,10 @@ class InputBox:
         Draw_Panel(screen, self.rect, "UP")
 
         if self.text == self.DefaultText:
-            sprite.FontRender(screen, InputBox_FontFile, 12, self.text, (140, 140, 140), self.rect[0], self.rect[1])
+            sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (140, 140, 140), self.rect[0], self.rect[1])
         else:
             if not self.text == "":
-                sprite.FontRender(screen, InputBox_FontFile, 12, self.text, (240, 240, 240), self.rect[0], self.rect[1])
+                sprite.FontRender(screen, InputBox_FontFile, self.FontSize, self.text, (240, 240, 240), self.rect[0], self.rect[1])
 
         if not self.active:
             sprite.Shape_Rectangle(screen, (255, 51, 102), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
@@ -443,7 +449,7 @@ class InputBox:
             sprite.Shape_Rectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
 
 
-class HorizontalItemsView:
+class InstalledGamesSelecter:
     def __init__(self, Rectangle):
         self.Rectangle = Rectangle
         # -- Selected item Vars -- #
@@ -856,6 +862,12 @@ class VerticalListWithDescription:
         self.ItemsDescription.append(ItemDescription)
         self.ItemSprite.append(ItemSprite)
         self.ItemSelected.append(False)
+
+    def ClearList(self):
+        self.ItemsName.clear()
+        self.ItemsDescription.clear()
+        self.ItemSprite.clear()
+        self.ItemSelected.clear()
 
 
 class LoadingSquare:

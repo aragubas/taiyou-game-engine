@@ -24,7 +24,7 @@ from urllib.error import HTTPError
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
 
-def GetFileInDir(dirName):
+def Directory_FilesList(dirName):
     # -- Create a list with all files in Directory -- #
     listOfFile = os.listdir(dirName)
     allFiles = list()
@@ -32,7 +32,7 @@ def GetFileInDir(dirName):
     for entry in listOfFile:
         fullPath = os.path.join(dirName, entry)
         if os.path.isdir(fullPath):
-            allFiles = allFiles + GetFileInDir(fullPath)
+            allFiles = allFiles + Directory_FilesList(fullPath)
         else:
             allFiles.append(fullPath)
             
@@ -79,7 +79,7 @@ def Get_DirectoryOfFilePath(file_path):
 
 def Get_DirectoryTotalOfFiles(path):
     try:
-        list = GetFileInDir(path)  # dir is your directory path
+        list = Directory_FilesList(path)  # dir is your directory path
         number_files = len(list)
         return number_files
     except:

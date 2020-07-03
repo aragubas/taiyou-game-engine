@@ -36,7 +36,7 @@ def Initialize(reg_dir):
     """
     print("\nTaiyou.RegistryManager.Initialize : Loading Registry...")
 
-    temp_reg_keys = utils.GetFileInDir(reg_dir)
+    temp_reg_keys = utils.Directory_FilesList(reg_dir)
     index = -1
 
     for x in temp_reg_keys:
@@ -246,39 +246,64 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
 # -- Read App Data Functions -- #
 
 def ReadAppData(FileName, DataType=str):
-    FileLocation = tge.Get_GlobalAppDataFolder() + "/" + FileName + ".data"
-    file = open(FileLocation, "r")
+    """
+    Read a file on the App Data Folder, raises ValueError if Save Folder was not initialized
+    :param FileName:File Name
+    :param DataType:Data Type
+    :return:Data
+    """
+    if tge.Get_SaveFolderInitialized():
+        FileLocation = tge.Get_GlobalAppDataFolder() + tge.Get_SaveFolder() + FileName + ".data"
+        file = open(FileLocation, "r")
 
-    ReadData = file.read().rstrip()
+        ReadData = file.read().rstrip()
 
-    if DataType == str:
-        return ReadData
-    if DataType == float:
-        return float(ReadData)
-    if DataType == int:
-        return int(ReadData)
-    if DataType == bool:
-        if ReadData == "True":
-            return True
-        else:
-            return False
+        if DataType == str:
+            return ReadData
+        if DataType == float:
+            return float(ReadData)
+        if DataType == int:
+            return int(ReadData)
+        if DataType == bool:
+            if ReadData == "True":
+                return True
+            else:
+                return False
 
-    print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
-
+        print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
+    else:
+        raise ValueError("Taiyou.Registry.ReadAppData.Exception! : Save Folder was not initialized.")
 
 def ReadAppData_WithTry(FileName, DataType, DefaultValue):
+    """
+    Runs ReadAppData but if data does not exist, it writes it
+    :param FileName:File Name
+    :param DataType:Data Type
+    :param DefaultValue:Default Value to be written
+    :return:Data
+    """
     try:
         return ReadAppData(FileName, DataType)
-    except:
+    except FileNotFoundError:
         WriteAppData(FileName, DefaultValue)
         return ReadAppData(FileName, DataType)
 
 def WriteAppData(FileName, Data):
-    FileLocation = tge.Get_GlobalAppDataFolder() + "/" + FileName + ".data"
-    os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
+    """
+    Write Data to the AppData Folder, raises ValueError if Save Folder was not initialized.
+    :param FileName:File Name
+    :param DataType:Data Type
+    :param DefaultValue:Default Value to be written
+    :return:Data
+    """
+    if tge.Get_SaveFolderInitialized():
+        FileLocation = tge.Get_GlobalAppDataFolder() + tge.Get_SaveFolder() + FileName + ".data"
+        os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
-    f = open(FileLocation, "w+")
-    f.write(str(Data))
-    f.close()
+        f = open(FileLocation, "w+")
+        f.write(str(Data))
+        f.close()
 
-    print("Taiyou.Registry.WriteAppData : File[{0}] has been written.".format(FileName))
+        print("Taiyou.Registry.WriteAppData : File[{0}] has been written.".format(FileLocation))
+    else:
+        raise ValueError("Taiyou.Registry.WriteAppData.Exception! : Save Folder was not initialized.")
