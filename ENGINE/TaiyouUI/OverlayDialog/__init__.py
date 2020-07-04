@@ -26,6 +26,7 @@ from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI.OverlayDialog import Subscreen1 as subscreen1
+from ENGINE.TaiyouUI.OverlayDialog import Subscreen2 as subscreen2
 
 DialogRectangle = pygame.Rect
 CommonDisplay = pygame.Surface
@@ -48,6 +49,7 @@ def Initialize():
     DialogRectangle = pygame.Rect(0,0,395,250)
 
     subscreen1.Initialize()
+    subscreen2.Initialize()
 
     CommonDisplayScreenPos = (5,5)
 
@@ -71,6 +73,8 @@ def Draw(Display):
 
         if Subscreen == 1:
             subscreen1.Draw(CommonDisplay)
+        if Subscreen == 2:
+            subscreen2.Draw(CommonDisplay)
 
         CommonDisplayScreenPos = (Display.get_width() / 2 - 395 / 2, Display.get_height() / 2 - 150 / 2 - DialogOpctAnim_AnimNumb * 2.5 / 3.10)
         BgDarker = pygame.Surface((Display.get_width(), Display.get_height()))
@@ -80,10 +84,10 @@ def Draw(Display):
         Display.blit(CommonDisplay, CommonDisplayScreenPos)
 
 def EventUpdate(event):
-    global Subscreen
-
     if Subscreen == 1:
         subscreen1.EventUpdate(event)
+    elif Subscreen == 2:
+        subscreen2.EventUpdate(event)
 
 def Update():
     global DialogRectangle
@@ -106,6 +110,8 @@ def Update():
 
         if Subscreen == 1:
             subscreen1.Update()
+        elif Subscreen == 2:
+            subscreen2.Update()
 
 
 
@@ -148,3 +154,17 @@ def DialogOpctOpacity():
                 DialogOpenSoundPlayed = False
 
                 seletorScreen.ApplicationUpdateDialogEnabled = False
+
+def ResetAnimation():
+    global DialogOpctAnim_AnimEnabled
+    global DialogOpctAnim_AnimMode
+    global DialogOpctAnim_AnimOpacity
+    global DialogOpctAnim_AnimNumb
+    global DialogOpenSoundPlayed
+
+    DialogOpctAnim_AnimOpacity = 0
+    DialogOpctAnim_AnimMode = 0
+    DialogOpctAnim_AnimEnabled = True
+    DialogOpenSoundPlayed = False
+
+    seletorScreen.ApplicationUpdateDialogEnabled = False

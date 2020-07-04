@@ -95,13 +95,13 @@ def Update():
     GameAtibutesList.ColisionYOffset = 600 - GameInfosRectBox[3] - 5
 
     # -- Update the Subscreens -- #
-    if GameAtibutesList.SelectedItemIndex == 0:
+    if GameAtibutesList.Selected_Index == 0:
         titleInfos.Update()
 
-    if GameAtibutesList.SelectedItemIndex == 1:
+    if GameAtibutesList.Selected_Index == 1:
         localInfos.Update()
 
-    if GameAtibutesList.SelectedItemIndex == 2:
+    if GameAtibutesList.Selected_Index == 2:
         onlineInfos.Update()
 
 def Initialize():
@@ -144,13 +144,13 @@ def Draw(Display):
     # -- Render Infos Box -- #
     gtk.Draw_Panel(GameInfosSurface, GameInfosRectBox, "BORDER")
 
-    if GameAtibutesList.SelectedItemIndex == 0:
+    if GameAtibutesList.Selected_Index == 0:
         titleInfos.Draw(GameInfosSurface)
 
-    if GameAtibutesList.SelectedItemIndex == 1:
+    if GameAtibutesList.Selected_Index == 1:
         localInfos.Draw(GameInfosSurface)
 
-    if GameAtibutesList.SelectedItemIndex == 2:
+    if GameAtibutesList.Selected_Index == 2:
         onlineInfos.Draw(GameInfosSurface)
 
     Display.blit(GameInfosSurface, GameInfosSurface_Dest)
@@ -163,11 +163,11 @@ def EventUpdate(event):
     # -- Update Event of Games Info List -- #
     GameAtibutesList.Update(event)
 
-    if GameAtibutesList.SelectedItemIndex == 0:
+    if GameAtibutesList.Selected_Index == 0:
         titleInfos.EventUpdate(event)
 
-    if GameAtibutesList.SelectedItemIndex == 1:
+    if GameAtibutesList.Selected_Index == 1:
         localInfos.EventUpdate(event)
 
-    if GameAtibutesList.SelectedItemIndex == 2:
+    if GameAtibutesList.Selected_Index == 2:
         onlineInfos.EventUpdate(event)

@@ -110,15 +110,12 @@ def Draw(Display):
 
     DISPLAYObject = Display
 
-    # -- Initialize the UIObjectSurface -- #
-    if not UIObjectsSurfaceUpdated:
-        UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
-        print("Surface Created")
-        UIObjectsSurfaceUpdated = True
-
-
     # -- Draw the Screenshot of Screen -- #
-    Draw_ScreenshotOfGameScreen(UIObjectsSurface)
+    Draw_ScreenshotOfGameScreen(Display)
+
+    # -- Initialize the UIObjectSurface -- #
+    UIObjectsSurfaceUpdated = True
+    UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
 
     # -- Set Surface Alpha -- #
     UIObjectsSurface.set_alpha(UIOpacity)
@@ -144,7 +141,6 @@ def Draw(Display):
 
     # -- Draw Volume Slider -- #
     volumeSlider.Draw(UIObjectsSurface)
-
 
     # -- Warn Dialog -- #
     warnDialog.Render(UIObjectsSurface)

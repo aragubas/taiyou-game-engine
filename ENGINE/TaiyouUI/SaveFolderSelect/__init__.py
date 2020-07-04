@@ -21,8 +21,9 @@ from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import TaiyouUI as UiHandler
 from ENGINE import UTILS as utils
+from ENGINE.TaiyouUI import OverlayDialog as ovlDiag
 import ENGINE as tge
-
+import os
 
 # -- Animation -- #
 UIOpacity = 0
@@ -51,50 +52,103 @@ SelectFolderButton = gtk.Button
 VerticalList = gtk.VerticalListWithDescription
 ControlsPanel = pygame.Rect(0, 0, 550, 35)
 CreateFolderButton = gtk.Button
-WriteDirectoryInputBox = gtk.InputBox
+DeleteFolderButton = gtk.Button
+RenameFolderButton = gtk.Button
+OverlayDialogEnabled = False
+
+# -- etc -- #
+PendingOperation = "null"
 
 def Initialize():
     global SelectFolderButton
     global VerticalList
     global CreateFolderButton
-    global WriteDirectoryInputBox
+    global DeleteFolderButton
+    global RenameFolderButton
 
     VerticalList = gtk.VerticalListWithDescription(pygame.Rect(0, 0, 550, 250))
     SelectFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_select_folder", "save_fs"), 18)
     CreateFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_create_folder", "save_fs"), 18)
-    WriteDirectoryInputBox = gtk.InputBox(0, 0, 120, 18, "Default", 18)
+    DeleteFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_delete_folder", "save_fs"), 18)
+    RenameFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_rename_folder", "save_fs"), 18)
 
-    WriteDirectoryInputBox.CharacterLimit = 14
+    # -- Initialize Overlay Dialog -- #
+    ovlDiag.Initialize()
+
+    ovlDiag.subscreen2.SetMessage("wax", "ceira?")
 
 def ReloadSaveList():
     global VerticalList
 
-    print("Taiyou.SaveFolderSelect.ReloadSaveList")
+    print("Taiyou.SaveFolderSelect.ReloadSaveList : Listings Directorys")
 
     VerticalList.ClearList()
 
-    Dir = utils.Directory_FilesList(tge.Get_GlobalAppDataFolder())
-
     SaveName = "null"
-    SaveIcon = "null"
+    SaveDescription = ""
 
-    for Directoryes in Dir:
-        if utils.File_Exists(str(utils.Get_DirectoryOfFilePath(Directoryes)) + "/.save_fs"):  # -- Check if directory is a valid Save Folder
-            SaveMetadataFile = Directoryes
+
+    for dir in [x[0] for x in os.walk(tge.Get_GlobalAppDataFolder())]:
+        print("Taiyou.SaveFolderSelect.ReloadSavesList : CurrentScan[" + dir + "]")
+
+        if utils.File_Exists(dir + "/.save_fs"):  # -- Check if directory is a valid Save Folder
+            SaveMetadataFile = dir + "/.save_fs"
+            print("Taiyou.SaveFolderSelect.ReloadSavesList : CurrentScan is a valid Save Folder, reading Metadata...")
 
             Data = open(SaveMetadataFile, "r")  # -- Read Meta Data File
 
             for line in Data:  # -- Get Information on that data file
                 line = line.rstrip()
-                SplitedThing = line.split(':')
+                SplitedThing = line.split(';')
 
                 if SplitedThing[0] == "Name":
                     SaveName = SplitedThing[1]
+                    print("Taiyou.SaveFolderSelect.ReloadSavesList : SaveName is [{0}].".format(SplitedThing[1]))
 
-                if SplitedThing[0] == "Icon":
-                    SaveIcon = SplitedThing[1]
+                if SplitedThing[0] == "Description":
+                    SaveDescription = SplitedThing[1]
+                    print("Taiyou.SaveFolderSelect.ReloadSavesList : SaveDescription is [{0}].".format(SplitedThing[1]))
 
-            VerticalList.AddItem(SaveName, "" , SaveIcon)  # -- And finally, add to the list
+            VerticalList.AddItem(SaveName, SaveDescription)  # -- And finally, add to the list
+
+def WriteSaveFS(name):
+    FilePath = tge.Get_GlobalAppDataFolder() + name + "/.save_fs"
+
+    # -- Write File -- #
+    f = open(FilePath, "w+")
+    f.write("Name;" + str(name))
+    f.write("\nDescription;UniplementedDataSystem")
+    f.close()
+
+
+def CreateSaveFolder(name):
+    # -- Create Directory -- #
+    utils.Directory_MakeDir(tge.Get_GlobalAppDataFolder() + name)
+
+    # -- Write the save_fs File  -- #
+    WriteSaveFS(name)
+
+    ReloadSaveList()
+
+def DeleteSaveFolder(name):
+    FilePath = tge.Get_GlobalAppDataFolder() + name
+    print("Taiyou.SaveFolderSelect.DeleteSaveFolder : Requested Path[" + FilePath + "]")
+
+    utils.Directory_Remove(FilePath)
+
+    ReloadSaveList()
+
+def RenameSaveFolder(source, new_name):
+    FilePath = tge.Get_GlobalAppDataFolder()
+
+    # -- Rename Actual Directory -- #
+    utils.Directory_Rename(FilePath + source, FilePath + new_name)
+
+    # -- Write the save_fs File  -- #
+    WriteSaveFS(new_name)
+
+    # -- Reload the List -- #
+    ReloadSaveList()
 
 
 def Draw(Display):
@@ -112,22 +166,21 @@ def Draw(Display):
     global VerticalList
     global ControlsPanel
     global CreateFolderButton
-    global WriteDirectoryInputBox
+    global DeleteFolderButton
+    global RenameFolderButton
 
     DISPLAYObject = Display
 
+
+    # -- Draw the Screenshot of Screen -- #
+    Draw_ScreenshotOfGameScreen(Display)
+
     # -- Initialize the UIObjectSurface -- #
-    if not UIObjectsSurfaceUpdated:
-        UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
-        print("Surface Created")
-        UIObjectsSurfaceUpdated = True
+    UIObjectsSurfaceUpdated = True
+    UIObjectsSurface = pygame.Surface((Display.get_width(), Display.get_height()), pygame.SRCALPHA)
 
     # -- Set Surface Alpha -- #
     UIObjectsSurface.set_alpha(UIOpacity)
-
-
-    # -- Draw the Screenshot of Screen -- #
-    Draw_ScreenshotOfGameScreen(UIObjectsSurface)
 
     # -- Draw the Title -- #
     sprite.FontRender(UIObjectsSurface, "/Ubuntu_Bold.ttf", 24, gtk.GetLangText("title", "save_fs"), (230, 230, 230), 15, AnimationNumb + 15)
@@ -140,11 +193,14 @@ def Draw(Display):
 
     # -- Render Tools Button -- #
     CreateFolderButton.Render(UIObjectsSurface)
-    WriteDirectoryInputBox.Render(UIObjectsSurface)
+    DeleteFolderButton.Render(UIObjectsSurface)
+    RenameFolderButton.Render(UIObjectsSurface)
 
     # -- Render List -- #
     VerticalList.Render(UIObjectsSurface)
 
+    if OverlayDialogEnabled:
+        ovlDiag.Draw(UIObjectsSurface)
 
     Display.blit(UIObjectsSurface, (0, 0))
 
@@ -181,7 +237,6 @@ def Draw_ScreenshotOfGameScreen(Display):
     if CopyOfScreen_Last and not UIOpacityAnimEnabled:  # -- Render the last frame of animation -- #
         Display.blit(CopyOfScreen_Result, (0, 0))
 
-
 def Update():
     global SelectFolderButton
     global UIObjectsSurfaceUpdated
@@ -191,16 +246,56 @@ def Update():
     global VerticalList
     global ControlsPanel
     global CreateFolderButton
-    global WriteDirectoryInputBox
     global UpdateSaveLists
+    global DeleteFolderButton
+    global OverlayDialogEnabled
+    global PendingOperation
+    global RenameFolderButton
 
     if not UpdateSaveLists:
         ReloadSaveList()
         UpdateSaveLists = True
 
-    if UIObjectsSurfaceUpdated:
-        UpdateOpacityAnim()
+    UpdateOpacityAnim()
 
+    if OverlayDialogEnabled:
+        # -- Set the Correct Subscreen for Overlay Dialog -- #
+        ovlDiag.Subscreen = 2
+
+        ovlDiag.Update()
+
+        if ovlDiag.subscreen2.ResponseTrigger:
+            if ovlDiag.DialogOpctAnim_AnimOpacity <= 10:
+                OverlayDialogEnabled = False
+                ovlDiag.ResetAnimation()
+
+                # -- Do Pending Operation -- #
+                try:
+                    if PendingOperation == "DELETE":
+                        if ovlDiag.subscreen2.Response == "YES":
+                            DeleteSaveFolder(VerticalList.Selected_Name)
+
+                    elif PendingOperation == "CREATE":
+                        CreateSaveFolder(ovlDiag.subscreen2.Response)
+
+                    elif PendingOperation == "RENAME":
+                        RenameSaveFolder(VerticalList.Selected_Name, ovlDiag.subscreen2.Response)
+
+                except Exception as ex:
+                    print("Taiyou.SaveFolderSelect : Error while processing the operation[" + PendingOperation + "]\nError: " + str(ex))
+
+                    OverlayDialogEnabled = True
+                    ovlDiag.subscreen2.ResponseType = "OK"
+                    ovlDiag.subscreen2.ResponseTrigger = False
+                    ovlDiag.DialogOpctAnim_Enabled = True
+                    ovlDiag.DialogOpctAnim_AnimMode = 0
+                    ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_error_title", "save_fs"), gtk.GetLangText("diag_error_text", "save_fs").format(PendingOperation))
+
+                PendingOperation = "null"
+                ovlDiag.subscreen2.Response = "null"
+                ovlDiag.subscreen2.ResponseTrigger = False
+
+    if UIObjectsSurfaceUpdated and not OverlayDialogEnabled:
         # -- Update Animation Numb -- #
         AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
@@ -212,22 +307,53 @@ def Update():
         VerticalList.Set_X(UIObjectsSurface.get_width() / 2 - VerticalList.Rectangle[2] / 2)
         VerticalList.Set_Y(AnimationNumb + UIObjectsSurface.get_height() / 2 - VerticalList.Rectangle[3] / 1.5)
 
-
         # -- Update Panel Location -- #
         ControlsPanel[0] = VerticalList.Rectangle[0]
         ControlsPanel[1] = VerticalList.Rectangle[1] + VerticalList.Rectangle[3]
 
-        CreateFolderButton.Set_Y(ControlsPanel[1] + 5)
-        CreateFolderButton.Set_X(ControlsPanel[0] + 3)
+        DeleteFolderButton.Set_Y(ControlsPanel[1] + 5)
+        DeleteFolderButton.Set_X(ControlsPanel[0] + 3)
 
-        WriteDirectoryInputBox.Set_Y(CreateFolderButton.Rectangle[1] + 3)
-        WriteDirectoryInputBox.Set_X(CreateFolderButton.Rectangle[0] + CreateFolderButton.Rectangle[2] + 3)
+        CreateFolderButton.Set_Y(DeleteFolderButton.Rectangle[1])
+        CreateFolderButton.Set_X(DeleteFolderButton.Rectangle[0] + DeleteFolderButton.Rectangle[2] + 3)
 
-        # -- Test -- #
-        if SelectFolderButton.ButtonState == "UP":
-            tge.Set_SaveFolder(VerticalList.LastItemClicked + "/")
+        RenameFolderButton.Set_Y(CreateFolderButton.Rectangle[1])
+        RenameFolderButton.Set_X(CreateFolderButton.Rectangle[0] + CreateFolderButton.Rectangle[2] + 3)
+
+        # -- Select Folder -- #
+        if SelectFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
+            tge.Set_SaveFolder(VerticalList.Selected_Name + "/")
 
             UIOpacityAnimEnabled = True
+
+        # -- Create Folder -- #
+        if CreateFolderButton.ButtonState == "UP":
+            OverlayDialogEnabled = True
+            PendingOperation = "CREATE"
+            ovlDiag.subscreen2.InputBox.CharacterLimit = 14
+            ovlDiag.subscreen2.ResponseType = "INPUT"
+
+            ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_create_title", "save_fs"), gtk.GetLangText("diag_create_text", "save_fs"))
+
+
+        # -- Delete Folder -- #
+        if DeleteFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
+            OverlayDialogEnabled = True
+            PendingOperation = "DELETE"
+            ovlDiag.subscreen2.ResponseType = "YESNO"
+
+            ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_delete_title", "save_fs"), gtk.GetLangText("diag_delete_text", "save_fs").format(VerticalList.Selected_Name))
+
+        # -- Rename Folder -- #
+        if RenameFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
+            OverlayDialogEnabled = True
+            PendingOperation = "RENAME"
+            ovlDiag.subscreen2.ResponseType = "INPUT"
+            ovlDiag.subscreen2.InputBox.CharacterLimit = 14
+            ovlDiag.subscreen2.InputBox.text = VerticalList.Selected_Name
+
+            ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_rename_title", "save_fs"), gtk.GetLangText("diag_rename_text", "save_fs").format(VerticalList.Selected_Name))
+
 
 
 def UpdateOpacityAnim():
@@ -286,15 +412,21 @@ def UpdateOpacityAnim():
                 UiHandler.Messages.append("SET_GAME_MODE")
                 UIOpacityAnim_InGameErrorSoundPlayed = False
                 UiHandler.SystemMenuEnabled = False
-                UpdateSaveLists = False
 
 def EventUpdate(event):
     global SelectFolderButton
     global VerticalList
     global CreateFolderButton
-    global WriteDirectoryInputBox
+    global DeleteFolderButton
+    global OverlayDialogEnabled
+    global RenameFolderButton
 
-    SelectFolderButton.Update(event)
-    VerticalList.Update(event)
-    CreateFolderButton.Update(event)
-    WriteDirectoryInputBox.Update(event)
+    if not OverlayDialogEnabled:
+        SelectFolderButton.Update(event)
+        VerticalList.Update(event)
+        CreateFolderButton.Update(event)
+        DeleteFolderButton.Update(event)
+        RenameFolderButton.Update(event)
+
+    else:
+        ovlDiag.EventUpdate(event)

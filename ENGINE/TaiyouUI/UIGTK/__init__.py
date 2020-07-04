@@ -294,7 +294,7 @@ class Window:
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.TitleBarRectangle.collidepoint(self.Cursor_Position):
                 self.Window_IsBeingGrabbed = True
                 mainScript.Cursor_CurrentLevel = 2
@@ -302,7 +302,7 @@ class Window:
                 self.Window_IsBeingResized = True
                 mainScript.Cursor_CurrentLevel = 1
         # -------------------------------------------------------------------
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if self.Window_IsBeingResized:
                 self.Window_IsBeingResized = False
                 mainScript.Cursor_CurrentLevel = 0
@@ -750,7 +750,6 @@ class InstalledGamesSelecter:
         # - Load Folder Metadata -- #
         GameFolderInfos = list()
 
-
         GameFolderInfos.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(FolderName), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
         GameFolderInfos.append(tge.utils.Get_DirectoryTotalOfFiles(FolderName))
 
@@ -774,8 +773,8 @@ class VerticalListWithDescription:
         self.ItemsDescription = list()
         self.ItemSprite = list()
         self.ItemSelected = list()
-        self.LastItemClicked = "null"
-        self.SelectedItemIndex = -1
+        self.Selected_Name = "null"
+        self.Selected_Index = -1
         self.ScrollY = 0
         self.ListSurface = pygame.Surface((Rectangle[2], Rectangle[3]))
         self.ClickedItem = ""
@@ -797,7 +796,7 @@ class VerticalListWithDescription:
 
             # -- When the item is not clicked -- #
             if not self.ItemSelected[i]:
-                if self.LastItemClicked == itemNam:
+                if self.Selected_Name == itemNam:
                     # -- Background -- #
                     sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
                     # -- Indicator Bar -- #
@@ -820,28 +819,27 @@ class VerticalListWithDescription:
 
         DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
-        # -- Keyup List Scrolling -- #
-        pressed = pygame.key.get_pressed()
-
-        if pressed[pygame.K_a]:
-            self.ScrollY += 1
-
-        if pressed[pygame.K_d]:
-            self.ScrollY -= 1
 
     def Update(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
+
+        # -- Mouse Whell -- #
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                self.ScrollY += 5
+            if event.button == 5:
+                self.ScrollY -= 5
 
         # -- Select the Clicked Item -- #
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if ItemRect.collidepoint(self.Cursor_Position):
-                    self.LastItemClicked = itemNam
+                    self.Selected_Name = itemNam
                     self.ItemSelected[i] = True
-                    self.SelectedItemIndex = i
-                    print("LastClickedItem : " + self.LastItemClicked)
+                    self.Selected_Index = i
+                    print("LastClickedItem : " + self.Selected_Name)
             if event.type == pygame.MOUSEBUTTONUP:
                 self.ItemSelected[i] = False
 
@@ -868,6 +866,9 @@ class VerticalListWithDescription:
         self.ItemsDescription.clear()
         self.ItemSprite.clear()
         self.ItemSelected.clear()
+        self.ScrollY = 0
+        self.Selected_Name = "null"
+        self.Selected_Index = -1
 
 
 class LoadingSquare:
@@ -953,7 +954,6 @@ class Slider():
         Surface.fill(Panels_BackgroundColor)
         # -- Render the Borders -- #
         sprite.Shape_Rectangle(Surface, Panels_IndicatorColor, (0, 0, 32, 128), Panels_Indicator_Size)
-
 
         # -- Render the Slider Background -- #
         sprite.Shape_Rectangle(Surface, (100, 101, 103), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, self.Rectangle[3] - 15), 0, 5)

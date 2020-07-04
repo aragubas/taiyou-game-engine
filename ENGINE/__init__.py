@@ -503,7 +503,7 @@ def Set_SaveFolder(path):
         CurrentGame_SaveFolderSelected = str(path)
         CurrentGame_SaveFolderDecided = True
     else:
-        raise Exception("Game Folder has been already decided.")
+        raise Exception("Game Save Folder has been already Initialized.")
 
 
 def Get_GlobalAppDataFolder():

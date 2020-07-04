@@ -220,7 +220,6 @@ def ReceiveCommand(Command):
                     SystemUI.saveFolderSelectScreen.UIOpacityAnimEnabled = True
                     SystemUI.saveFolderSelectScreen.UIOpacityScreenCopyied = False
 
-
         if not CommandWasValid:
             tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")
         elif IsSpecialEvent:
@@ -302,6 +301,7 @@ def EventUpdate():
         # -- Menu Key -- #
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
             if not IsMenuMode:
+                SystemUI.CurrentMenuScreen = 0
                 IsMenuMode = True
                 GameUpdateEnabled = False
                 SystemUI.gameOverlay.CopyOfTheScreen = DISPLAY.copy()
@@ -362,50 +362,54 @@ def Run():
     global DISPLAY
     global IsMenuMode
 
-    # -- Run the Clock -- #
-    clock.tick(FPS)
-
-    # -- If MenuMode, update the Menu -- #
-    if IsMenuMode:
-        SystemUI.Update()
-        SystemUI.Draw(DISPLAY)
-
-        # -- Draw the Overlay, when its enabled -- #
-        ovelMng.Render(DISPLAY)
-
-        # -- Flip the Screen -- #
-        pygame.display.flip()
-
-        # -- Receive Commands from System Menu -- #
-        if len(SystemUI.Messages) >= 1:
-            ReceiveCommand(SystemUI.ReadCurrentMessages())
-
-    else:  # -- Else, Update the Game -- #
+    # -- First of All, Do Draw Stuff -- #
+    if not IsMenuMode:  # -- Draw System Menu
         try:
-            # -- Do Game Update -- #
-            GameObject.Update()
-
             # -- Do Game Draw -- #
             GameObject.GameDraw(DISPLAY)
 
-            # -- Draw the Overlay, when its enabled -- #
-            ovelMng.Render(DISPLAY)
+        except Exception as ex:
+            GameException(ex, "Game Draw")
 
-            # -- Flip the Screen -- #
-            pygame.display.flip()
+
+    else:  # -- Draw System Menu
+        SystemUI.Draw(DISPLAY)
+
+    # -- Draw the Overlay -- #
+    ovelMng.Render(DISPLAY)
+
+    # -- Update Overlay -- #
+    ovelMng.Update()
+
+
+    # -- Flip the Screen -- #
+    pygame.display.flip()
+
+    # -- Update Events -- #
+    EventUpdate()
+
+    # -- Limit the FPS -- #
+    clock.tick(FPS)
+
+    # -- If not MenuMode, update the Game -- #
+    if not IsMenuMode:
+        try:
+            # -- Do Game Update -- #
+            GameObject.Update()
 
             # -- Receive command from the Current Game -- #
             if len(GameObject.Messages) >= 1:
                 ReceiveCommand(GameObject.ReadCurrentMessages())
 
         except Exception as ex:
-            GameException(ex, "Game Update/Draw")
+            GameException(ex, "Game Update")
 
-    # -- Update Events -- #
-    EventUpdate()
+    else:  # -- Else, Update the System Menu -- #
+        SystemUI.Update()
 
-    # -- Update OverlayManager -- #
-    ovelMng.Update()
+        # -- Receive Commands from System Menu -- #
+        if len(SystemUI.Messages) >= 1:
+            ReceiveCommand(SystemUI.ReadCurrentMessages())
 
 def Destroy():
     print("Taiyou.GameExecution.Destroy : Closing [" + tge.Get_GameTitle() + "]...")

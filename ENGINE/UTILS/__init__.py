@@ -59,7 +59,6 @@ def Unzip_File(path, destination):
     with zipfile.ZipFile(path, 'r') as zip_ref:
         zip_ref.extractall(destination)
 
-
 def FileCopy(path, destinationPath):
     shutil.copy(path, destinationPath)
 
@@ -107,7 +106,8 @@ def File_Delete(filePath):
 def Directory_Remove(path):
     shutil.rmtree(path, True)
 
-
+def Directory_Rename(sourcePath, newName):
+    os.rename(sourcePath, newName)
 
 # -- Class Downloader -- #
 class Downloader:
