@@ -142,7 +142,7 @@ def Update():
             if OK_Button.ButtonState == "UP":
                 Handler.DialogOpctAnim_AnimEnabled = True
 
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm", True))
                 # -- Reset Variables -- #
                 DownloaderEnabled = False
                 UpdateProgress = 0
@@ -254,7 +254,7 @@ def Update_Steps():
         print("TaiyouUI.ApplicationUpdateDiag : Update Step; " + str(UpdateStep))
 
         if UpdateStep == 0: # -- Download Current Version Data -- #
-            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath") + Handler.ApplicationID + "/version"
+            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/version"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version")
 
         if UpdateStep == 1: # -- Compare Versions -- #
@@ -266,7 +266,7 @@ def Update_Steps():
 
         if UpdateStep == 2: # -- Download the Update File -- #
             VersionChecking = False
-            TaskUrl = reg.ReadKey("TaiyouSystem/TaiyouOnlineGameIDPath") + Handler.ApplicationID + "/updateFile.zip"
+            TaskUrl = reg.ReadKey("TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/updateFile.zip"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/updateFile.zip")
 
         if UpdateStep == 3: # -- Copy Updated Files -- #
@@ -288,7 +288,7 @@ def Update_Steps():
             UpdateStepCanAdd = True
 
         if UpdateStep == 5: # -- Download Patch Notes -- #
-            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath") + Handler.ApplicationID + "/patchNotes"
+            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/patchNotes"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes")
 
         if UpdateStep == 6: # -- Write some Registry Keys -- #
@@ -321,11 +321,11 @@ def Update_MetaSteps():
         UpdateStep += 1
 
         if UpdateStep == 0:
-            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath") + Handler.ApplicationID + "/version"
+            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/version"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version")
 
         if UpdateStep == 1:
-            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath") + Handler.ApplicationID + "/patchNotes"
+            TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/patchNotes"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes")
 
         if UpdateStep == 2:

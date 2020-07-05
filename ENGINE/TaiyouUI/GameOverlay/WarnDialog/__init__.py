@@ -85,11 +85,11 @@ def Update():
             elif ActionType == 1:
                 handler.ExitToMainMenuAnim = True
 
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm", True))
 
         if NoButton.ButtonState == "UP":
             AnimEnabled = True
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Decline"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Decline", True))
 
 def UpdateOpacityAnim():
     global AnimEnabled
@@ -132,14 +132,13 @@ def Render(DISPLAY):
         CommonDisplay = DISPLAY
 
         # -- Render the Background -- #
-        if not SurfacesUpdated:
-            SurfacesUpdated = True
-            SurfaceBackground = pygame.Surface((DISPLAY.get_width() - AnimNumb, DISPLAY.get_height()))
-            SurfaceBackground.fill((0, 0, 0))
-        Surface = pygame.Surface((Rectangle[2] + 2, Rectangle[3] + 2), pygame.SRCALPHA)
-
-        SurfaceBackground.set_alpha(AnimOpacity)
+        SurfacesUpdated = True
+        SurfaceBackground = pygame.Surface((DISPLAY.get_width() - AnimNumb, DISPLAY.get_height()), pygame.SRCALPHA)
+        SurfaceBackground.fill((0, 0, 0, AnimOpacity))
         DISPLAY.blit(SurfaceBackground, (0, 0))
+
+        # -- Create the Surface -- #
+        Surface = pygame.Surface((Rectangle[2] + 2, Rectangle[3] + 2), pygame.SRCALPHA)
 
         # -- Set the Background Alfa -- #
         Surface.set_alpha(AnimOpacity)

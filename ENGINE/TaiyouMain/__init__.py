@@ -27,6 +27,8 @@ from ENGINE.TaiyouUI import OverlayManager as ovelMng
 import pygame, sys, importlib
 import traceback, threading
 from datetime import datetime
+from multiprocessing import Process
+import gc
 
 # The main Entry Point
 print("TaiyouGameEngineMainScript version " + tge.Get_GameObjVersion())
@@ -95,13 +97,10 @@ def __init__():
     # -- Set Window Title -- #
     pygame.display.set_caption(WindowTitle)
 
-    print("Taiyou.GameExecution.Initialize : Loading TaiyouUI Assets")
-    sprite.LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
-    sound.LoadAllSounds("Taiyou/SYSTEM/SOURCE")
-    reg.Initialize("Taiyou/SYSTEM/SOURCE/REG")
     SystemUI.Initialize()
 
     print("Taiyou.GameExecution.Initialize : Initialization complete.")
+
 
 def ReceiveCommand(Command):
     global IsMenuMode
@@ -110,6 +109,8 @@ def ReceiveCommand(Command):
     global FPS
     global LastFPSValue
     global GameUpdateEnabled
+    global CurrentRes_W
+    global CurrentRes_H
 
     CommandWasValid = False
     IsSpecialEvent = False
@@ -173,10 +174,15 @@ def ReceiveCommand(Command):
 
             print("Taiyou.GameExecution.ReceiveCommand : Set Game Mode")
 
+            # -- Disable System Menu -- #
             IsMenuMode = False
 
             # -- Set the Last FPS Value set by the Game -- #
             FPS = LastFPSValue
+
+            # -- Force Collect on GC -- #
+            gc.collect()
+
 
             sound.UnpauseGameChannel()
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
@@ -309,6 +315,12 @@ def EventUpdate():
                 print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
                 FPS = 60  # -- Default TaiyouUI FPS
 
+                # -- Force GC to collect -- #
+                utils.GarbageCollector_Collect()
+
+                # -- Print GC infos -- #
+                print(utils.GarbageCollector_GetInfos())
+
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
                     SystemUI.SystemMenuEnabled = True
                     SystemUI.gameOverlay.UIOpacityAnimEnabled = True
@@ -356,40 +368,37 @@ def GameException(Exception, ErrorPart="Unknown"):
 
         print(ExceptionText)
 
-def Run():
-    global GameObject
-    global FPS
+def Engine_Draw():
     global DISPLAY
     global IsMenuMode
+    global CurrentRes_H
+    global CurrentRes_W
 
-    # -- First of All, Do Draw Stuff -- #
+    ScreenResult = pygame.Surface((CurrentRes_W, CurrentRes_H), pygame.SRCALPHA | pygame.HWACCEL | pygame.HWSURFACE)
+
     if not IsMenuMode:  # -- Draw System Menu
         try:
             # -- Do Game Draw -- #
-            GameObject.GameDraw(DISPLAY)
+            GameObject.GameDraw(ScreenResult)
 
         except Exception as ex:
             GameException(ex, "Game Draw")
 
-
     else:  # -- Draw System Menu
-        SystemUI.Draw(DISPLAY)
+        SystemUI.Draw(ScreenResult)
 
     # -- Draw the Overlay -- #
-    ovelMng.Render(DISPLAY)
+    ovelMng.Render(ScreenResult)
 
-    # -- Update Overlay -- #
-    ovelMng.Update()
-
+    DISPLAY.blit(ScreenResult, (0, 0))
 
     # -- Flip the Screen -- #
     pygame.display.flip()
 
+
+def Engine_Update():
     # -- Update Events -- #
     EventUpdate()
-
-    # -- Limit the FPS -- #
-    clock.tick(FPS)
 
     # -- If not MenuMode, update the Game -- #
     if not IsMenuMode:
@@ -410,6 +419,26 @@ def Run():
         # -- Receive Commands from System Menu -- #
         if len(SystemUI.Messages) >= 1:
             ReceiveCommand(SystemUI.ReadCurrentMessages())
+
+    # -- Update Overlay -- #
+    ovelMng.Update()
+
+def Run():
+    global GameObject
+    global FPS
+    global DISPLAY
+    global IsMenuMode
+
+    # -- Run the Update Code at Full Speed -- #
+    UpdateProcess = Process(target=Engine_Update)
+    UpdateProcess.daemon = True
+    UpdateProcess.run()
+
+    # -- Limit the FPS to run the Draw Code -- #
+    clock.tick(FPS)
+    DrawProcess = Process(target=Engine_Draw)
+    DrawProcess.daemon = True
+    DrawProcess.run()
 
 def Destroy():
     print("Taiyou.GameExecution.Destroy : Closing [" + tge.Get_GameTitle() + "]...")

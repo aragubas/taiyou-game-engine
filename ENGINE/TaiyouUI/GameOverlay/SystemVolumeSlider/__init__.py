@@ -31,6 +31,8 @@ SliderObject_AnimYEnabled = True
 SliderObject_ToggleButton = gtk.SpriteButton
 SliderObject_AnimEnabled = False
 SliderObject_AnimMode = 0
+SliderObject_AnimMultiplier = 0
+
 LastVolume = 0
 CommonDisplayInited = False
 ObjX = 0
@@ -59,6 +61,7 @@ def Draw(DISPLAY):
     if not CommonDisplayInited:
         CommonDisplayInited = True
 
+
 def Update():
     global DefaultVolumeWasSet
     global SliderObject_IconIndex
@@ -73,14 +76,16 @@ def Update():
     global CommonDisplayInited
     global ObjX
     global ObjY
+    global SliderObject_AnimMultiplier
+
     if CommonDisplayInited:
         if not DefaultVolumeWasSet:
             DefaultVolumeWasSet = True
-            SliderObject.SetValue(reg.ReadKey_int("/TaiyouSystem/CONF/global_volume"))
+            SliderObject.SetValue(reg.ReadKey_int("/TaiyouSystem/CONF/global_volume", True))
             LastVolume = SliderObject.Value
 
         SliderObject.Set_Y(ObjY + SliderObject_AnimY)
-        SliderObject.Set_Opacity(max(0, SliderObject_AnimOpacity))
+        SliderObject.Set_Opacity(SliderObject_AnimOpacity)
         SliderObject.Set_X(ObjX - 2)
 
         if not SliderObject.Value == LastVolume:
@@ -104,7 +109,8 @@ def Update():
         # -- Update the Animation -- #
         if SliderObject_AnimEnabled:
             if SliderObject_AnimMode == 0:
-                SliderObject_AnimOpacity += 32
+                SliderObject_AnimMultiplier += 5
+                SliderObject_AnimOpacity += SliderObject_AnimMultiplier
 
                 if SliderObject_AnimYEnabled:
                     SliderObject_AnimY += 2
@@ -119,9 +125,11 @@ def Update():
                     SliderObject_AnimMode = 1
                     SliderObject_AnimEnabled = False
                     SliderObject_AnimYEnabled = True
+                    SliderObject_AnimMultiplier = 0
 
             if SliderObject_AnimMode == 1 and SliderObject_AnimEnabled:
-                SliderObject_AnimOpacity -= 48
+                SliderObject_AnimMultiplier += 5
+                SliderObject_AnimOpacity -= SliderObject_AnimMultiplier
 
                 if SliderObject_AnimYEnabled:
                     SliderObject_AnimY -= 2
@@ -136,6 +144,7 @@ def Update():
                     SliderObject_AnimMode = 0
                     SliderObject_AnimEnabled = False
                     SliderObject_AnimYEnabled = True
+                    SliderObject_AnimMultiplier = 0
 
         # -- Update System Slider Toggle Button -- #
         SliderObject_ToggleButton.Set_X(ObjX)

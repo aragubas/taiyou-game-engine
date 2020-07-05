@@ -86,4 +86,4 @@ def EventUpdate(event):
             Set_OverlayLevel(2)
 
     if KeyWasValid:
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True), 0.5, PlayOnSystemChannel=True)

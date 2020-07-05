@@ -86,6 +86,6 @@ def processCommand(SplitedComma):
         commandObj.Run(SplitedComma)
 
         # -- Play Click Sound -- #
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"))
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True))
     else:
         raise TypeError(gtk.GetLangText("error/invalid_command", "developer_console"))

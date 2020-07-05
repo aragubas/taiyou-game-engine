@@ -24,16 +24,23 @@ print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
 
 
 # Variables
-reg_keys = list()
-reg_contents = list()
+reg_keys = ()
+reg_contents = ()
+SystemReg_keys = ()
+SystemReg_contents = ()
 
 
-def Initialize(reg_dir):
+def Initialize(reg_dir, LoadOnSystemReg=False):
     """
     Load all keys on Specified Folder
     :param reg_dir:Specified Folder
     :return:
     """
+    global reg_keys
+    global reg_contents
+    global SystemReg_keys
+    global SystemReg_contents
+
     print("\nTaiyou.RegistryManager.Initialize : Loading Registry...")
 
     temp_reg_keys = utils.Directory_FilesList(reg_dir)
@@ -54,88 +61,139 @@ def Initialize(reg_dir):
         # -- Format the Text -- #
         AllData = AllData.rstrip().replace("%n", "\n").replace("%t","\t").replace("%s"," ")
 
-        reg_contents.append(AllData)
-        reg_keys.append(CorrectKeyName)
+        if not LoadOnSystemReg:
+            reg_keys += (CorrectKeyName,)
+            reg_contents += (AllData,)
+
+        else:
+            SystemReg_keys += (CorrectKeyName,)
+            SystemReg_contents += (AllData,)
+
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
 
     print("Taiyou.RegistryManager.Initialize : Operation Completed.")
     print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded.".format(str(len(reg_keys))))
+    print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded.".format(str(len(SystemReg_keys))))
 
-def Reload():
+def Reload(ReloadSystemReg=False):
     """
     Reload all Registry Keys
     :return:
     """
+    utils.GarbageCollector_Collect()
     print("Taiyou.RegistryManager.ReloadRegistry : Re-Loading Game Registry...")
     CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
 
-    Unload()
-    Initialize(CurrentGameFolder)
-    print("Taiyou.RegistryManager.UnloadRegistry : Re-Loading System Registry...")
+    if not ReloadSystemReg:
+        Unload()
+        Initialize(CurrentGameFolder)
 
-    Initialize("Taiyou/SYSTEM/SOURCE/REG")
+    else:
+        Unload(True)
+        Initialize("Taiyou/SYSTEM/SOURCE/REG", True)
 
     print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
+    utils.GarbageCollector_Collect()
 
-def Unload():
+def Unload(UnloadSystemReg=False):
     """
     Unload all registry keys
     :return:
     """
+    global reg_keys
+    global reg_contents
+    global SystemReg_keys
+    global SystemReg_contents
     print("Taiyou.RegistryManager.UnloadRegistry : Unloading Registry...")
 
     # -- Clear the Registry -- #
-    reg_keys.clear()
-    reg_contents.clear()
-
-    print("Taiyou.RegistryManager.UnloadRegistry : Re-Loading System Registry...")
-
-    Initialize("Taiyou/SYSTEM/SOURCE/REG")
+    if not UnloadSystemReg:
+        reg_keys = ()
+        reg_contents = ()
+    else:
+        SystemReg_keys = ()
+        SystemReg_contents = ()
 
     print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
+    utils.GarbageCollector_Collect()
 
-
-# -- Game Keys -- #
+# -- Read Keys -- #
 def CorrectKeyName(keyEntred):
     if not keyEntred.startswith("/"):
         return "/" + keyEntred
     else:
         return keyEntred
 
-def ReadKey(keyName):
+def ReadKey(keyName, SystemReg=False):
     """
     Returns a String Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
-    return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
 
-def ReadKey_int(keyName):
+    if not SystemReg:
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
+    else:
+        return SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))]
+
+def ReadKey_int(keyName, SystemReg=False):
     """
     Returns a Integer Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
-    return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
 
-def ReadKey_float(keyName):
+    if not SystemReg:
+        return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+    else:
+        return int(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+
+def ReadKey_float(keyName, SystemReg=False):
     """
     Returns a Float Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
-    return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
 
-def ReadKey_bool(keyName):
+    if not SystemReg:
+        return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+    else:
+        return float(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+
+def ReadKey_bool(keyName, SystemReg=False):
     """
     Returns a Boolean Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
-    if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-        return True
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
+    if not SystemReg:
+        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
+            return True
+        else:
+            return False
     else:
-        return False
+        if SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))] == "True":
+            return True
+        else:
+            return False
+
 
 def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     """
@@ -144,6 +202,11 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     :param keyValue:Key Value
     :return:
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     keyName = CorrectKeyName(keyName)
     if not WriteOnSystemReg:
         FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
@@ -159,13 +222,7 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     f.write(keyValue)
     f.close()
 
-    try:
-        RegIndex = reg_keys.index(keyName)
-        reg_contents[RegIndex] = keyValue
-
-    except:
-        reg_keys.append(keyName)
-        reg_contents.append(keyValue)
+    Reload(WriteOnSystemReg)
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Writed.")
 
@@ -176,6 +233,11 @@ def KeyExists(keyName):
     :param keyName: Specified Key [starting with /]
     :return: Value to Return
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     try:
         Test = reg_contents[reg_keys.index(CorrectKeyName(keyName))]
         return True
@@ -191,6 +253,11 @@ def ReadKeyWithTry(keyName,defaultValue):
     :param defaultValue:Default Value to Return
     :return:KeyData
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     try:
         return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     except:
@@ -204,6 +271,11 @@ def ReadKeyWithTry_int(keyName,defaultValue):
     :param defaultValue:Default Value to Return
     :return:KeyData
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     try:
         return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
@@ -217,6 +289,11 @@ def ReadKeyWithTry_float(keyName,defaultValue):
     :param defaultValue:Default Value to Return
     :return:KeyData
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     try:
         return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except:
@@ -230,6 +307,11 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
     :param defaultValue:Default Value to Return
     :return:KeyData
     """
+    global reg_contents
+    global SystemReg_contents
+    global SystemReg_keys
+    global reg_keys
+
     try:
         if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
             return True

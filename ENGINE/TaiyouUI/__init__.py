@@ -25,7 +25,9 @@ from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import SaveFolderSelect as saveFolderSelectScreen
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
+from ENGINE import SOUND as sound
 import ENGINE as tge
+
 
 CurrentMenuScreen = 1  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = Save Folder Select, 4 = Loading Screen
 SystemMenuEnabled = True
@@ -37,8 +39,14 @@ Cursor_CurrentLevel = 0
 def Initialize():
     print("TaiyouUI.Initialize : Started")
 
+    # -- Load TaiyouUi Assets -- #
+    sprite.LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
+    sound.LoadAllSounds("Taiyou/SYSTEM/SOURCE")
+    reg.Initialize("Taiyou/SYSTEM/SOURCE/REG", True)
+
+
     # -- Load the Language -- #
-    gtk.SetLang(reg.ReadKey("/TaiyouSystem/CONF/lang"))
+    gtk.SetLang(tge.Get_UserLanguage())
 
     # -- Initialize All Screens -- #
     gameOverlay.Initialize()

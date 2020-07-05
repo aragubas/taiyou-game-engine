@@ -68,19 +68,18 @@ def Update():
     global RunUpdater_Button
     global UpdateMetadata_Button
     # -- Run Updater Button -- #
-    RunUpdater_Button.Set_X(Handler.GameInfosRectBox[0] + 15)
+    RunUpdater_Button.Set_X(Handler.GameInfosRectBox[0] + 5)
     RunUpdater_Button.Set_Y(Handler.GameInfosRectBox[1] + Handler.GameInfosRectBox[3] - 32)
 
     RunUpdater_Button.Set_ColisionX(Handler.GameInfosSurface_Dest[0] + RunUpdater_Button.Rectangle[0])
     RunUpdater_Button.Set_ColisionY(Handler.GameInfosSurface_Dest[1] + RunUpdater_Button.Rectangle[1])
 
     # -- Update Metadata Button Button -- #
-    UpdateMetadata_Button.Set_X(RunUpdater_Button.Rectangle[0] + UpdateMetadata_Button.Rectangle[2] - 5)
+    UpdateMetadata_Button.Set_X(RunUpdater_Button.Rectangle[0] + RunUpdater_Button.Rectangle[2] + 3)
     UpdateMetadata_Button.Set_Y(RunUpdater_Button.Rectangle[1])
 
     UpdateMetadata_Button.Set_ColisionX(Handler.GameInfosSurface_Dest[0] + UpdateMetadata_Button.Rectangle[0])
     UpdateMetadata_Button.Set_ColisionY(Handler.GameInfosSurface_Dest[1] + UpdateMetadata_Button.Rectangle[1])
-
 
     # -- Update Button -- #
     if RunUpdater_Button.ButtonState == "UP":

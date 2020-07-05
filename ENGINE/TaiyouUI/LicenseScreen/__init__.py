@@ -60,7 +60,7 @@ def Update():
 
                 # -- Play Intro Sound -- #
                 if not IntroSoundPlayed:
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Startup"), PlayOnSystemChannel=True)
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Startup", True), PlayOnSystemChannel=True)
                     IntroSoundPlayed = True
 
         if OpacityAnimMode == 1 and OpacityAnimEnabled:

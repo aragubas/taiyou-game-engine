@@ -23,10 +23,10 @@ import pygame, sys, os
 print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
 
 # -- Variables --
-Sprites_Name = list()
-Sprites_Data = list()
-Fonts_Name = list()
-Fonts_Data = list()
+Sprites_Name = ()
+Sprites_Data = ()
+Fonts_Name = ()
+Fonts_Data = ()
 
 DefaultSprite = pygame.image.load("Taiyou/SYSTEM/SOURCE/SPRITE/default.png")
 
@@ -35,11 +35,14 @@ SpriteRenderingDisabled = False
 RectangleRenderingDisabled = False
 SpriteTransparency = False
 
-CurrentLoadedFonts_Name = list()
-CurrentLoadedFonts_Contents = list()
+CurrentLoadedFonts_Name = ()
+CurrentLoadedFonts_Contents = ()
 
 
 def LoadSpritesInFolder(FolderName):
+    global Sprites_Name
+    global Sprites_Data
+
     pygame.font.init()
     folder_name = FolderName + "/SPRITE"
     index = -1
@@ -55,24 +58,24 @@ def LoadSpritesInFolder(FolderName):
             currentLine = line.split(':')
             spriteLocation = folder_name + currentLine[0]
             print("[{0}]".format(spriteLocation))
-            Sprites_Name.append(currentLine[0])
+            Sprites_Name += (currentLine[0],)
 
             if currentLine[1] == "True":
                 try:
                     if not SpriteTransparency:
-                        Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
+                        Sprites_Data += (pygame.image.load(spriteLocation).convert_alpha(),)
                     else:
-                        Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(
-                        index) + "] Transparent: True\n")
+                        Sprites_Data += (pygame.image.load(spriteLocation).convert(),)
+                    print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+
                 except FileNotFoundError:
                     print("Sprite.LoadFolder : ERROR!\nCannot find the image[" + spriteLocation + "]")
-                    Sprites_Data.append(DefaultSprite)
+                    Sprites_Data += (DefaultSprite,)
 
             elif currentLine[1] == "False":
-                Sprites_Data.append(pygame.image.load(spriteLocation).convert())
-                print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(
-                    index) + "] Transparent: True\n")
+                Sprites_Data += (pygame.image.load(spriteLocation).convert(),)
+                print("Sprite.LoadFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
+
             else:
                 print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
 
@@ -89,17 +92,20 @@ def LoadSpritesInFolder(FolderName):
                 CurrentFileName = FolderName + "/FONT_PACKS" + font
                 DestinationDir = "Taiyou/SYSTEM/SOURCE/FONT" + font
 
+                # -- Check if Destination Dir exist -- #
                 if utils.File_Exists(DestinationDir):
                     print("Sprite.LoadFolder.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
                 else:
                     if not utils.File_Exists(CurrentFileName):
                         raise FileNotFoundError("The listed Font-Pack \n[" + CurrentFileName + "] does not exist.")
 
+                    # -- Copy the Font File -- #
                     utils.FileCopy(CurrentFileName, DestinationDir)
 
+                    # -- Check if Font File was copied -- #
                     if not utils.File_Exists(DestinationDir):
-                        raise FileNotFoundError(
-                            "An error occoured while copying the \n[" + CurrentFileName + "] font file.")
+                        raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
+
                     else:
                         print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
 
@@ -114,9 +120,9 @@ def LoadSprite(SpritePath, Transparency=False):
         Sprites_Name.append("/" + os.path.basename(SpritePath))
 
         if Transparency:
-            Sprites_Data.append(pygame.image.load(SpritePath).convert_alpha())
+            Sprites_Data += (pygame.image.load(SpritePath).convert_alpha(),)
         else:
-            Sprites_Data.append(pygame.image.load(SpritePath).convert())
+            Sprites_Data += (pygame.image.load(SpritePath).convert(), )
 
 
 def GetSprite(SpriteResourceName):
@@ -129,14 +135,18 @@ def GetSprite(SpriteResourceName):
 
 def Unload():
     print("Sprite.Unload : Unloading Sprites...")
+    global Sprites_Data
+    global Sprites_Name
+    global CurrentLoadedFonts_Contents
+    global CurrentLoadedFonts_Name
 
-    Sprites_Data.clear()
-    Sprites_Name.clear()
+    Sprites_Data = ()
+    Sprites_Name = ()
 
-    CurrentLoadedFonts_Contents.clear()
-    CurrentLoadedFonts_Name.clear()
+    CurrentLoadedFonts_Contents = ()
+    CurrentLoadedFonts_Name = ()
 
-    print("Sprite.Unload : Opearation Completed")
+    print("Sprite.Unload : Operation Completed")
 
     # -- Reload Menu Sprites -- #
     LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
@@ -151,6 +161,8 @@ def Reload():
 
     # -- Reload Menu Sprites -- #
     LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
+
+    print("Sprite.Reload : Operation Completed")
 
 
 def UnloadSprite(SpriteResourceName):
@@ -295,6 +307,9 @@ def GetFont_object(FontFileLocation, Size):
     :param Size:Font Object Size
     :return:Font Object
     """
+    global CurrentLoadedFonts_Contents
+    global CurrentLoadedFonts_Name
+
     if not FontRenderingDisabled:
         FontCacheName = FontFileLocation + ":" + str(Size)
         try:
@@ -303,8 +318,8 @@ def GetFont_object(FontFileLocation, Size):
         except ValueError:  # -- Add font to the FontCache if was not found -- #
             print("Sprite.GetFontObject ; Creating Font Cache Object")
 
-            CurrentLoadedFonts_Name.append(FontCacheName)
-            CurrentLoadedFonts_Contents.append(pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size))
+            CurrentLoadedFonts_Name += (FontCacheName,)
+            CurrentLoadedFonts_Contents += (pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size),)
 
             print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 

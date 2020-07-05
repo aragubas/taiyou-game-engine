@@ -63,7 +63,11 @@ def GetLangText(lang_name, lang_prefix="generic"):
         if not LangErrorAppered:
             print("\n\nTaiyouUI.GTK : The language pack [" + CurrentLanguage + "] contains errors.\nCannot find the translation for: Prefix{" + lang_prefix + "} LangName[" + lang_name + "]\n\n")
             LangErrorAppered = True
-        return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name))
+        return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name), True)
+    except Exception as ex:
+        print("Taiyou.GTK.GetLangText : An error occured while processing the request.\nRequest: Name[" + lang_name + "] Prefix[" + lang_prefix + "].")
+
+        raise ex
 
 
 def Draw_Panel(DISPLAY, Rectangle, IndicatorPosition="UP", Opacity=255):
@@ -111,11 +115,11 @@ class Button:
             self.ColisionRectangle = pygame.Rect(self.ColisionRectangle[0], self.ColisionRectangle[1], self.Rectangle[2], self.Rectangle[3])
 
         if self.IsButtonEnabled:
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     self.ButtonState = "DOWN"
                     self.ButtonDowed = True
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                     if self.ButtonDowed:
                         self.ButtonState = "UP"
@@ -167,7 +171,6 @@ class Button:
             self.SurfaceUpdated = False
             self.LastRect = self.Rectangle
 
-
         if not self.WhiteButton:
             if self.ButtonState == "INATIVE":
                 self.BackgroundColor = Button_Inactive_BackgroundColor
@@ -206,7 +209,7 @@ class Button:
 
         if self.ButtonState == "UP":
             self.ButtonState = "INATIVE"
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True), 0.5, PlayOnSystemChannel=True)
 
 class Window:
     def __init__(self, Rectangle, Title, Resiziable):
@@ -289,7 +292,7 @@ class Window:
 
         # -- Draw the window title -- #
         TextX = self.TitleBarRectangle[0] + self.TitleBarRectangle[2] / 2 - sprite.GetFont_width(Window_Title_FontFile, 18, self.Title) / 2
-        sprite.FontRender(DISPLAY, Window_Title_FontFile, 18, self.Title, (250, 250, 255), TextX, self.TitleBarRectangle[1] - 2, reg.ReadKey_bool("/TaiyouSystem/CONF/font_aa"))
+        sprite.FontRender(DISPLAY, Window_Title_FontFile, 18, self.Title, (250, 250, 255), TextX, self.TitleBarRectangle[1] - 2, reg.ReadKey_bool("/TaiyouSystem/CONF/font_aa", True))
 
     def EventUpdate(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
@@ -325,18 +328,16 @@ class Window:
             self.TitleBarRectangle[1] = self.Cursor_Position[1] - self.TitleBarRectangle[3] / 2
 
         # -- Resize Window -- #
-        if self.Window_IsBeingResized and self.Resiziable: # <- Resize the Window
+        if self.Window_IsBeingResized and self.Resiziable:  # <- Resize the Window
             # -- Limit Window Size -- #
 
             if self.WindowRectangle[2] >= self.Window_MinimunW:
                 self.WindowRectangle[2] = self.Cursor_Position[0] - self.WindowRectangle[0]
                 self.UpdateSurface()
 
-            if self.WindowRectangle[3] >= self.Window_MinimunH: # <- Resize the Window
+            if self.WindowRectangle[3] >= self.Window_MinimunH:  # <- Resize the Window
                 self.WindowRectangle[3] = self.Cursor_Position[1] - self.WindowRectangle[1]
                 self.UpdateSurface()
-
-            print("Window is being resized")
 
         if self.WindowRectangle[2] < self.Window_MinimunW:
             self.WindowRectangle[2] = self.Window_MinimunW
@@ -348,8 +349,8 @@ class Window:
             self.UpdateSurface()
 
     def UpdateSurface(self):
-        self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
-        print("Surface updated")
+        if not self.WindowRectangle[2] < self.Window_MinimunW and not self.WindowRectangle[3] < self.Window_MinimunH:
+            self.WindowSurface = pygame.Surface((self.WindowRectangle[2], self.WindowRectangle[3] - 20), pygame.SRCALPHA)
 
     def ToggleMinimize(self):
         if self.WindowMinimized:
@@ -616,10 +617,10 @@ class InstalledGamesSelecter:
         # -- Limit the Scrolling -- #
         if self.SelectedItemIndex >= len(self.GameName):
             self.SelectedItemIndex -= 1
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
         else:
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select", True), PlayOnSystemChannel=True)
 
         self.ScrollSlowdownEnabled = True
 
@@ -630,10 +631,10 @@ class InstalledGamesSelecter:
         # -- Limit the Scrolling -- #
         if self.SelectedItemIndex < 0:
             self.SelectedItemIndex = 0
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
         else:
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select", True), PlayOnSystemChannel=True)
 
         self.ScrollSlowdownEnabled = True
 
@@ -648,26 +649,27 @@ class InstalledGamesSelecter:
             if event.type == pygame.KEYUP and event.key == pygame.K_HOME:
                 self.SelectedItemIndex = len(self.GameName) - 1
                 self.ScrollX = self.SelectedItemIndex / 1.02
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
             if event.type == pygame.KEYUP and event.key == pygame.K_END:
                 self.ScrollX = 256
                 self.SelectedItemIndex = 0
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd"), PlayOnSystemChannel=True)
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
             # -- Mouse Whell -- #
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:
-                    self.ScrollIndexUp()
-                if event.button == 5:
-                    self.ScrollIndexDown()
+            if self.Rectangle.collidepoint(pygame.mouse.get_pos()):
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 4:
+                        self.ScrollIndexUp()
+                    if event.button == 5:
+                        self.ScrollIndexDown()
 
         for i, itemNam in enumerate(self.GameName):
             ItemRect = pygame.Rect((self.ScrollX + 256 * i), 30, 256 - 5, 205)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and ItemRect.collidepoint(pygame.mouse.get_pos()):
                 if not self.SelectedItemIndex == i:
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select"), PlayOnSystemChannel=True)
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select", True), PlayOnSystemChannel=True)
                     self.SelectedItemIndex = i
 
             if self.SelectedItemIndex == i:
@@ -786,11 +788,9 @@ class VerticalListWithDescription:
         self.ListSurfaceUpdated = False
 
     def Render(self, DISPLAY):
-        if not self.ListSurfaceUpdated:
-            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
-            self.ListSurfaceUpdated = True
+        ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
 
-        self.ListSurface.fill((0,0,0,0))
+        ListSurface.fill((0,0,0,0))
         for i, itemNam in enumerate(self.ItemsName):
             ItemRect = (0, self.ScrollY + 42 * i, self.Rectangle[2], 40)
 
@@ -798,33 +798,34 @@ class VerticalListWithDescription:
             if not self.ItemSelected[i]:
                 if self.Selected_Name == itemNam:
                     # -- Background -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 100), ItemRect)
+                    sprite.Shape_Rectangle(ListSurface, (20, 42, 59, 100), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                    sprite.Shape_Rectangle(ListSurface, (46, 196, 182), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
                 else:
                     # -- Background -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (20, 42, 59, 50), ItemRect)
+                    sprite.Shape_Rectangle(ListSurface, (20, 42, 59, 50), ItemRect)
                     # -- Indicator Bar -- #
-                    sprite.Shape_Rectangle(self.ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                    sprite.Shape_Rectangle(ListSurface, (32, 164, 243), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             else:
                 # -- Background -- #
-                sprite.Shape_Rectangle(self.ListSurface, (30, 52, 69, 150), ItemRect)
+                sprite.Shape_Rectangle(ListSurface, (30, 52, 69, 150), ItemRect)
                 # -- Indicator Bar -- #
-                sprite.Shape_Rectangle(self.ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
+                sprite.Shape_Rectangle(ListSurface, (255, 51, 102), (ItemRect[0], ItemRect[1], ItemRect[2], 1))
 
             # -- Render the Item Name and Description -- #
-            sprite.FontRender(self.ListSurface, VerticalList_FontFile, 18, itemNam, (250, 250, 250), ItemRect[0] + 5, ItemRect[1] + 5, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
-            sprite.FontRender(self.ListSurface, VerticalList_FontFile, 12, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 3, ItemRect[1] + 28, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa"))
+            sprite.FontRender(ListSurface, VerticalList_FontFile, 18, itemNam, (250, 250, 250), ItemRect[0] + 5, ItemRect[1] + 5, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa", True))
+            sprite.FontRender(ListSurface, VerticalList_FontFile, 12, self.ItemsDescription[i], (250, 250, 250), ItemRect[0] + 3, ItemRect[1] + 28, reg.ReadKey_bool("TaiyouSystem/CONF/font_aa", True))
 
-        DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
+        DISPLAY.blit(ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
 
     def Update(self, event):
         self.Cursor_Position = mainScript.Cursor_Position
 
         # -- Mouse Whell -- #
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        ColisionRect = pygame.Rect(self.Rectangle[0] + self.ColisionXOffset, self.Rectangle[1] + self.ColisionYOffset, self.Rectangle[2], self.Rectangle[3])
+        if event.type == pygame.MOUSEBUTTONDOWN and ColisionRect.collidepoint(pygame.mouse.get_pos()):
             if event.button == 4:
                 self.ScrollY += 5
             if event.button == 5:
@@ -839,7 +840,7 @@ class VerticalListWithDescription:
                     self.Selected_Name = itemNam
                     self.ItemSelected[i] = True
                     self.Selected_Index = i
-                    print("LastClickedItem : " + self.Selected_Name)
+
             if event.type == pygame.MOUSEBUTTONUP:
                 self.ItemSelected[i] = False
 
@@ -875,15 +876,15 @@ class LoadingSquare:
     def __init__(self, X, Y, AnimationSelected=0):
         self.X = X
         self.Y = Y
-        self.FramesPrefix = reg.ReadKey("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_prefix")
+        self.FramesPrefix = reg.ReadKey("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_prefix", True)
         self.CurrentFrame = 1
         self.UpdateAnimDelay = 0
         self.Opacity = 255
         self.OpacityAddMode = 0
         self.Animation = AnimationSelected
-        self.AnimationTotalFrames = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/total_frames")
-        self.AnimationFramesDelay = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_delay")
-        self.LastFrameLock =  reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/last_frame_lock")
+        self.AnimationTotalFrames = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/total_frames", True)
+        self.AnimationFramesDelay = reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/frames_delay", True)
+        self.LastFrameLock =  reg.ReadKey_int("/TaiyouSystem/GTK/animation_" + str(AnimationSelected) + "/last_frame_lock", True)
         self.IsLastFrame = False
         self.LastFrameDelay = 0
 
@@ -899,7 +900,6 @@ class LoadingSquare:
                 self.IsLastFrame = False
                 self.CurrentFrame = 1
 
-
         if self.UpdateAnimDelay >= self.AnimationFramesDelay and not self.IsLastFrame:
             self.CurrentFrame += 1
 
@@ -914,7 +914,6 @@ class LoadingSquare:
 
     def Set_Y(self, NewValue):
         self.Y = NewValue
-
 
     def Render(self, DISPLAY):
         AnimSurface = pygame.Surface((32, 32), pygame.SRCALPHA)
@@ -945,13 +944,14 @@ class Slider():
             self.SliderRectangle[1] = self.Rectangle[1] + self.Rectangle[3] - 15
 
         # -- Set the Surface -- #
-        Surface = pygame.Surface((32, 128))
+        Surface = pygame.Surface((32, 128), pygame.SRCALPHA)
 
         # -- Set Surface Opacity -- #
         Surface.set_alpha(self.Opacity)
 
         # -- Render Background -- #
         Surface.fill(Panels_BackgroundColor)
+
         # -- Render the Borders -- #
         sprite.Shape_Rectangle(Surface, Panels_IndicatorColor, (0, 0, 32, 128), Panels_Indicator_Size)
 
@@ -980,21 +980,24 @@ class Slider():
         self.Value = value
 
     def EventUpdate(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.SliderRectangle.collidepoint(mainScript.Cursor_Position):
-                self.IsBeingMoved = True
+        if self.Opacity >= 10:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.SliderRectangle.collidepoint(mainScript.Cursor_Position):
+                    self.IsBeingMoved = True
 
-        if event.type == pygame.MOUSEBUTTONUP:
-            self.IsBeingMoved = False
-            if self.SliderRectangle.collidepoint(mainScript.Cursor_Position):
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.IsBeingMoved = False
+                if self.SliderRectangle.collidepoint(mainScript.Cursor_Position):
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True), 0.5, PlayOnSystemChannel=True)
 
-        if self.IsBeingMoved:
-            # -- Update Bar Value -- #
-            self.Value = min((self.SliderRectangle[1] - self.SliderRectangle[3]) - (self.Rectangle[1]), 100)
-
-            self.LastCursorPos = (mainScript.Cursor_Position[0], mainScript.Cursor_Position[1])
-
+            if self.IsBeingMoved:
+                self.LastCursorPos = (mainScript.Cursor_Position[0], mainScript.Cursor_Position[1])
+            else:
+                try:
+                    # -- Update Bar Value -- #
+                    self.Value = min((self.SliderRectangle[1] - self.SliderRectangle[3]) - (self.Rectangle[1]), 100)
+                except TypeError:
+                    pass
 
 class SpriteButton:
     def __init__(self, Rectangle, Sprite):
@@ -1030,16 +1033,16 @@ class SpriteButton:
         if not self.CustomColisionRectangle:
             self.ColisionRectangle = self.Rectangle
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                 self.ButtonState = "DOWN"
                 self.ButtonDowed = True
-        elif event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if self.ColisionRectangle.collidepoint(mainScript.Cursor_Position):
                 if self.ButtonDowed:
                     self.ButtonState = "UP"
                     self.ButtonDowed = False
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click"), 0.5, PlayOnSystemChannel=True)
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True), 0.5, PlayOnSystemChannel=True)
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value

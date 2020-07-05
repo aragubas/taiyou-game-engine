@@ -17,23 +17,23 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "2.6"
-def Get_SpriteVersion():
-    return "2.1"
-def Get_SoundVersion():
-    return "1.9"
-def Get_RegistryVersion():
-    return "1.7"
-def Get_UtilsVersion():
-    return "1.5"
-def Get_GameObjVersion():
-    return "2.9"
-def Get_DeveloperConsoleVersion():
-    return "1.9"
-def Get_TaiyouUIVersion():
     return "2.7"
+def Get_SpriteVersion():
+    return "2.2"
+def Get_SoundVersion():
+    return "2.0"
+def Get_RegistryVersion():
+    return "1.8"
+def Get_UtilsVersion():
+    return "1.6"
+def Get_GameObjVersion():
+    return "3.0"
+def Get_DeveloperConsoleVersion():
+    return "2.0"
+def Get_TaiyouUIVersion():
+    return "2.8"
 def Get_DebuggingVersion():
-    return "1.1"
+    return "1.2"
 
 
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) - 9.0

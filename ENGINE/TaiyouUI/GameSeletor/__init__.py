@@ -111,7 +111,7 @@ def Initialize():
     SeletorLoadingSquare = gtk.LoadingSquare(5,5)
     DownloaderObj = utils.Downloader()
 
-    UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay")
+    UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay", True)
 
     UpdateDiag.Initialize()
     GameInfos.Initialize()
@@ -368,7 +368,7 @@ def UpdateOpacityAnim():
 
             # -- Play the In Sound -- #
             if not UIOpacityAnim_InSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
                 UIOpacityAnim_InSoundPlayed = True
 
             if UIOpacity >= 255:  # <- Triggers Animation End
@@ -391,7 +391,7 @@ def UpdateOpacityAnim():
 
             # -- Play the Out Sound -- #
             if not UIOpacityAnim_OutSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
                 UIOpacityAnim_OutSoundPlayed = True
 
             if UIOpacity <= 0:  # <- Triggers Animation End

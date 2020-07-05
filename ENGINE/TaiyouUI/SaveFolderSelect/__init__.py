@@ -171,7 +171,6 @@ def Draw(Display):
 
     DISPLAYObject = Display
 
-
     # -- Draw the Screenshot of Screen -- #
     Draw_ScreenshotOfGameScreen(Display)
 
@@ -212,13 +211,13 @@ def Draw_ScreenshotOfGameScreen(Display):
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount"))
+        CopyOfScreen_BlurAmount = max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True))
 
     if UIOpacityAnimEnabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
-        if reg.ReadKey_bool("/TaiyouSystem/CONF/blur_enabled"):
+        if reg.ReadKey_bool("/TaiyouSystem/CONF/blur_enabled", True):
             # -- Pixalizate if Overlay Pixalizate is True -- #
-            if not reg.ReadKey_bool("/TaiyouSystem/CONF/overlay_pixelizate"):
+            if not reg.ReadKey_bool("/TaiyouSystem/CONF/overlay_pixelizate", True):
                 # -- Blur the Copy of Screen -- #
                 Display.blit(sprite.Surface_Blur(CopyOfTheScreen, CopyOfScreen_BlurAmount), (0, 0))
             else:
@@ -376,7 +375,7 @@ def UpdateOpacityAnim():
 
             # -- Play the In Sound -- #
             if not UIOpacityAnim_InSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
                 UIOpacityAnim_InSoundPlayed = True
 
             if UIOpacity >= 255:  # <- Triggers Animation End
@@ -392,7 +391,7 @@ def UpdateOpacityAnim():
 
             # -- Play the Out Sound -- #
             if not UIOpacityAnim_OutSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out"))
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
                 UIOpacityAnim_OutSoundPlayed = True
 
             if UIOpacity <= 0:  # <- Triggers Animation End

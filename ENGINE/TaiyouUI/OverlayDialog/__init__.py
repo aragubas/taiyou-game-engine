@@ -133,7 +133,7 @@ def DialogOpctOpacity():
         DialogOpctAnim_AnimNumb = DialogOpctAnim_AnimOpacity - 255 + 15
 
         if not DialogOpenSoundPlayed:
-            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
+            sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify", True))
             DialogOpenSoundPlayed = True
 
         if DialogOpctAnim_AnimMode == 0:

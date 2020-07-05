@@ -151,12 +151,12 @@ def ReadCommand(Input):
     except IndexError:
         PrintToTerminalBuffer(gtk.GetLangText("error/arguments_error", "developer_console").format(str(CurrentInput.split(' ')[0])))
         # -- Play Sound Error -- #
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify", True))
 
     except TypeError as ex:
         PrintToTerminalBuffer("TYPO ERROR!\n" + str(ex) + "\n in [" + CurrentInput.split(' ')[0] + "]")
         # -- Play Notify Sound -- #
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify"))
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Notify", True))
 
     except Exception as ex:
         try:
@@ -165,7 +165,7 @@ def ReadCommand(Input):
             PrintToTerminalBuffer("EXCEPTION!\n" + str(ex) + "\n in [ERROR_OBTAINING_MODULE_NAME]")
 
         # -- Play Error Sound -- #
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Error"))
+        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Error", True))
 
 # -- When module was fully initialized, import Commands Module -- #
 from ENGINE.TaiyouUI.DeveloperConsole import commands as commands

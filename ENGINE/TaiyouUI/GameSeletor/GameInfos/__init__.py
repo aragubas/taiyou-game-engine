@@ -38,7 +38,7 @@ GameInfosAnim_Mode = 0
 GameInfosAnim_Last = "null"
 GameInfosSurface = pygame.Surface
 GameInfosSurface_Dest = (5,5)
-GameInfosRectBox = pygame.Rect(0,0, 300,200)
+GameInfosRectBox = pygame.Rect(0,0, 0,0)
 
 # -- List Object -- #
 GameAtibutesList = gtk.VerticalListWithDescription
@@ -60,7 +60,7 @@ def GameInfosAnimUpdate():
                 GameInfosAnim_Enabled = False
                 GameInfosAnim_Mode = 1
 
-        if GameInfosAnim_Mode == 1:
+        elif GameInfosAnim_Mode == 1:
             GameInfosAnim_Opacity -= 50
 
             if GameInfosAnim_Opacity <= 0:
@@ -89,7 +89,7 @@ def Update():
 
     GameInfosRectBox = pygame.Rect(GameAtibutesList.Rectangle[2] + 5, GameAtibutesList.Rectangle[1], GameAtibutesList.Rectangle[2] + 20, GameAtibutesList.Rectangle[3])
 
-    GameInfosSurface = pygame.Surface((GameAtibutesList.Rectangle[2] + GameInfosRectBox[2] - 10, GameAtibutesList.Rectangle[3]))
+    GameInfosSurface = pygame.Surface((GameAtibutesList.Rectangle[2] + GameInfosRectBox[2], GameAtibutesList.Rectangle[3]))
 
     GameAtibutesList.ColisionXOffset = 5
     GameAtibutesList.ColisionYOffset = 600 - GameInfosRectBox[3] - 5
@@ -98,17 +98,17 @@ def Update():
     if GameAtibutesList.Selected_Index == 0:
         titleInfos.Update()
 
-    if GameAtibutesList.Selected_Index == 1:
+    elif GameAtibutesList.Selected_Index == 1:
         localInfos.Update()
 
-    if GameAtibutesList.Selected_Index == 2:
+    elif GameAtibutesList.Selected_Index == 2:
         onlineInfos.Update()
 
 def Initialize():
     global GameInfosSurface
     global GameInfosRectBox
     global GameAtibutesList
-    GameAtibutesList = gtk.VerticalListWithDescription(pygame.Rect(0, 0, 370, 300))
+    GameAtibutesList = gtk.VerticalListWithDescription(pygame.Rect(0, 0, 385, 300))
 
     GameInfosSurface = pygame.Surface((GameAtibutesList.Rectangle[2] + GameInfosRectBox[2], GameAtibutesList.Rectangle[3]))
     # -- Add Items to the List --
@@ -147,16 +147,13 @@ def Draw(Display):
     if GameAtibutesList.Selected_Index == 0:
         titleInfos.Draw(GameInfosSurface)
 
-    if GameAtibutesList.Selected_Index == 1:
+    elif GameAtibutesList.Selected_Index == 1:
         localInfos.Draw(GameInfosSurface)
 
-    if GameAtibutesList.Selected_Index == 2:
+    elif GameAtibutesList.Selected_Index == 2:
         onlineInfos.Draw(GameInfosSurface)
 
     Display.blit(GameInfosSurface, GameInfosSurface_Dest)
-
-
-
 
 def EventUpdate(event):
     global GameAtibutesList
@@ -166,8 +163,8 @@ def EventUpdate(event):
     if GameAtibutesList.Selected_Index == 0:
         titleInfos.EventUpdate(event)
 
-    if GameAtibutesList.Selected_Index == 1:
+    elif GameAtibutesList.Selected_Index == 1:
         localInfos.EventUpdate(event)
 
-    if GameAtibutesList.Selected_Index == 2:
+    elif GameAtibutesList.Selected_Index == 2:
         onlineInfos.EventUpdate(event)

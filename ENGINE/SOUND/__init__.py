@@ -25,31 +25,35 @@ print("Taiyou Sound System version " + tge.Get_SoundVersion())
 
 AllLoadedSounds = {}
 
-CurrentBGMPlaying = list()
-
 DisableSoundSystem = False
 
-GameSoundChannels = list()
-SystemSoundChannels = list()
+GameSoundChannels = ()
+SystemSoundChannels = ()
+
 def LoadAllSounds(FolderName):
     """
     Load all sounds on the Specified Folder
     :param FolderName:the Specified Folder
     :return:
     """
+    global AllLoadedSounds
     global GameSoundChannels
+    global DisableSoundSystem
     global SystemSoundChannels
 
-    GameSoundChannels.clear()
-    SystemSoundChannels.clear()
+    if DisableSoundSystem:
+        return
+
+    GameSoundChannels = ()
+    SystemSoundChannels = ()
 
     pygame.mixer.set_num_channels(255)
 
     for i in range(0, 249):
-        GameSoundChannels.append(pygame.mixer.Channel(i))
+        GameSoundChannels += (pygame.mixer.Channel(i),)
 
     for i in range(250, 255):
-        SystemSoundChannels.append(pygame.mixer.Channel(i))
+        SystemSoundChannels += (pygame.mixer.Channel(i),)
 
     if DisableSoundSystem:
         return
@@ -74,11 +78,15 @@ def Unload():
     Unload all sounds loaded
     :return:
     """
+    global AllLoadedSounds
+    global GameSoundChannels
+    global DisableSoundSystem
+    global SystemSoundChannels
+
     if DisableSoundSystem:
         return
 
-    AllLoadedSounds.clear()
-    GameSoundChannels.clear()
+    AllLoadedSounds = {}
 
     LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
@@ -87,8 +95,13 @@ def Reload():
     Reload all sounds
     :return:
     """
+    global AllLoadedSounds
     global GameSoundChannels
+    global DisableSoundSystem
+    global SystemSoundChannels
+
     if not DisableSoundSystem:
+        # -- Stop all Sounds -- #
         for i, Channel in enumerate(GameSoundChannels):
             Channel.stop()
 
@@ -98,13 +111,19 @@ def Reload():
         LoadAllSounds("Taiyou/SYSTEM/SOURCE")
 
 def PauseGameChannel():
+    global AllLoadedSounds
     global GameSoundChannels
+    global DisableSoundSystem
+    global SystemSoundChannels
 
     for i, Channel in enumerate(GameSoundChannels):
         Channel.pause()
 
 def UnpauseGameChannel():
+    global AllLoadedSounds
     global GameSoundChannels
+    global DisableSoundSystem
+    global SystemSoundChannels
 
     for i, Channel in enumerate(GameSoundChannels):
         Channel.unpause()
@@ -120,10 +139,12 @@ def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemCha
     :param PlayOnSystemChannel:Play sound on System Sound Channel
     :return:
     """
+    global AllLoadedSounds
+    global GameSoundChannels
+    global DisableSoundSystem
+    global SystemSoundChannels
+
     if not DisableSoundSystem:
-        global AllLoadedSounds
-        global GameSoundChannels
-        global SystemSoundChannels
 
         # -- Get Sound -- #
         sound = AllLoadedSounds.get(SourceName)

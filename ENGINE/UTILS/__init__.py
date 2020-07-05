@@ -17,7 +17,7 @@
 
 # -- Imports -- #
 import ENGINE as tge
-import os, shutil, requests, string, random, threading, zipfile, urllib.request
+import os, shutil, requests, string, random, threading, zipfile, urllib.request, gc
 from pathlib import Path
 from urllib.error import HTTPError
 
@@ -168,3 +168,11 @@ class Downloader:
         self.DownloadThread = threading.Thread(target=self.Update)
         self.DownloadThread.daemon = True
         self.DownloadThread.start()
+
+def GarbageCollector_Collect():
+    gc.collect()
+    print("Taiyou.Utils.GC_COLLECT : Function Called")
+
+def GarbageCollector_GetInfos():
+    InfosString = "Count: {0}\nStats: {1}\nDebug: {2}\nThreshold: {3}".format(gc.get_count(), gc.get_stats(), gc.get_debug(), gc.get_threshold())
+    return InfosString
