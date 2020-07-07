@@ -23,6 +23,7 @@ from ENGINE import TaiyouUI as UiHandler
 from ENGINE import UTILS as utils
 from ENGINE.TaiyouUI import OverlayDialog as ovlDiag
 import ENGINE as tge
+from ENGINE import TaiyouMain as taiyouMain
 import os
 
 # -- Animation -- #
@@ -198,10 +199,10 @@ def Draw(Display):
     # -- Render List -- #
     VerticalList.Render(UIObjectsSurface)
 
-    if OverlayDialogEnabled:
-        ovlDiag.Draw(UIObjectsSurface)
-
     Display.blit(UIObjectsSurface, (0, 0))
+
+    if OverlayDialogEnabled:
+        ovlDiag.Draw(Display)
 
 
 def Draw_ScreenshotOfGameScreen(Display):
@@ -334,7 +335,6 @@ def Update():
 
             ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_create_title", "save_fs"), gtk.GetLangText("diag_create_text", "save_fs"))
 
-
         # -- Delete Folder -- #
         if DeleteFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
             OverlayDialogEnabled = True
@@ -352,8 +352,6 @@ def Update():
             ovlDiag.subscreen2.InputBox.text = VerticalList.Selected_Name
 
             ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_rename_title", "save_fs"), gtk.GetLangText("diag_rename_text", "save_fs").format(VerticalList.Selected_Name))
-
-
 
 def UpdateOpacityAnim():
     global UIOpacityAnimState
@@ -398,7 +396,7 @@ def UpdateOpacityAnim():
                 UIOpacity = 0
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
-                UiHandler.Messages.append("GAME_UPDATE:True")
+                taiyouMain.ReceiveCommand("GAME_UPDATE:True")
                 # -- Unload the Surfaces -- #
                 CopyOfTheScreen = pygame.Surface((0, 0), pygame.SRCALPHA)
                 UIObjectsSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
@@ -408,7 +406,7 @@ def UpdateOpacityAnim():
 
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
-                UiHandler.Messages.append("SET_GAME_MODE")
+                taiyouMain.ReceiveCommand("SET_GAME_MODE")
                 UIOpacityAnim_InGameErrorSoundPlayed = False
                 UiHandler.SystemMenuEnabled = False
 

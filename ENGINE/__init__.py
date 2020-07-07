@@ -458,6 +458,8 @@ def CloseGameFolder():
     CurrentGame_SaveFolderSelected = "null"
     CurrentGame_SaveFolderDecided = False
 
+
+
     os.remove(TaiyouPath_SystemPath + ".LastOpenedGame")
 
 #region return Game Infos Functions
@@ -504,6 +506,17 @@ def Set_SaveFolder(path):
         CurrentGame_SaveFolderDecided = True
     else:
         raise Exception("Game Save Folder has been already Initialized.")
+
+def Unload_SaveFolder():
+    global CurrentGame_SaveFolderDecided
+    global CurrentGame_SaveFolderSelected
+
+    print("Taiyou.UnloadSaveFolder : Unloading Save Folder...")
+
+    CurrentGame_SaveFolderSelected = str("")
+    CurrentGame_SaveFolderDecided = False
+
+    print("Taiyou.UnloadSaveFolder : Done!")
 
 
 def Get_GlobalAppDataFolder():

@@ -19,6 +19,7 @@ from ENGINE.TaiyouUI.DeveloperConsole import PrintToTerminalBuffer
 import ENGINE.TaiyouUI as taiyouUI
 from ENGINE.TaiyouUI import UIGTK as gtk
 import ENGINE as tge
+from ENGINE import TaiyouMain as taiyouMain
 
 def Run(SplitedCommand):
     AllLine = ""
@@ -30,4 +31,4 @@ def Run(SplitedCommand):
 
     PrintToTerminalBuffer(gtk.GetLangText("comma:send_1", "developer_console").format(AllLine))
 
-    taiyouUI.Messages.append(AllLine)
+    taiyouMain.ReceiveCommand(AllLine)

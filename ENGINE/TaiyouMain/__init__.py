@@ -43,7 +43,7 @@ IsFullscreen = False
 IsMenuMode = True
 CurrentRes_W = 800
 CurrentRes_H = 600
-WindowTitle = "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion)
+WindowTitle = "Taiyou Game Engine v{0}".format(utils.FormatNumber(tge.TaiyouGeneralVersion))
 UpdateTime_Calculated = 0
 UpdateTime_MaxMS = 0
 UpdateTime_MaxDelta = 0
@@ -123,8 +123,7 @@ def ReceiveCommand(Command):
             splitedArg = Command.split(':')
             FPS = int(splitedArg[1])
 
-            if not IsMenuMode:
-                LastFPSValue = FPS
+            LastFPSValue = FPS
 
             print("Taiyou.GameExecution.ReceiveCommand : MaxFPS Set to:" + str(FPS))
 
@@ -181,11 +180,39 @@ def ReceiveCommand(Command):
             FPS = LastFPSValue
 
             # -- Force Collect on GC -- #
-            gc.collect()
-
+            utils.GarbageCollector_Collect()
 
             sound.UnpauseGameChannel()
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
+
+        elif Command.startswith("SET_MENU_MODE") if Command else False:
+            CommandWasValid = True
+            IsSpecialEvent = True
+
+            print("Taiyou.GameExecution.ReceiveCommand : Set Game Mode")
+
+            if not IsMenuMode:
+                SystemUI.CurrentMenuScreen = 0
+                IsMenuMode = True
+                GameUpdateEnabled = False
+                SystemUI.gameOverlay.CopyOfTheScreen = DISPLAY.copy()
+                sound.PauseGameChannel()
+                print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
+                FPS = 60  # -- Default TaiyouUI FPS
+
+                # -- Force GC to collect -- #
+                utils.GarbageCollector_Collect()
+
+                # -- Print GC infos -- #
+                print(utils.GarbageCollector_GetInfos())
+
+                if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
+                    SystemUI.SystemMenuEnabled = True
+                    SystemUI.gameOverlay.UIOpacityAnimEnabled = True
+                    SystemUI.gameOverlay.UIOpacityScreenCopyied = False
+
+            sound.UnpauseGameChannel()
+            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
 
         elif Command.startswith("OPEN_GAME") if Command else False:
             CommandWasValid = True
@@ -213,6 +240,9 @@ def ReceiveCommand(Command):
         elif Command.startswith("INITIALIZE_SAVE_FOLDER") if Command else False:
             CommandWasValid = True
             if not IsMenuMode:
+                # -- Force Collect on GC -- #
+                utils.GarbageCollector_Collect()
+
                 IsMenuMode = True
                 GameUpdateEnabled = False
                 SystemUI.saveFolderSelectScreen.CopyOfTheScreen = DISPLAY.copy()
@@ -227,11 +257,11 @@ def ReceiveCommand(Command):
                     SystemUI.saveFolderSelectScreen.UIOpacityScreenCopyied = False
 
         if not CommandWasValid:
-            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'" + Command + "'")
+            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'{0}'".format(Command))
         elif IsSpecialEvent:
-            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Command Processed:\n'" + Command + "'")
+            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Command Processed:\n'{0}'".format(Command))
 
-    except IndexError as ex:
+    except IndexError:
         tge.devel.PrintToTerminalBuffer("TaiyouMessage EXCEPTION\nThe last command does not have the necessary number of arguments.")
 
 def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
@@ -247,12 +277,17 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
         print("Taiyou.GameExecution.RemoveGame : Game has no Unload Function.")
 
     # -- Try to delete the Game Object -- #
+    utils.GarbageCollector_Collect()
     importlib.reload(GameObject)
     GameObject = None
+    utils.GarbageCollector_Collect()
+    del GameObject
+    utils.GarbageCollector_Collect()
+    GameObject = None
+    utils.GarbageCollector_Collect()
 
     if UnloadGameAssts:
         print("Taiyou.GameExecution.RemoveGame : Unload Game Assets")
-
         sprite.Unload()
         sound.Unload()
         reg.Unload()
@@ -274,15 +309,13 @@ def SetGameObject(GameFolder):
         print("Taiyou.GameExecution.SetGameObject : Open Game [" + GameFolder + "]")
         print("Taiyou.GameExecution.SetGameObject : MainModuleName is: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
 
+        # -- Initialize the Game Object -- #
+        utils.GarbageCollector_Collect()
         GameObject = importlib.import_module(tge.Get_MainGameModuleName(GameFolder))
 
-        if tge.Get_MainGameModuleName(tge.Get_GameFolder()) in sys.modules:  # -- If the module is not loaded
-            print("Taiyou.GameExecution.GameStart : Game Code was not loaded yet.\nCalling Initialize")
+        GameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
+        utils.GarbageCollector_Collect()
 
-            GameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
-
-        else:
-            print("Taiyou.GameExecution.GameStart : Game Code was already loaded.")
 
     except Exception as ex:
         SystemException(ex, "SetGameObject")
@@ -306,25 +339,7 @@ def EventUpdate():
 
         # -- Menu Key -- #
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
-            if not IsMenuMode:
-                SystemUI.CurrentMenuScreen = 0
-                IsMenuMode = True
-                GameUpdateEnabled = False
-                SystemUI.gameOverlay.CopyOfTheScreen = DISPLAY.copy()
-                sound.PauseGameChannel()
-                print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
-                FPS = 60  # -- Default TaiyouUI FPS
-
-                # -- Force GC to collect -- #
-                utils.GarbageCollector_Collect()
-
-                # -- Print GC infos -- #
-                print(utils.GarbageCollector_GetInfos())
-
-                if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
-                    SystemUI.SystemMenuEnabled = True
-                    SystemUI.gameOverlay.UIOpacityAnimEnabled = True
-                    SystemUI.gameOverlay.UIOpacityScreenCopyied = False
+            ReceiveCommand("SET_MENU_MODE")
 
         # -- Resize Window Event -- #
         elif ResiziableWindow and not tge.RunInFullScreen:
@@ -352,7 +367,7 @@ def GameException(Exception, ErrorPart="Unknown"):
     global IsMenuMode
     global DISPLAY
 
-    if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler"):
+    if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler", True):
         raise Exception
     else:
         ExceptionText = "\n\nGame Exception! in [" + ErrorPart + "]:\n\n" + str(Exception) + "\n\n"
@@ -374,23 +389,19 @@ def Engine_Draw():
     global CurrentRes_H
     global CurrentRes_W
 
-    ScreenResult = pygame.Surface((CurrentRes_W, CurrentRes_H), pygame.SRCALPHA | pygame.HWACCEL | pygame.HWSURFACE)
-
     if not IsMenuMode:  # -- Draw System Menu
         try:
             # -- Do Game Draw -- #
-            GameObject.GameDraw(ScreenResult)
+            GameObject.GameDraw(DISPLAY)
 
         except Exception as ex:
             GameException(ex, "Game Draw")
 
     else:  # -- Draw System Menu
-        SystemUI.Draw(ScreenResult)
+        SystemUI.Draw(DISPLAY)
 
     # -- Draw the Overlay -- #
-    ovelMng.Render(ScreenResult)
-
-    DISPLAY.blit(ScreenResult, (0, 0))
+    ovelMng.Render(DISPLAY)
 
     # -- Flip the Screen -- #
     pygame.display.flip()
@@ -406,19 +417,11 @@ def Engine_Update():
             # -- Do Game Update -- #
             GameObject.Update()
 
-            # -- Receive command from the Current Game -- #
-            if len(GameObject.Messages) >= 1:
-                ReceiveCommand(GameObject.ReadCurrentMessages())
-
         except Exception as ex:
             GameException(ex, "Game Update")
 
     else:  # -- Else, Update the System Menu -- #
         SystemUI.Update()
-
-        # -- Receive Commands from System Menu -- #
-        if len(SystemUI.Messages) >= 1:
-            ReceiveCommand(SystemUI.ReadCurrentMessages())
 
     # -- Update Overlay -- #
     ovelMng.Update()
@@ -446,8 +449,8 @@ def Destroy():
     reg.Unload()
     sprite.Unload()
     sound.Unload()
-    pygame.mixer.quit()
     pygame.quit()
+    utils.GarbageCollector_Collect()
     print("Taiyou.GameExecution.Destroy : Game [" + tge.Get_GameTitle() + "] has been closed.")
     sys.exit()
 

@@ -32,7 +32,7 @@ from ENGINE.TaiyouUI import GameSeletor as HandlerOfHandler
 Placeholder = "Place a Holder"
 
 def Draw(Display):
-    Text = gtk.GetLangText("local_info", "seletor/atribute_list/txt").format(HandlerOfHandler.InstalledGameList.SelectedGameFolderInfos[0], HandlerOfHandler.InstalledGameList.SelectedGameFolderInfos[1])
+    Text = gtk.GetLangText("local_info", "seletor/atribute_list/txt").format(HandlerOfHandler.InstalledGameList.SelectedApplicationFolderInfos[0], HandlerOfHandler.InstalledGameList.SelectedApplicationFolderInfos[1])
 
     sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 14, Text, (230, 230, 230), Handler.GameInfosRectBox[0] + 5, Handler.GameInfosRectBox[1] + 25, True)
 

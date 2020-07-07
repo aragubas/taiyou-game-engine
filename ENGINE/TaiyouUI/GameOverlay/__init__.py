@@ -25,6 +25,7 @@ from ENGINE import UTILS as utils
 from ENGINE import TaiyouUI as UiHandler
 from ENGINE.TaiyouUI.GameOverlay import WarnDialog as warnDialog
 from ENGINE.TaiyouUI.GameOverlay import SystemVolumeSlider as volumeSlider
+from ENGINE import TaiyouMain as taiyouMain
 
 TopBarRectangle = pygame.Rect(0, 0, 0, 0)
 DownBarRectangle = pygame.Rect(0, 0, 0, 0)
@@ -142,10 +143,10 @@ def Draw(Display):
     # -- Draw Volume Slider -- #
     volumeSlider.Draw(UIObjectsSurface)
 
-    # -- Warn Dialog -- #
-    warnDialog.Render(UIObjectsSurface)
-
     Display.blit(UIObjectsSurface, (0, 0))
+
+    # -- Warn Dialog -- #
+    warnDialog.Render(Display)
 
     # -- Render the Exit to Main Menu Animation -- #
     if ExitToMainMenuAnim and ExitTOMainMenuSurfaceCreated:
@@ -339,7 +340,7 @@ def UpdateOpacityAnim():
                 UIOpacity = 0
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
-                UiHandler.Messages.append("GAME_UPDATE:True")
+                taiyouMain.ReceiveCommand("GAME_UPDATE:True")
                 # -- Unload the Surfaces -- #
                 CopyOfTheScreen = pygame.Surface((0, 0), pygame.SRCALPHA)
                 DarkerBackgroundSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
@@ -353,13 +354,13 @@ def UpdateOpacityAnim():
                 # -- Initialize the Game when exiting -- #
                 if ExitToInitializeGame:
                     ExitToInitializeGame = False
-                    UiHandler.Messages.append("TOGGLE_GAME_START")
-                    UiHandler.Messages.append("SET_GAME_MODE")
+                    taiyouMain.ReceiveCommand("TOGGLE_GAME_START")
+                    taiyouMain.ReceiveCommand("SET_GAME_MODE")
 
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
                 OpenedInGameError = False
-                UiHandler.Messages.append("SET_GAME_MODE")
+                taiyouMain.ReceiveCommand("SET_GAME_MODE")
                 UIOpacityAnim_InGameErrorSoundPlayed = False
                 UiHandler.SystemMenuEnabled = False
 
@@ -399,8 +400,8 @@ def ExitToMainMenu_UpdateAnim():
             UIOpacityAnimState = 0
 
             # -- Update the Main Menu Scenarios -- #
-            UiHandler.Messages.append("SET_MENU_MODE")
-            UiHandler.Messages.append("REMOVE_GAME")
+            taiyouMain.ReceiveCommand("SET_MENU_MODE")
+            taiyouMain.ReceiveCommand("REMOVE_GAME")
 
             UiHandler.SetMenuMode_Changes()
 

@@ -18,6 +18,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import REGISTRY as reg
 from ENGINE import TaiyouUI as mainScript
 from ENGINE import SOUND as sound
+from ENGINE import UTILS as utils
 import ENGINE as tge
 import pygame, sys, importlib
 
@@ -36,7 +37,7 @@ Panels_Indicator_Size = 2
 # -- Font Files -- #
 Button_FontFile = "/Ubuntu_Bold.ttf"
 Window_Title_FontFile = "/Ubuntu_Bold.ttf"
-HorizontalList_FontFile = "/Ubuntu_Bold.ttf"
+ApplicationListList_FontFile = "/Ubuntu.ttf"
 InputBox_FontFile = "/Ubuntu_Bold.ttf"
 VerticalList_FontFile = "/Ubuntu_Bold.ttf"
 
@@ -61,11 +62,11 @@ def GetLangText(lang_name, lang_prefix="generic"):
         return ReturnString
     except ValueError:
         if not LangErrorAppered:
-            print("\n\nTaiyouUI.GTK : The language pack [" + CurrentLanguage + "] contains errors.\nCannot find the translation for: Prefix{" + lang_prefix + "} LangName[" + lang_name + "]\n\n")
+            print("\n\nTaiyou.GetLangText : The language pack [" + CurrentLanguage + "] contains errors.\nCannot find the translation for: Prefix{" + lang_prefix + "} LangName[" + lang_name + "]\n\n")
             LangErrorAppered = True
         return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name), True)
     except Exception as ex:
-        print("Taiyou.GTK.GetLangText : An error occured while processing the request.\nRequest: Name[" + lang_name + "] Prefix[" + lang_prefix + "].")
+        print("Taiyou.GetLangText : An error occured while processing the request.\nRequest: Name[" + lang_name + "] Prefix[" + lang_prefix + "].")
 
         raise ex
 
@@ -389,10 +390,12 @@ class InputBox:
         self.CharacterLimit = 0
 
     def Set_X(self, Value):
-        self.rect = pygame.Rect(Value, self.rect[1], self.rect[2], self.rect[3])
+        if not self.rect[0] == Value:
+            self.rect = pygame.Rect(Value, self.rect[1], self.rect[2], self.rect[3])
 
     def Set_Y(self, Value):
-        self.rect = pygame.Rect(self.rect[0], Value, self.rect[2], self.rect[3])
+        if not self.rect[1] == Value:
+            self.rect = pygame.Rect(self.rect[0], Value, self.rect[2], self.rect[3])
 
     def Update(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -450,69 +453,67 @@ class InputBox:
             sprite.Shape_Rectangle(screen, (46, 196, 182), (self.rect[0], self.rect[1] - 1, self.rect[2], 1))
 
 
-class InstalledGamesSelecter:
+class InstalledApplicationList:
     def __init__(self, Rectangle):
         self.Rectangle = Rectangle
         # -- Selected item Vars -- #
-        self.GameName = list()
-        self.GameID = list()
-        self.GameVersion = list()
-        self.GameSourceFolder = list()
-        self.GameBanner = list()
-        self.GameFolderName = list()
-        self.GameFolderInfos = list()
+        self.ApplicationName = list()
+        self.ApplicationID = list()
+        self.ApplicationVersion = list()
+        self.ApplicationSourceFolder = list()
+        self.ApplicationBanner = list()
+        self.ApplicationFolderName = list()
+        self.ApplicationFolderInfos = list()
         self.ItemApperAnimationEnabled = list()
         self.ItemApperAnimationNumb = list()
         self.ItemApperAnimationMode = list()
         self.ItemApperAnimationToggle = list()
         self.ItemSurface = list()
-        self.GameBannerAnimation = list()
-        self.GameBannerAnimationAmount = list()
+        self.ApplicationBannerAnimation = list()
+        self.ApplicationBannerAnimationAmount = list()
         self.ItemSelectedCurrentFrame = list()
         self.ItemSelectedCurrentFrameUpdateDelay = list()
-        self.GameBannerAnimationFrameDelay = list()
+        self.ApplicationBannerAnimationFrameDelay = list()
 
         self.ItemSelected = list()
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
-        self.SelectedGameID = ""
-        self.SelectedGameVersion = ""
-        self.SelectedGameFolderName = ""
+        self.SelectedApplicationID = ""
+        self.SelectedApplicationVersion = ""
+        self.SelectedApplicationFolderName = ""
         self.SelectedItemIndex = -1
-        self.SelectedGameFolderInfos = None
-        self.SelectedGameIcon = sprite.DefaultSprite
+        self.SelectedApplicationFolderInfos = None
+        self.SelectedApplicationIcon = sprite.DefaultSprite
 
         self.ScrollX = 0
-        self.ScrollSpeed = 0
-        self.ListSurface = pygame.Surface
+        self.ScrollMode = 0
+        self.ScrollEnabled = False
+        self.ScrollMultiplier = 1
+
         self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
         self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
-        self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
-        self.ListSurfaceUpdated = False
         self.SurfaceOpacity = 255
         self.ScrollSlowdown = 0
         self.ScrollSlowdownEnabled = False
 
     def Render(self, DISPLAY):
-        if not self.ListSurfaceUpdated:
-            self.ListSurfaceUpdated = True
-            self.ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
-        self.ListSurface.set_alpha(self.SurfaceOpacity)
+        Surface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
+        Surface.set_alpha(self.SurfaceOpacity)
 
         # -- Render the Selected Item text -- #
-        sprite.FontRender(self.ListSurface, HorizontalList_FontFile, 24, self.SelectedItem, (250, 250, 250), 3, 3)
+        sprite.FontRender(Surface, ApplicationListList_FontFile, 24, self.SelectedItem, (250, 250, 250), 3, 3)
 
-        for i, itemNam in enumerate(self.GameName):
+        for i, itemNam in enumerate(self.ApplicationName):
             if self.SelectedItemIndex == i:
                 self.ItemSelected[i] = True
             else:
                 self.ItemSelected[i] = False
 
-            ItemRect = pygame.Rect((self.ScrollX + 256 * i), 30, 256 - 5, 165)
-            ItemSurface = pygame.Surface((ItemRect[2], ItemRect[3]), pygame.SRCALPHA)
+            ItemRect = pygame.Rect((self.ScrollX + 245 * i), 30, 240, 150)
+            ItemSurface = pygame.Surface((ItemRect[2], ItemRect[3]))
 
             AnimationSpeed = 15
             if not self.ItemSelected[i]:
-                OpctMax = 150
+                OpctMax = 50
                 self.ItemApperAnimationEnabled[i] = True
                 self.ItemApperAnimationMode[i] = 0
                 self.ItemApperAnimationToggle[i] = False
@@ -541,39 +542,50 @@ class InstalledGamesSelecter:
                         self.ItemApperAnimationEnabled[i] = False
                         self.ItemApperAnimationMode[i] = 0
 
+            # -- Set Surface Alpha -- #
             ItemSurface.set_alpha(self.ItemApperAnimationNumb[i])
 
-            # -- Render the Item Sprite -- #
-            if self.ItemSelected[i]:
-                if self.ItemSelected[i]:
-                    Draw_Panel(ItemSurface, (Panels_Indicator_Size, Panels_Indicator_Size, ItemRect[2] - Panels_Indicator_Size * 2, ItemRect[3] - Panels_Indicator_Size * 2), "BORDER")
-
+            if self.ItemSelected[i]:  # -- Update Item Code, only when Selected -- #
                 self.ItemSelectedCurrentFrameUpdateDelay[i] += 1
 
-                if self.ItemSelectedCurrentFrameUpdateDelay[i] >= self.GameBannerAnimationFrameDelay[i]:
+                if self.ItemSelectedCurrentFrameUpdateDelay[i] >= self.ApplicationBannerAnimationFrameDelay[i]:
                     self.ItemSelectedCurrentFrame[i] += 1
-                    if self.ItemSelectedCurrentFrame[i] >= self.GameBannerAnimationAmount[i]:
+                    if self.ItemSelectedCurrentFrame[i] >= self.ApplicationBannerAnimationAmount[i]:
                         self.ItemSelectedCurrentFrame[i] = 0
 
                     self.ItemSelectedCurrentFrameUpdateDelay[i] = 0
 
-                ItemSurface.blit(pygame.transform.scale(self.GameBannerAnimation[i][self.ItemSelectedCurrentFrame[i]], (244, 154)), (3, 5))
+                ItemSurface.blit(self.ApplicationBannerAnimation[i][self.ItemSelectedCurrentFrame[i]], (0, 0))
 
                 # -- Scroll the List -- #
-                if ItemRect[0] + ItemRect[2] * 2 > self.ListSurface.get_width():
-                    self.ScrollX -= ItemRect[2] / 32 + self.ScrollSpeed
+                if self.ScrollEnabled:
+                    if ItemRect[0] + ItemRect[2] * 2 > Surface.get_width() - self.ScrollMultiplier and self.ScrollMode == 1:
+                        self.ScrollMode = 1
+                        self.ScrollMultiplier = 0
+                        self.ScrollEnabled = False
 
-                if ItemRect[0] - ItemRect[2] + 3 < 0:
-                    self.ScrollX += ItemRect[2] / 32 + self.ScrollSpeed
+                    if ItemRect[0] - ItemRect[2] < -self.ScrollMultiplier and self.ScrollMode == 0:
+                        self.ScrollMode = 0
+                        self.ScrollMultiplier = 0
+                        self.ScrollEnabled = False
 
-            else:
+                    if self.ScrollMode == 0:
+                        self.ScrollMultiplier += 1
+                        self.ScrollX -= self.ScrollMultiplier
+
+                    elif self.ScrollMode == 1:
+                        self.ScrollMultiplier += 1
+                        self.ScrollX += self.ScrollMultiplier
+
+            else:  # -- Draw the Game Icon only -- #
                 self.ItemSelectedCurrentFrame[i] = 0
-                ItemSurface.blit(pygame.transform.scale(self.GameBanner[i], (240, 150)), (4, 9))
+                ItemSurface.blit(self.ApplicationBanner[i], (0, 0))
 
-            self.ListSurface.blit(ItemSurface, (ItemRect[0], ItemRect[1]))
+            # -- Render the Item to the Surface -- #
+            Surface.blit(ItemSurface, (ItemRect[0], ItemRect[1]))
 
-        DISPLAY.blit(self.ListSurface, (self.Rectangle[0], self.Rectangle[1]))
-        self.ListSurface.fill((0, 0, 0, 0))
+        DISPLAY.blit(Surface, (self.Rectangle[0], self.Rectangle[1]))
+        Surface.fill((0, 0, 0, 0))
 
         if self.ScrollSlowdownEnabled:
             self.ScrollSlowdown += 1
@@ -582,31 +594,30 @@ class InstalledGamesSelecter:
                 self.ScrollSlowdown = 0
                 self.ScrollSlowdownEnabled = False
 
-
     def ClearItems(self):
-        self.GameName.clear()
-        self.GameID.clear()
-        self.GameVersion.clear()
-        self.GameSourceFolder.clear()
-        self.GameBanner.clear()
-        self.GameFolderName.clear()
-        self.GameBannerAnimation.clear()
-        self.GameBannerAnimationAmount.clear()
+        self.ApplicationName.clear()
+        self.ApplicationID.clear()
+        self.ApplicationVersion.clear()
+        self.ApplicationSourceFolder.clear()
+        self.ApplicationBanner.clear()
+        self.ApplicationFolderName.clear()
+        self.ApplicationBannerAnimation.clear()
+        self.ApplicationBannerAnimationAmount.clear()
+        self.ApplicationBannerAnimationFrameDelay.clear()
+
         self.ItemApperAnimationEnabled.clear()
         self.ItemApperAnimationNumb.clear()
         self.ItemApperAnimationMode.clear()
         self.ItemApperAnimationToggle.clear()
-        self.GameBannerAnimation.clear()
-        self.GameBannerAnimationAmount.clear()
-        self.GameBannerAnimationFrameDelay.clear()
+
         self.ItemSelected.clear()
 
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
-        self.SelectedGameID = ""
-        self.SelectedGameFolderName = ""
+        self.SelectedApplicationID = ""
+        self.SelectedApplicationFolderName = ""
+        self.SelectedApplicationFolderInfos = None
+        self.SelectedApplicationIcon = sprite.DefaultSprite
         self.SelectedItemIndex = -1
-        self.SelectedGameFolderInfos = None
-        self.SelectedGameIcon = sprite.DefaultSprite
 
         self.ScrollX = 0
 
@@ -615,7 +626,7 @@ class InstalledGamesSelecter:
         self.SelectedItemIndex += 1
 
         # -- Limit the Scrolling -- #
-        if self.SelectedItemIndex >= len(self.GameName):
+        if self.SelectedItemIndex >= len(self.ApplicationName):
             self.SelectedItemIndex -= 1
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
@@ -623,6 +634,11 @@ class InstalledGamesSelecter:
             sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select", True), PlayOnSystemChannel=True)
 
         self.ScrollSlowdownEnabled = True
+
+        if not self.ScrollEnabled:
+            self.ScrollEnabled = True
+            self.ScrollMode = 0
+            self.ScrollMultiplier = 0
 
     def ScrollIndexDown(self):
         # -- Scroll the Selected Item -- #
@@ -638,134 +654,175 @@ class InstalledGamesSelecter:
 
         self.ScrollSlowdownEnabled = True
 
+        if not self.ScrollEnabled:
+            self.ScrollEnabled = True
+            self.ScrollMode = 1
+            self.ScrollMultiplier = 0
+
     def Update(self, event):
-        if not self.ScrollSlowdownEnabled:
-            if event.type == pygame.KEYUP and event.key == pygame.K_q:
-                self.ScrollIndexDown()
+        # -- Only Run Events when needed. -- #
+        if self.Rectangle.collidepoint(pygame.mouse.get_pos()):
+            if not self.ScrollSlowdownEnabled:
+                if event.type == pygame.KEYUP and event.key == pygame.K_q:
+                    self.ScrollIndexDown()
 
-            if event.type == pygame.KEYUP and event.key == pygame.K_e:
-                self.ScrollIndexUp()
+                if event.type == pygame.KEYUP and event.key == pygame.K_e:
+                    self.ScrollIndexUp()
 
-            if event.type == pygame.KEYUP and event.key == pygame.K_HOME:
-                self.SelectedItemIndex = len(self.GameName) - 1
-                self.ScrollX = self.SelectedItemIndex / 1.02
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
+                if event.type == pygame.KEYUP and event.key == pygame.K_HOME:
+                    self.SelectedItemIndex = len(self.ApplicationName) - 1
+                    self.ScrollX = -self.SelectedItemIndex * 240
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
-            if event.type == pygame.KEYUP and event.key == pygame.K_END:
-                self.ScrollX = 256
-                self.SelectedItemIndex = 0
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
+                if event.type == pygame.KEYUP and event.key == pygame.K_END:
+                    self.ScrollX = 128
+                    self.SelectedItemIndex = 0
+                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/ListEnd", True), PlayOnSystemChannel=True)
 
-            # -- Mouse Whell -- #
-            if self.Rectangle.collidepoint(pygame.mouse.get_pos()):
+                # -- Mouse Whell -- #
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 4:
                         self.ScrollIndexUp()
+
                     if event.button == 5:
                         self.ScrollIndexDown()
 
-        for i, itemNam in enumerate(self.GameName):
-            ItemRect = pygame.Rect((self.ScrollX + 256 * i), 30, 256 - 5, 205)
-
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and ItemRect.collidepoint(pygame.mouse.get_pos()):
-                if not self.SelectedItemIndex == i:
-                    sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Select", True), PlayOnSystemChannel=True)
+            for i, itemNam in enumerate(self.ApplicationName):
+                if self.SelectedItemIndex == i:
+                    self.SelectedApplicationFolderInfos = self.ApplicationFolderInfos[i]
+                    self.SelectedItem = itemNam
+                    self.SelectedApplicationID = self.ApplicationID[i]
+                    self.SelectedApplicationFolderName = self.ApplicationFolderName[i]
+                    self.ItemSelected[i] = True
                     self.SelectedItemIndex = i
+                    self.SelectedApplicationVersion = self.ApplicationVersion[i]
+                    self.SelectedApplicationID = self.ApplicationID[i]
+                    self.SelectedApplicationIcon = self.ApplicationBanner[i]
 
-            if self.SelectedItemIndex == i:
-                self.SelectedGameFolderInfos = self.GameFolderInfos[i]
-                self.SelectedItem = itemNam
-                self.SelectedGameID = self.GameID[i]
-                self.SelectedGameFolderName = self.GameFolderName[i]
-                self.ItemSelected[i] = True
-                self.SelectedItemIndex = i
-                self.SelectedGameVersion = self.GameVersion[i]
-                self.SelectedGameID = self.GameID[i]
-                self.SelectedGameIcon = self.GameBanner[i]
-            else:
-                self.ItemSelected[i] = False
+                else:
+                    self.ItemSelected[i] = False
 
 
     def Set_X(self, Value):
-        self.Rectangle[0] = float(Value)
+        if not self.Rectangle[0] == Value:
+            self.Rectangle[0] = float(Value)
 
     def Set_Y(self, Value):
-        self.Rectangle[1] = float(Value)
+        if not self.Rectangle[1] == Value:
+            self.Rectangle[1] = float(Value)
 
     def Set_W(self, Value):
-        self.Rectangle[2] = float(Value)
+        if not self.Rectangle[2] == Value:
+            self.Rectangle[2] = float(Value)
 
     def Set_H(self, Value):
-        self.Rectangle[3] = float(Value)
+        if not self.Rectangle[3] == Value:
+            self.Rectangle[3] = float(Value)
 
-    def AddItem(self, GameDir):
-        self.ItemSelected.append(False)
+    def AddItem(self, ApplicationDir):
+        # -- Convert Name to String -- #
+        ApplicationDir = str(ApplicationDir)
+
+        # -- Check if Folder Exists -- #
+        if not utils.Directory_Exists(ApplicationDir):
+            raise FileNotFoundError("Cannot locate the application folder: " + ApplicationDir)
 
         # -- Read Meta Data File -- #
-        LineNumber = -1  # Line 0 == Game Name; Line 1 == Game ID; Line 2 == Game Version; Line 3 == Game Source Folder
-        GameBannerAnimAmountFrames = 0
-        MetaFile = GameDir + "/meta.data"
+        LineNumber = -1
+        AnimationTotalFrames = 0
+        AnimationFramesDelay = 0
+
+        MetaFile = ApplicationDir + "/meta.data"
         FolderName = ""
         with open(MetaFile) as file_in:
             for line in file_in:
                 if not line == "":
+                    line = line.rstrip()
                     LineNumber += 1
 
-                    if LineNumber == 0:  # -- Game Name
-                        self.GameName.append(line)
+                    if LineNumber == 0:  # -- Application Name
+                        self.ApplicationName.append(line)
 
-                    if LineNumber == 1:  # -- Game ID
-                        self.GameID.append(line)
+                    if LineNumber == 1:  # -- Application ID
+                        self.ApplicationID.append(line)
 
-                    if LineNumber == 2:  # -- Game Version
-                        self.GameVersion.append(line)
+                    if LineNumber == 2:  # -- Application Version
+                        self.ApplicationVersion.append(line)
 
-                    if LineNumber == 3:  # -- Game Source Folder
-                        self.GameSourceFolder.append(line)
+                    if LineNumber == 3:  # -- Application Source Folder
+                        self.ApplicationSourceFolder.append(line)
 
-                    if LineNumber == 4:  # -- Game Folder Name
-                        self.GameFolderName.append(line)
+                    if LineNumber == 4:  # -- Application Folder Name
+                        self.ApplicationFolderName.append(line)
                         FolderName = line.rstrip()
 
                     if LineNumber == 5:  # -- Animation Banner Frames
-                        self.GameBannerAnimationAmount.append(int(line))
-                        GameBannerAnimAmountFrames = int(line)
+                        AnimationTotalFrames = int(line)
 
                     if LineNumber == 6:  # -- Animation Banner Frames Delay
-                        self.GameBannerAnimationFrameDelay.append(int(line))
+                        AnimationFramesDelay = int(line)
+
         if LineNumber < 6 or LineNumber > 7: # -- Detect if the Game Folder is invalid
-            raise NotADirectoryError("The game [" + GameDir + "] is not a valid Taiyou Game.\nThis metadata file contains: " + str(LineNumber) + " lines.")
+            raise NotADirectoryError("The Application [" + ApplicationDir + "] is not a valid Taiyou Application.\nMETADATA_FILE_READ_FILE")
 
         # -- Load the Game Icon and Banner Animation -- #
         try:
-            self.GameBanner.append(pygame.image.load(GameDir + "/icon.png").convert())
-        except:
-            self.GameBanner.append(sprite.GetSprite("/TAIYOU_UI/no_icon.png"))
+            self.ApplicationBanner.append(pygame.transform.scale(pygame.image.load(ApplicationDir + "/icon.png").convert(), (240, 150)))
 
+        except FileNotFoundError:
+            self.ApplicationBanner.append(sprite.GetSprite("/TAIYOU_UI/no_icon.png"))
+            print("Taiyou.InstalledGamesSelecter.AddItem : Cannot Locate Application icon.")
+
+        # -- Add Item Variables -- #
         self.ItemApperAnimationEnabled.append(True)
         self.ItemApperAnimationNumb.append(0)
         self.ItemApperAnimationMode.append(0)
         self.ItemSelectedCurrentFrame.append(0)
         self.ItemApperAnimationToggle.append(False)
         self.ItemSelectedCurrentFrameUpdateDelay.append(0)
+        self.ItemSelected.append(False)
 
         # - Load Folder Metadata -- #
-        GameFolderInfos = list()
+        ApplicationFolderInfos = list()
 
-        GameFolderInfos.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(FolderName), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
-        GameFolderInfos.append(tge.utils.Get_DirectoryTotalOfFiles(FolderName))
+        ApplicationFolderInfos.append(tge.utils.FormatNumber(tge.utils.Calculate_FolderSize(FolderName), 2, ['B', 'Kb', 'MB', 'GB', 'TB']))
+        ApplicationFolderInfos.append(tge.utils.Get_DirectoryTotalOfFiles(FolderName))
 
-        self.GameFolderInfos.append(GameFolderInfos)
+        self.ApplicationFolderInfos.append(ApplicationFolderInfos)
 
-        AnimationFrames = list()
-        for frame in range(0, GameBannerAnimAmountFrames):
-            FiltredGameDir = GameDir.replace("./", "")
-            path = FiltredGameDir + "/SELETOR/" + str(frame) + ".png"
+        # -- Add the Animation Frames -- #
+        FiltredGameDir = ApplicationDir.replace("./", "")
 
-            print("Frame : [" + path + "]")
-            AnimationFrames.append(pygame.image.load(path).convert())
+        if utils.File_Exists(FiltredGameDir + "/SELETOR/0.png"):
+            if AnimationTotalFrames > 1:
+                AnimationFrames = list()
+                for frame in range(0, AnimationTotalFrames):
+                    path = FiltredGameDir + "/SELETOR/" + str(frame) + ".png"
 
-        self.GameBannerAnimation.append(AnimationFrames)
+                    print("Frame : [" + path + "]")
+                    AnimationFrames.append(pygame.transform.scale(pygame.image.load(path).convert(), (240, 150)))
+
+                # -- Add Values to the List -- #
+                self.ApplicationBannerAnimation.append(AnimationFrames)
+                self.ApplicationBannerAnimationAmount.append(AnimationTotalFrames)
+                self.ApplicationBannerAnimationFrameDelay.append(AnimationFramesDelay)
+            else:
+                AnimationFrames = list()
+                AnimationFrames.append(pygame.transform.scale(pygame.image.load(ApplicationDir + "/icon.png").convert(), (240, 150)))
+
+                self.ApplicationBannerAnimation.append(AnimationFrames)
+                self.ApplicationBannerAnimationAmount.append(0)
+                self.ApplicationBannerAnimationFrameDelay.append(0)
+
+
+        else:
+            AnimationFrames = list()
+            AnimationFrames.append(sprite.GetSprite("/TAIYOU_UI/no_icon.png"))
+
+            self.ApplicationBannerAnimation.append(AnimationFrames)
+            self.ApplicationBannerAnimationAmount.append(0)
+            self.ApplicationBannerAnimationFrameDelay.append(0)
+            print("Taiyou.InstalledGamesSelecter.AddItem : Cannot Locate Application Banner Frames.")
 
 
 class VerticalListWithDescription:
@@ -778,14 +835,11 @@ class VerticalListWithDescription:
         self.Selected_Name = "null"
         self.Selected_Index = -1
         self.ScrollY = 0
-        self.ListSurface = pygame.Surface((Rectangle[2], Rectangle[3]))
         self.ClickedItem = ""
         self.ColisionXOffset = 0
         self.ColisionYOffset = 0
         self.ButtonUpRectangle = pygame.Rect(0, 0, 32, 32)
         self.ButtonDownRectangle = pygame.Rect(34, 0, 32, 32)
-        self.Cursor_Position = mainScript.Cursor_Position
-        self.ListSurfaceUpdated = False
 
     def Render(self, DISPLAY):
         ListSurface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
@@ -819,30 +873,29 @@ class VerticalListWithDescription:
 
         DISPLAY.blit(ListSurface, (self.Rectangle[0], self.Rectangle[1]))
 
-
     def Update(self, event):
-        self.Cursor_Position = mainScript.Cursor_Position
-
-        # -- Mouse Whell -- #
         ColisionRect = pygame.Rect(self.Rectangle[0] + self.ColisionXOffset, self.Rectangle[1] + self.ColisionYOffset, self.Rectangle[2], self.Rectangle[3])
-        if event.type == pygame.MOUSEBUTTONDOWN and ColisionRect.collidepoint(pygame.mouse.get_pos()):
-            if event.button == 4:
-                self.ScrollY += 5
-            if event.button == 5:
-                self.ScrollY -= 5
 
-        # -- Select the Clicked Item -- #
-        for i, itemNam in enumerate(self.ItemsName):
-            ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
+        if ColisionRect.collidepoint(pygame.mouse.get_pos()):
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 5:
+                    self.ScrollY += 5
 
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if ItemRect.collidepoint(self.Cursor_Position):
-                    self.Selected_Name = itemNam
-                    self.ItemSelected[i] = True
-                    self.Selected_Index = i
+                if event.button == 4:
+                    self.ScrollY -= 5
 
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.ItemSelected[i] = False
+            # -- Select the Clicked Item -- #
+            for i, itemNam in enumerate(self.ItemsName):
+                ItemRect = pygame.Rect(self.ColisionXOffset + self.Rectangle[0], self.ColisionYOffset + self.ScrollY + self.Rectangle[1] + 42 * i, self.Rectangle[2], 40)
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if ItemRect.collidepoint(pygame.mouse.get_pos()):
+                        self.Selected_Name = itemNam
+                        self.ItemSelected[i] = True
+                        self.Selected_Index = i
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.ItemSelected[i] = False
 
     def Set_X(self, Value):
         self.Rectangle[0] = int(Value)

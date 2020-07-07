@@ -27,6 +27,7 @@ from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import GameSeletor as Handler
 from ENGINE.TaiyouUI import OverlayDialog as dialog
+from ENGINE import TaiyouMain as taiyouMain
 
 OpacityAnimation_Enabled = True
 OpacityAnimation_Opacity = 0
@@ -81,6 +82,7 @@ def Draw(Display):
     Display.fill((BackgroundR, BackgroundG, BackgroundB))
     CommonDisplay = Display
 
+    # -- Render RAW Game Icon -- #
     LogoSur = pygame.Surface((240 * 2, 150 * 2), pygame.SRCALPHA)
     if not DialogEnabled:
         LogoSur.set_alpha(OpacityAnimation_Opacity)
@@ -91,8 +93,10 @@ def Draw(Display):
 
     Display.blit(LogoSur, (800 / 2 - LogoSur.get_width() / 2, 50))
 
-    sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (OpacityAnimation_Opacity, OpacityAnimation_Opacity, OpacityAnimation_Opacity), 800 / 2 - sprite.GetFont_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height())
+    # -- Render Game Title -- #
+    sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 32, GameTitle, (230, 230, 230), 800 / 2 - sprite.GetFont_width("/Ubuntu_Bold.ttf", 32, GameTitle) / 2, 50 + LogoSur.get_height(), Opacity=OpacityAnimation_Opacity)
 
+    # -- Render Loading Animation -- #
     LoadingSquare.Render(Display)
 
     if DialogEnabled:
@@ -132,36 +136,45 @@ def UpdateLoadingStages():
     global LoadingNextStageDelay
     global LoadingStage
     global OpacityAnimation_Enabled
+
     if LoadingNextStage and not GameFolderToOpen == "null":
         LoadingStage += 1
+
         if LoadingStage == 0:
             if utils.Directory_Exists(GameFolderToOpen):
-                print("Placeholder : Game Exists")
+                print("Taiyou.LoadingScreen : Game Exists")
             else:
-                print("Placeholder : Game does not Exists")
+                print("Taiyou.LoadingScreen : Game does not Exists")
 
-        if LoadingStage == 1:
-            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
-
-        if LoadingStage == 2:
-            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
-
-        if LoadingStage == 3:
-            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
-
-        if LoadingStage == 4:
+        elif LoadingStage == 1:
+            print("Taiyou.LoadingScreen : Load Folder Metadata")
             tge.LoadFolderMetaData(GameFolderToOpen)
 
-        if LoadingStage == 5:
-            taiyouUI.Messages.append("OPEN_GAME:" + GameFolderToOpen)
-            taiyouUI.Messages.append("TOGGLE_GAME_START")
+        elif LoadingStage == 2:
+            print("Taiyou.LoadingScreen : Load Game Sprites")
+            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
+
+        elif LoadingStage == 3:
+            print("Taiyou.LoadingScreen : Load Game Sounds")
+            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
+
+        elif LoadingStage == 4:
+            print("Taiyou.LoadingScreen : Load Game Registry Keys")
+            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
+
+        elif LoadingStage == 5:
+            print("Taiyou.LoadingScreen : Load Game Code")
+            taiyouMain.ReceiveCommand("OPEN_GAME:" + GameFolderToOpen)
 
             OpacityAnimation_Enabled = True
 
-    if OpacityAnimation_Mode == 1 and not OpacityAnimation_Enabled and not AnimSlipeEnabled:
+        print("Taiyou.LoadingStage : Loading Step " + str(LoadingStage) + "/5")
+        LoadingNextStage = False
+
+    if not OpacityAnimation_Enabled and not AnimSlipeEnabled:
         LoadingNextStageDelay += 1
 
-        if LoadingNextStageDelay >= 5000:
+        if LoadingNextStageDelay >= 5:
             LoadingNextStageDelay = 0
             LoadingNextStage = True
 
@@ -172,7 +185,10 @@ def OpacityAnimation():
     global OpacityAnimation_Mode
     global LoadingNextStage
     global LoadingStage
+    global GameFolderToOpen
     global LoadingNextStageDelay
+    global AnimSlipeEnabled
+
     if OpacityAnimation_Enabled:
         if OpacityAnimation_Mode == 0:
             OpacityAnimation_Opacity += 15
@@ -193,9 +209,11 @@ def OpacityAnimation():
                 LoadingStage = -1
                 LoadingNextStageDelay = 0
                 LoadingNextStage = False
+                GameFolderToOpen = "null"
+                AnimSlipeEnabled = False
 
                 taiyouUI.CurrentMenuScreen = 0
-                taiyouUI.Messages.append("SET_GAME_MODE")
+                taiyouMain.ReceiveCommand("SET_GAME_MODE")
 
                 taiyouUI.gameOverlay.UIOpacityAnimEnabled = False
                 taiyouUI.SystemMenuEnabled = False

@@ -83,9 +83,9 @@ def Update():
 
     # -- Title Informations -- #
     Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedItem.rstrip())
-    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedGameVersion.rstrip())
-    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedGameID.rstrip())
-    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedGameFolderName.rstrip())
+    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedApplicationVersion.rstrip())
+    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedApplicationID.rstrip())
+    Handler.SelectedGameInfosList.append(HandlerOfHandler.InstalledGameList.SelectedApplicationFolderName.rstrip())
 
     GameInfosRectBox = pygame.Rect(GameAtibutesList.Rectangle[2] + 5, GameAtibutesList.Rectangle[1], GameAtibutesList.Rectangle[2] + 20, GameAtibutesList.Rectangle[3])
 

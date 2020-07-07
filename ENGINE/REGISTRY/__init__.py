@@ -80,7 +80,6 @@ def Reload(ReloadSystemReg=False):
     Reload all Registry Keys
     :return:
     """
-    utils.GarbageCollector_Collect()
     print("Taiyou.RegistryManager.ReloadRegistry : Re-Loading Game Registry...")
     CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
 
@@ -213,11 +212,12 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     else:
         FileLocation = "Taiyou/SYSTEM/SOURCE/REG" + keyName + ".data"
 
-    # -- Create the directory if not exists -- #
+    # -- Create the directory -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Location;" + FileLocation)
 
+    # -- Write the Actual Registry Key -- #
     f = open(FileLocation, "w+")
     f.write(keyValue)
     f.close()

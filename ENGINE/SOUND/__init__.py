@@ -30,6 +30,9 @@ DisableSoundSystem = False
 GameSoundChannels = ()
 SystemSoundChannels = ()
 
+GlobalVolume = 1.0
+
+
 def LoadAllSounds(FolderName):
     """
     Load all sounds on the Specified Folder
@@ -128,7 +131,6 @@ def UnpauseGameChannel():
     for i, Channel in enumerate(GameSoundChannels):
         Channel.unpause()
 
-GlobalVolume = 1.0
 def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemChannel=False):
     """
     Play a Sound loaded into Sound System

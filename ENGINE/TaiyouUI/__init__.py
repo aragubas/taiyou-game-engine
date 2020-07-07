@@ -23,13 +23,13 @@ from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import SaveFolderSelect as saveFolderSelectScreen
+from ENGINE import TaiyouMain as taiyouMain
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
 from ENGINE import SOUND as sound
 import ENGINE as tge
 
-
-CurrentMenuScreen = 1  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = Save Folder Select, 4 = Loading Screen
+CurrentMenuScreen = 2  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = Save Folder Select, 4 = Loading Screen
 SystemMenuEnabled = True
 
 # -- Cursor Variables -- #
@@ -132,31 +132,17 @@ def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges ; No Description")
 
     # -- Set the Window Title -- #
-    Messages.append("SET_TITLE;" + "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
+    taiyouMain.ReceiveCommand("SET_TITLE;" + "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
     # -- Set the Unresizeable window
-    Messages.append("RESIZIABLE_WINDOW:FalseIfTrue")
+    taiyouMain.ReceiveCommand("RESIZIABLE_WINDOW:FalseIfTrue")
     # -- Set the Default Icon -- #
-    Messages.append("SET_ICON_BY_SPRITE:/TAIYOU_UI/icon.png")
+    taiyouMain.ReceiveCommand("SET_ICON_BY_SPRITE:/TAIYOU_UI/icon.png")
     # -- Set to 60FPS -- #
-    Messages.append("SET_FPS:60")
+    taiyouMain.ReceiveCommand("SET_FPS:60")
 
     CurrentRes = pygame.display.get_window_size()
     if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:
-        Messages.append("SET_RESOLUTION:800:600")
+        taiyouMain.ReceiveCommand("SET_RESOLUTION:800:600")
         print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
     else:
         print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
-
-
-# -- Send the messages on the Message Quee to the Game Engine -- #
-Messages = list()
-
-def ReadCurrentMessages():
-    global Messages
-    try:
-        for x in Messages:
-            Messages.remove(x)
-            print("SystemUI : MessageSent[" + x + "]")
-            return x
-    except:
-        return ""
