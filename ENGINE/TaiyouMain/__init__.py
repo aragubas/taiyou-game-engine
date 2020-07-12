@@ -167,6 +167,16 @@ def ReceiveCommand(Command):
 
             print("Taiyou.GameExecution.ReceiveCommand : Set OVERLAY_LEVEL to " + splitedArg[1])
 
+        elif Command.startswith("SET_ICON") if Command else False:
+            CommandWasValid = True
+            IsSpecialEvent = True
+
+            splitedArg = Command.split(':')
+
+            pygame.display.set_icon(sprite.GetSprite(splitedArg[1]))
+
+            print("Taiyou.GameExecution.ReceiveCommand : Set Icon to " + splitedArg[1])
+
         elif Command.startswith("SET_GAME_MODE") if Command else False:
             CommandWasValid = True
             IsSpecialEvent = True
@@ -183,11 +193,17 @@ def ReceiveCommand(Command):
             utils.GarbageCollector_Collect()
 
             sound.UnpauseGameChannel()
+
+            reg.Unload(True)
+
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
 
         elif Command.startswith("SET_MENU_MODE") if Command else False:
             CommandWasValid = True
             IsSpecialEvent = True
+
+            # -- Reload System Reg -- #
+            reg.Reload(True)
 
             print("Taiyou.GameExecution.ReceiveCommand : Set Game Mode")
 
@@ -198,7 +214,7 @@ def ReceiveCommand(Command):
                 SystemUI.gameOverlay.CopyOfTheScreen = DISPLAY.copy()
                 sound.PauseGameChannel()
                 print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
-                FPS = 60  # -- Default TaiyouUI FPS
+                FPS = 70  # -- Default TaiyouUI FPS
 
                 # -- Force GC to collect -- #
                 utils.GarbageCollector_Collect()
@@ -211,7 +227,6 @@ def ReceiveCommand(Command):
                     SystemUI.gameOverlay.UIOpacityAnimEnabled = True
                     SystemUI.gameOverlay.UIOpacityScreenCopyied = False
 
-            sound.UnpauseGameChannel()
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
 
         elif Command.startswith("OPEN_GAME") if Command else False:
@@ -237,8 +252,16 @@ def ReceiveCommand(Command):
 
             pygame.display.set_caption(splitedArg[1])
 
-        elif Command.startswith("INITIALIZE_SAVE_FOLDER") if Command else False:
+        elif Command.startswith("SWITCH_SAVE_FOLDER") if Command else False:
             CommandWasValid = True
+
+            # -- Check if is Necessary to Select a Save Folder -- #
+            if tge.CurrentGame_SaveFolderDecided:
+                return
+
+            # -- Reload System Reg -- #
+            reg.Reload(True)
+
             if not IsMenuMode:
                 # -- Force Collect on GC -- #
                 utils.GarbageCollector_Collect()
@@ -248,7 +271,7 @@ def ReceiveCommand(Command):
                 SystemUI.saveFolderSelectScreen.CopyOfTheScreen = DISPLAY.copy()
                 sound.PauseGameChannel()
                 print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
-                FPS = 60  # -- Default TaiyouUI FPS
+                FPS = 70  # -- Default TaiyouUI FPS
                 SystemUI.CurrentMenuScreen = 3
 
                 if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 3:
@@ -367,6 +390,7 @@ def GameException(Exception, ErrorPart="Unknown"):
     global IsMenuMode
     global DISPLAY
 
+    reg.Reload(True)
     if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler", True):
         raise Exception
     else:

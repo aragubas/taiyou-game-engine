@@ -216,6 +216,8 @@ def Update():
 
     # -- Update update Dialog -- #
     if ApplicationUpdateDialogEnabled:
+        UpdateDiag.Subscreen = 1
+
         UpdateDiag.Update()
 
     # -- Update Loading Square -- #

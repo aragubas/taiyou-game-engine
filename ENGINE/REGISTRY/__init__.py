@@ -19,7 +19,7 @@
 import glob
 from ENGINE import UTILS as utils
 import ENGINE as tge
-import os
+import os, time
 print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
 
 
@@ -41,7 +41,15 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
     global SystemReg_keys
     global SystemReg_contents
 
-    print("\nTaiyou.RegistryManager.Initialize : Loading Registry...")
+    start_time = time.time()
+    # -- Unload the Registry -- #
+    Unload(LoadOnSystemReg)
+
+    if not LoadOnSystemReg:
+        print("Taiyou.RegistryManager.Initialize : Loading Application Registry")
+    else:
+        print("Taiyou.RegistryManager.Initialize : Loading System Registry")
+
 
     temp_reg_keys = utils.Directory_FilesList(reg_dir)
     index = -1
@@ -71,27 +79,32 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
 
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
 
-    print("Taiyou.RegistryManager.Initialize : Operation Completed.")
-    print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded.".format(str(len(reg_keys))))
-    print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded.".format(str(len(SystemReg_keys))))
+    if not LoadOnSystemReg:
+        print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded. In {0} seconds.".format(str(len(reg_keys)), str(time.time() - start_time)))
+    else:
+        print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded. In {0} seconds".format(str(len(SystemReg_keys)), str(time.time() - start_time)))
+
+    utils.GarbageCollector_Collect()
+
+
 
 def Reload(ReloadSystemReg=False):
     """
     Reload all Registry Keys
     :return:
     """
-    print("Taiyou.RegistryManager.ReloadRegistry : Re-Loading Game Registry...")
     CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
 
     if not ReloadSystemReg:
+        print("Taiyou.RegistryManager.ReloadRegistry : Reloading Application Registry...")
         Unload()
         Initialize(CurrentGameFolder)
 
     else:
+        print("Taiyou.RegistryManager.ReloadRegistry : Reloading System Registry...")
         Unload(True)
         Initialize("Taiyou/SYSTEM/SOURCE/REG", True)
 
-    print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
     utils.GarbageCollector_Collect()
 
 def Unload(UnloadSystemReg=False):
@@ -103,17 +116,18 @@ def Unload(UnloadSystemReg=False):
     global reg_contents
     global SystemReg_keys
     global SystemReg_contents
-    print("Taiyou.RegistryManager.UnloadRegistry : Unloading Registry...")
 
     # -- Clear the Registry -- #
     if not UnloadSystemReg:
+        print("Taiyou.RegistryManager.UnloadRegistry : Unloading Application Registry")
         reg_keys = ()
         reg_contents = ()
+
     else:
+        print("Taiyou.RegistryManager.UnloadRegistry : Unloading System Registry")
         SystemReg_keys = ()
         SystemReg_contents = ()
 
-    print("Taiyou.RegistryManager.UnloadRegistry : Operation Completed.")
     utils.GarbageCollector_Collect()
 
 # -- Read Keys -- #
@@ -138,6 +152,7 @@ def ReadKey(keyName, SystemReg=False):
         return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     else:
         return SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))]
+
 
 def ReadKey_int(keyName, SystemReg=False):
     """
@@ -192,6 +207,7 @@ def ReadKey_bool(keyName, SystemReg=False):
             return True
         else:
             return False
+
 
 
 def WriteKey(keyName, keyValue, WriteOnSystemReg=False):

@@ -20,7 +20,7 @@ from ENGINE.TaiyouUI.OverlayManager import Frametime as frametimeOverlay
 from ENGINE.TaiyouUI.OverlayManager import Debug as debugOverlay
 from ENGINE import *
 import pygame
-CurrentOverlayID = -1
+CurrentOverlayID = 2
 
 
 def Update():
@@ -84,6 +84,3 @@ def EventUpdate(event):
             Set_OverlayLevel(-1)
         else:
             Set_OverlayLevel(2)
-
-    if KeyWasValid:
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Click", True), 0.5, PlayOnSystemChannel=True)

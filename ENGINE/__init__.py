@@ -494,18 +494,15 @@ def Get_SaveFolder():
 
 def Get_SaveFolderInitialized():
     global CurrentGame_SaveFolderDecided
-
     return CurrentGame_SaveFolderDecided
 
 def Set_SaveFolder(path):
     global CurrentGame_SaveFolderDecided
     global CurrentGame_SaveFolderSelected
 
-    if not CurrentGame_SaveFolderDecided:
-        CurrentGame_SaveFolderSelected = str(path)
-        CurrentGame_SaveFolderDecided = True
-    else:
-        raise Exception("Game Save Folder has been already Initialized.")
+    CurrentGame_SaveFolderSelected = str(path)
+    CurrentGame_SaveFolderDecided = True
+
 
 def Unload_SaveFolder():
     global CurrentGame_SaveFolderDecided

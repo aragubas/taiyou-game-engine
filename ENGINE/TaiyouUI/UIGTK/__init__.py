@@ -57,14 +57,17 @@ def GetLangText(lang_name, lang_prefix="generic"):
     global CurrentLanguage
     global LangErrorAppered
     try:
-        ReturnString = reg.ReadKey("/TaiyouSystem/lang_" + str(CurrentLanguage) + "/" + str(lang_prefix) + "/" + str(lang_name))
+        ReturnString = reg.ReadKey("/TaiyouSystem/lang_" + str(CurrentLanguage) + "/" + str(lang_prefix) + "/" + str(lang_name), True)
         LangErrorAppered = False
         return ReturnString
+
     except ValueError:
         if not LangErrorAppered:
             print("\n\nTaiyou.GetLangText : The language pack [" + CurrentLanguage + "] contains errors.\nCannot find the translation for: Prefix{" + lang_prefix + "} LangName[" + lang_name + "]\n\n")
             LangErrorAppered = True
+
         return reg.ReadKey("/TaiyouSystem/lang_" + "en" + "/" + str(lang_prefix) + "/" + str(lang_name), True)
+
     except Exception as ex:
         print("Taiyou.GetLangText : An error occured while processing the request.\nRequest: Name[" + lang_name + "] Prefix[" + lang_prefix + "].")
 
@@ -561,20 +564,20 @@ class InstalledApplicationList:
                 if self.ScrollEnabled:
                     if ItemRect[0] + ItemRect[2] * 2 > Surface.get_width() - self.ScrollMultiplier and self.ScrollMode == 1:
                         self.ScrollMode = 1
-                        self.ScrollMultiplier = 0
+                        self.ScrollMultiplier = 1
                         self.ScrollEnabled = False
 
                     if ItemRect[0] - ItemRect[2] < -self.ScrollMultiplier and self.ScrollMode == 0:
                         self.ScrollMode = 0
-                        self.ScrollMultiplier = 0
+                        self.ScrollMultiplier = 1
                         self.ScrollEnabled = False
 
                     if self.ScrollMode == 0:
-                        self.ScrollMultiplier += 1
+                        self.ScrollMultiplier += 0.5
                         self.ScrollX -= self.ScrollMultiplier
 
                     elif self.ScrollMode == 1:
-                        self.ScrollMultiplier += 1
+                        self.ScrollMultiplier += 0.5
                         self.ScrollX += self.ScrollMultiplier
 
             else:  # -- Draw the Game Icon only -- #

@@ -133,16 +133,20 @@ def SetMenuMode_Changes():
 
     # -- Set the Window Title -- #
     taiyouMain.ReceiveCommand("SET_TITLE;" + "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
+
     # -- Set the Unresizeable window
     taiyouMain.ReceiveCommand("RESIZIABLE_WINDOW:FalseIfTrue")
+
     # -- Set the Default Icon -- #
-    taiyouMain.ReceiveCommand("SET_ICON_BY_SPRITE:/TAIYOU_UI/icon.png")
+    taiyouMain.ReceiveCommand("SET_ICON:/TAIYOU_UI/icon.png")
+
     # -- Set to 60FPS -- #
-    taiyouMain.ReceiveCommand("SET_FPS:60")
+    taiyouMain.ReceiveCommand("SET_FPS:70")
 
     CurrentRes = pygame.display.get_window_size()
     if not CurrentRes[0] == 800 and not CurrentRes[1] == 600:
         taiyouMain.ReceiveCommand("SET_RESOLUTION:800:600")
         print("Taiyou.SetMenuChanges : CurrentResolution is different than 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
+
     else:
         print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))

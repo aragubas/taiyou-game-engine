@@ -93,11 +93,9 @@ def UpdateAnimation():
         else:
             ScreenshotFilePath += FileName
 
-
         tge.devel.PrintToTerminalBuffer("Taiyou.ScreenshotUI:\nWritting file to disk...\n")
         pygame.image.save(ScreenObj, ScreenshotFilePath)  # -- Save the Screenshot -- #
 
-        sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Decline"), PlayOnSystemChannel=True)
         print("Taiyou.ScreenshotUI : Screenshot has been saved")
 
     if ScreenshotBorderAnimMode == 0:

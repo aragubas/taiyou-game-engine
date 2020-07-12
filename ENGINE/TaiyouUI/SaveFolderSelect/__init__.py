@@ -24,7 +24,7 @@ from ENGINE import UTILS as utils
 from ENGINE.TaiyouUI import OverlayDialog as ovlDiag
 import ENGINE as tge
 from ENGINE import TaiyouMain as taiyouMain
-import os
+import os, datetime, dis
 
 # -- Animation -- #
 UIOpacity = 0
@@ -37,6 +37,7 @@ UIOpacityAnim_OutSoundPlayed = False
 UIOpacityAnim_InGameErrorSoundPlayed = False
 AnimationNumb = 0
 UpdateSaveLists = False
+
 
 # -- Copy of Screen -- #
 CopyOfScreen_Last = False
@@ -81,13 +82,12 @@ def Initialize():
 def ReloadSaveList():
     global VerticalList
 
-    print("Taiyou.SaveFolderSelect.ReloadSaveList : Listings Directorys")
+    print("Taiyou.SaveFolderSelect.ReloadSaveList : Listings Directories")
 
     VerticalList.ClearList()
 
     SaveName = "null"
     SaveDescription = ""
-
 
     for dir in [x[0] for x in os.walk(tge.Get_GlobalAppDataFolder())]:
         print("Taiyou.SaveFolderSelect.ReloadSavesList : CurrentScan[" + dir + "]")
@@ -116,9 +116,16 @@ def WriteSaveFS(name):
     FilePath = tge.Get_GlobalAppDataFolder() + name + "/.save_fs"
 
     # -- Write File -- #
+    Day = str(datetime.datetime.today().day)
+    Month = str(datetime.datetime.today().month)
+    Year = str(datetime.datetime.today().year)
+    Hour = str(datetime.datetime.today().hour)
+    Minutes = str(datetime.datetime.today().minute)
+    Secound = str(datetime.datetime.today().second)
+
     f = open(FilePath, "w+")
     f.write("Name;" + str(name))
-    f.write("\nDescription;UniplementedDataSystem")
+    f.write("\nDescription;{0}".format(gtk.GetLangText("savefs_created_at", "save_fs").format(Day, Month, Year, Hour, Minutes, Secound)))
     f.close()
 
 

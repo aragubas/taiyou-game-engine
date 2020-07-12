@@ -174,5 +174,7 @@ def GarbageCollector_Collect():
     print("Taiyou.Utils.GC_COLLECT : Function Called")
 
 def GarbageCollector_GetInfos():
-    InfosString = "Count: {0}\nStats: {1}\nDebug: {2}\nThreshold: {3}".format(gc.get_count(), gc.get_stats(), gc.get_debug(), gc.get_threshold())
+
+    InfosString = "Count: {0}".format(gc.get_count())
+
     return InfosString

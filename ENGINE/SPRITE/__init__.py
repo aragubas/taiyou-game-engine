@@ -233,7 +233,6 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
                         else:  # -- Render Images without Alpha Transparency -- #
                             DISPLAY.blit(pygame.transform.smoothscale(GetSprite(spriteName), (Width, Height)), (X, Y))
 
-
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
@@ -366,6 +365,16 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
             Color[2] = 0
         if Color[3] <= 0:  # -- A
             Color[3] = 0
+
+        if Color[0] > 255:  # -- R
+            Color[0] = 255
+        if Color[1] > 255:  # -- G
+            Color[1] = 255
+        if Color[2] > 255:  # -- B
+            Color[2] = 255
+        if Color[3] > 255:  # -- A
+            Color[3] = 255
+
 
         # -- Border Radius-- #
         if BorderRadius > 0 and Border_TopRight_Radius == 0 and Border_TopLeft_Radius == 0 and Border_BottomLeft_Radius == 0 and Border_BottomRight_Radius == 0:

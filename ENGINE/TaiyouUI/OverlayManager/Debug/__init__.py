@@ -22,19 +22,12 @@ from ENGINE import DEBUGGING as debug
 
 TextToBeDisplayed = "FPS"
 
-
 def Update():
     global TextToBeDisplayed
     DebugProfileProps = ""
 
-    if len(debug.DebugProfile_Names) > 0:
-        for Name in debug.DebugProfile_Names:
-            for Value in debug.DebugProfile_Values:
-                DebugProfileProps += "\n[{0}] = '{1}'".format(Name, Value)
-    else:
-        DebugProfileProps = "\nNo value added."
-
-    
+    for i, name in enumerate(debug.DebugProfile_Names):
+        DebugProfileProps += "\n{0} = '{1}'".format(name, debug.DebugProfile_Values[i])
 
     TextToBeDisplayed = "FPS {0}/{1}; Tick: {2}\n\n==[Debug Profile]=={3}".format(str(main.FPS), utils.FormatNumber(main.clock.get_fps(), 3), utils.FormatNumber(main.clock.get_time(), 3), DebugProfileProps)
 

@@ -15,6 +15,7 @@
 #
 #
 from ENGINE import TaiyouMain as Taiyou
+from ENGINE import *
 
 print("Taiyou Bootstrapper version 1.1")
 
@@ -24,4 +25,4 @@ Taiyou.__init__()  # -- Initialize Taiyou Game Engine
 while True:
     Taiyou.Run()
 
-print("Taiyoy Game Engine execution has been ended.")
+print("Taiyou Game Engine execution has been ended.")
