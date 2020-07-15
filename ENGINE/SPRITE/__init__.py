@@ -29,7 +29,7 @@ Sprites_Data = ()
 Fonts_Name = ()
 Fonts_Data = ()
 
-DefaultSprite = pygame.image.load("Taiyou/SYSTEM/SOURCE/SPRITE/default.png")
+DefaultSprite = pygame.image.load("Taiyou/SYSTEM/Data/SPRITE/default.png")
 
 FontRenderingDisabled = False
 SpriteRenderingDisabled = False
@@ -45,10 +45,10 @@ def LoadSpritesInFolder(FolderName):
     global Sprites_Data
 
     pygame.font.init()
-    folder_name = FolderName + "/SPRITE"
+    folder_name = FolderName + "Data/SPRITE"
     index = -1
 
-    sprite_metadata = open(FolderName + "/SPRITE/meta.data", "r")
+    sprite_metadata = open(folder_name + "/meta.data", "r")
     sprite_meta_lines = sprite_metadata.readlines()
 
     print("LoadSpritesInFolder : Loading all Sprites...")
@@ -147,10 +147,12 @@ def Unload():
     CurrentLoadedFonts_Contents = ()
     CurrentLoadedFonts_Name = ()
 
-    print("Sprite.Unload : Operation Completed")
+    print("Sprite.Unload : Reloading TaiyouUi Sprites...")
 
     # -- Reload Menu Sprites -- #
-    LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
+    LoadSpritesInFolder("Taiyou/SYSTEM/")
+
+    print("Sprite.Unload : Operation Completed")
 
 
 def Reload():
@@ -318,7 +320,7 @@ def GetFont_object(FontFileLocation, Size):
             print("Sprite.GetFontObject ; Creating Font Cache Object")
 
             CurrentLoadedFonts_Name += (FontCacheName,)
-            CurrentLoadedFonts_Contents += (pygame.font.Font("Taiyou/SYSTEM/SOURCE/FONT" + FontFileLocation, Size),)
+            CurrentLoadedFonts_Contents += (pygame.font.Font("Taiyou/SYSTEM/Data/FONT" + FontFileLocation, Size),)
 
             print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 

@@ -738,8 +738,9 @@ class InstalledApplicationList:
         FolderName = ""
         with open(MetaFile) as file_in:
             for line in file_in:
-                if not line == "":
-                    line = line.rstrip()
+                line = line.rstrip()
+
+                if not line == "" and not line.startswith('#'):
                     LineNumber += 1
 
                     if LineNumber == 0:  # -- Application Name
@@ -751,21 +752,18 @@ class InstalledApplicationList:
                     if LineNumber == 2:  # -- Application Version
                         self.ApplicationVersion.append(line)
 
-                    if LineNumber == 3:  # -- Application Source Folder
-                        self.ApplicationSourceFolder.append(line)
-
-                    if LineNumber == 4:  # -- Application Folder Name
+                    if LineNumber == 3:  # -- Application Folder Name
                         self.ApplicationFolderName.append(line)
                         FolderName = line.rstrip()
 
-                    if LineNumber == 5:  # -- Animation Banner Frames
+                    if LineNumber == 4:  # -- Animation Banner Frames
                         AnimationTotalFrames = int(line)
 
-                    if LineNumber == 6:  # -- Animation Banner Frames Delay
+                    if LineNumber == 5:  # -- Animation Banner Frames Delay
                         AnimationFramesDelay = int(line)
 
-        if LineNumber < 6 or LineNumber > 7: # -- Detect if the Game Folder is invalid
-            raise NotADirectoryError("The Application [" + ApplicationDir + "] is not a valid Taiyou Application.\nMETADATA_FILE_READ_FILE")
+        if LineNumber < 5: # -- Detect if the Game Folder is invalid
+            raise NotADirectoryError("The Application [" + ApplicationDir + "] is not a valid Taiyou Application.\nMETADATA_FILE_READ_ERROR")
 
         # -- Load the Game Icon and Banner Animation -- #
         try:
@@ -1014,10 +1012,6 @@ class Slider():
         self.Surface.set_alpha(self.Opacity)
 
         Display.blit(self.Surface, (self.Rectangle[0], self.Rectangle[1]))
-
-        debug.Set_Parameter("self.SliderRectangle", self.SliderRectangle)
-        debug.Set_Parameter("self.IsBeingMoved", self.IsBeingMoved)
-        debug.Set_Parameter("self.Value", self.Value)
 
     def DrawObject(self):
         self.Surface.fill(Panels_BackgroundColor)

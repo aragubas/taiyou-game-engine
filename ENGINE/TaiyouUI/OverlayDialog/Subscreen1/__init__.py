@@ -329,10 +329,10 @@ def Update_MetaSteps():
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes")
 
         if UpdateStep == 2:
-            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/CurrentVersion", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version", "r").read().rstrip())
-            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/PatchNotes", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes", "r").read().rstrip())
+            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/CurrentVersion", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version", "r").read().rstrip(), True)
+            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/PatchNotes", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes", "r").read().rstrip(), True)
 
-            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/ApplicationDataHasBeenDownloaded", "True")
+            reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/ApplicationDataHasBeenDownloaded", "True", True)
 
             UpdateCompleted = True
             UpdateCompletedMessage = "metadw_download_completests"

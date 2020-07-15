@@ -23,7 +23,7 @@ def Get_SpriteVersion():
 def Get_SoundVersion():
     return "2.0"
 def Get_RegistryVersion():
-    return "1.9 "
+    return "2.1"
 def Get_UtilsVersion():
     return "1.6"
 def Get_TaiyouMainVersion():
@@ -31,7 +31,7 @@ def Get_TaiyouMainVersion():
 def Get_DeveloperConsoleVersion():
     return "2.0"
 def Get_TaiyouUIVersion():
-    return "3.0"
+    return "3.1"
 def Get_DebuggingVersion():
     return "1.3"
 def Get_BootloaderVersion():
@@ -60,8 +60,8 @@ import os, pygame
 CurrentGame_Title = "null"
 CurrentGame_ID = "null"
 CurrentGame_Version = "null"
-CurrentGame_SourceFolder = "null"
 CurrentGame_Folder = "null"
+
 CurrentGame_SaveFolderDecided = False
 CurrentGame_SaveFolderSelected = "null"
 
@@ -143,36 +143,39 @@ def LoadFolderMetaData(GameFolderDir):
     global CurrentGame_Title
     global CurrentGame_ID
     global CurrentGame_Version
-    global CurrentGame_SourceFolder
     global CurrentGame_Folder
     global TaiyouPath_AppDataFolder
     global TaiyouGeneralVersion
 
     print("Taiyou.Runtime.LoadFolderMetaData : Loading Game Metadata file...")
-    InfFileLocation = GameFolderDir + "/meta.data"
 
-    inf_file = open(InfFileLocation, "r")
+    MetaFile = GameFolderDir + "/meta.data"
+    FolderName = ""
+    LineNumber = -1
+    with open(MetaFile) as file_in:
+        for line in file_in:
+            line = line.rstrip()
 
-    CurrentGame_Folder = GameFolderDir
+            if not line == "" and not line.startswith('#'):
+                LineNumber += 1
 
-    LineIndex = 0
-    for x in inf_file:
-        LineIndex += 1
-        if LineIndex == 1:
-            CurrentGame_Title = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : Game Title[{0}]".format(CurrentGame_Title))
-        
-        if LineIndex == 2:
-            CurrentGame_ID = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : Game ID[{0}]".format(CurrentGame_ID))
-        
-        if LineIndex == 3:
-            CurrentGame_Version = x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : Game Version[{0}]".format(CurrentGame_Version))
+                if LineNumber == 0:  # -- Application Name
+                    CurrentGame_Title = str(line)
 
-        if LineIndex == 4:
-            CurrentGame_SourceFolder = GameFolderDir + "/" + x.rstrip()
-            print("Taiyou.Runtime.LoadFolderMetaData : Game Source Folder[{0}]".format(CurrentGame_SourceFolder))
+                if LineNumber == 1:  # -- Application ID
+                    CurrentGame_ID = str(line)
+
+                if LineNumber == 2:  # -- Application Version
+                    CurrentGame_Version = str(line)
+
+                if LineNumber == 3:  # -- Application Folder Name
+                    CurrentGame_Folder = str(line)
+
+                if LineNumber == 4:  # -- Animation Banner Frames
+                    AnimationTotalFrames = int(line)
+
+                if LineNumber == 5:  # -- Animation Banner Frames Delay
+                    AnimationFramesDelay = int(line)
 
     # -- Create Temporary File -- #
     print("Taiyou.Runtime.LoadFolderMetaData : Creating Temporary Files...")
@@ -182,7 +185,6 @@ def LoadFolderMetaData(GameFolderDir):
     f.write(str(CurrentGame_Folder))
     f.write(str(CurrentGame_Title))
     f.write(str(CurrentGame_Version))
-    f.write(str(CurrentGame_SourceFolder))
     f.close()
 
     print("Taiyou.Runtime.LoadFolderMetaData : Done!")
@@ -230,7 +232,7 @@ def InitEngine():
                 else:
                     sprite.FontRenderingDisabled = False
 
-                print("Taiyou.Runtime.InitEngine : Disable font rendering set to:" + str(sprite.FontRenderingDisabled ))
+                print("Taiyou.Runtime.InitEngine : Disable font rendering set to:" + str(sprite.FontRenderingDisabled))
 
             # -- Disable Sprite Rendering -- #
             elif SplitedParms[0] == "DisableSpriteRendering":
@@ -490,10 +492,10 @@ def Get_GameVersion():
     return CurrentGame_Version
 
 def Get_GameSourceFolder():
-    global CurrentGame_SourceFolder
-    if CurrentGame_SourceFolder == "null":
-        return "Taiyou/SYSTEM/SOURCE"
-    return CurrentGame_SourceFolder
+    global CurrentGame_Folder
+    if CurrentGame_Folder == "null":
+        return "Taiyou/SYSTEM/Data"
+    return CurrentGame_Folder + "/Data"
 
 def Get_GameFolder():
     global CurrentGame_Folder

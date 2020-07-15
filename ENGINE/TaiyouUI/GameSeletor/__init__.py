@@ -118,15 +118,13 @@ def Initialize():
     # -- Initialize Volume Slider -- #
     volumeSlider.Initialize()
 
-    LoadGameList()
-
-
 def LoadGameList():
     global ValidGameFolders
     print("TaiyouUI.LoadGameList : Started")
-    ValidGameFolders.clear()
-    InstalledGameList.ClearItems()
+    UnloadGameList()
+
     ValidGameFolders = ListInstalledGames()
+
 
     for game in ValidGameFolders:
         InstalledGameList.AddItem(game)
@@ -134,9 +132,11 @@ def LoadGameList():
 
 
 def UnloadGameList():
+    global ValidGameFolders
     print("TaiyouUI.UnloadGameList : Started")
     ValidGameFolders.clear()
     InstalledGameList.ClearItems()
+
     print("TaiyouUI.UnloadGameList : Game List has been unloaded.")
 
 

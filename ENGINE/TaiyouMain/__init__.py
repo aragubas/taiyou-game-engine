@@ -24,7 +24,7 @@ from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import TaiyouUI as SystemUI
 from ENGINE.TaiyouUI import OverlayManager as ovelMng
-import pygame, sys, importlib
+import pygame, sys, importlib, marshal
 import traceback, threading
 from datetime import datetime
 from multiprocessing import Process
@@ -285,8 +285,6 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
     global GameObject
     global IsMenuMode
 
-    print("Taiyou.GameExecution.RemoveGame : Suspend Game Code")
-
     # -- Call the Game Unload Function on Game -- #
     try:
         GameObject.Unload()
@@ -294,9 +292,13 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
         print("Taiyou.GameExecution.RemoveGame : Game has no Unload Function.")
 
     # -- Try to delete the Game Object -- #
+    print("Taiyou.GameExecution.RemoveGame : Unloading Game Code")
+
     utils.GarbageCollector_Collect()
     try:
+        utils.GarbageCollector_Collect()
         importlib.reload(GameObject)
+        utils.GarbageCollector_Collect()
     except TypeError:
         pass
     GameObject = None
@@ -305,6 +307,8 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
     utils.GarbageCollector_Collect()
     GameObject = None
     utils.GarbageCollector_Collect()
+
+    print("Taiyou.GameExecution.RemoveGame : Done!")
 
     if UnloadGameAssts:
         print("Taiyou.GameExecution.RemoveGame : Unload Game Assets")

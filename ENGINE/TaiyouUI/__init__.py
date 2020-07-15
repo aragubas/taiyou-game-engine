@@ -37,13 +37,17 @@ SystemMenuEnabled = True
 Cursor_Position = (0, 0)
 Cursor_CurrentLevel = 0
 
+DataPath = "Taiyou/SYSTEM/"
+
 def Initialize():
+    global DataPath
+
     print("TaiyouUI.Initialize : Started")
 
     # -- Load TaiyouUi Assets -- #
-    sprite.LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
-    sound.LoadAllSounds("Taiyou/SYSTEM/SOURCE")
-    reg.Initialize("Taiyou/SYSTEM/SOURCE/REG", True)
+    sprite.LoadSpritesInFolder(DataPath)
+    sound.LoadAllSounds(DataPath)
+    reg.Initialize(DataPath, True)
 
 
     # -- Load the Language -- #

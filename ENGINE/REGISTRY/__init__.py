@@ -50,7 +50,7 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
     else:
         print("Taiyou.RegistryManager.Initialize : Loading System Registry")
 
-
+    reg_dir = reg_dir + "Data/REG"
     temp_reg_keys = utils.Directory_FilesList(reg_dir)
     index = -1
 
@@ -80,9 +80,9 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
 
     if not LoadOnSystemReg:
-        print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded. In {0} seconds.".format(str(len(reg_keys)), str(time.time() - start_time)))
+        print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded. In {1} seconds.".format(str(len(reg_keys)), utils.FormatNumber(time.time() - start_time, 4)))
     else:
-        print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded. In {0} seconds".format(str(len(SystemReg_keys)), str(time.time() - start_time)))
+        print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded. In {1} seconds".format(str(len(SystemReg_keys)), utils.FormatNumber(time.time() - start_time, 4)))
 
     utils.GarbageCollector_Collect()
 
@@ -93,7 +93,7 @@ def Reload(ReloadSystemReg=False):
     Reload all Registry Keys
     :return:
     """
-    CurrentGameFolder = tge.Get_GameSourceFolder() + "/REG"
+    CurrentGameFolder = tge.Get_GameFolder() + "/"
 
     if not ReloadSystemReg:
         print("Taiyou.RegistryManager.ReloadRegistry : Reloading Application Registry...")
@@ -103,7 +103,7 @@ def Reload(ReloadSystemReg=False):
     else:
         print("Taiyou.RegistryManager.ReloadRegistry : Reloading System Registry...")
         Unload(True)
-        Initialize("Taiyou/SYSTEM/SOURCE/REG", True)
+        Initialize("Taiyou/SYSTEM/", True)
 
     utils.GarbageCollector_Collect()
 
@@ -248,7 +248,7 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     if not WriteOnSystemReg:
         FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
     else:
-        FileLocation = "Taiyou/SYSTEM/SOURCE/REG" + keyName + ".data"
+        FileLocation = "Taiyou/SYSTEM/Data/REG" + keyName + ".data"
 
     # -- Create the directory -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)

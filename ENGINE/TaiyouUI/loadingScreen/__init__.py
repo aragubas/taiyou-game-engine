@@ -156,19 +156,19 @@ def UpdateLoadingStages():
 
         elif LoadingStage == 2:
             print("Taiyou.LoadingScreen : Load Folder Metadata")
-            tge.LoadFolderMetaData(GameFolderToOpen)
+            tge.LoadFolderMetaData(GameFolderToOpen + "/")
 
         elif LoadingStage == 3:
             print("Taiyou.LoadingScreen : Load Game Sprites")
-            sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
+            sprite.LoadSpritesInFolder(GameFolderToOpen + "/")
 
         elif LoadingStage == 4:
             print("Taiyou.LoadingScreen : Load Game Sounds")
-            sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
+            sound.LoadAllSounds(GameFolderToOpen + "/")
 
         elif LoadingStage == 5:
             print("Taiyou.LoadingScreen : Load Game Registry Keys")
-            reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
+            reg.Initialize(GameFolderToOpen + "/")
 
         elif LoadingStage == 6:
             print("Taiyou.LoadingScreen : Load Game Code")

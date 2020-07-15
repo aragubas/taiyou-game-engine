@@ -60,7 +60,7 @@ def LoadAllSounds(FolderName):
 
     if DisableSoundSystem:
         return
-    FolderName = FolderName + "/SOUND"
+    FolderName = FolderName + "Data/SOUND"
     temp_sound_files = utils.Directory_FilesList(FolderName)
     index = -1
 
@@ -94,7 +94,7 @@ def Unload():
 
     AllLoadedSounds = {}
 
-    LoadAllSounds("Taiyou/SYSTEM/SOURCE")
+    LoadAllSounds("Taiyou/SYSTEM/")
 
 def Reload():
     """
