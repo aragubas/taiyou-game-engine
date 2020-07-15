@@ -19,6 +19,7 @@
 from ENGINE import UTILS as utils
 import ENGINE as tge
 import pygame, sys, os
+from pygame import gfxdraw
 
 print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
 
@@ -176,7 +177,7 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 
-def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=(0, 0, 0)):
+def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None):
     """
     Render a Image loaded to the Sprite System
     :param DISPLAY:Surface to be rendered
@@ -215,7 +216,7 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
                             target = GetSprite(spriteName)
                             target.set_alpha(Opacity)
 
-                            if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
+                            if not ColorKey == None:  # -- Set the Color Key if needed -- #
                                 target.set_colorkey(ColorKey)
 
                             DISPLAY.blit(pygame.transform.scale(target, (Width, Height)), (X, Y))
@@ -226,7 +227,7 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
                             target = GetSprite(spriteName)
                             target.set_alpha(Opacity)
 
-                            if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
+                            if not ColorKey == None:  # -- Set the Color Key if needed -- #
                                 target.set_colorkey(ColorKey)
 
                             DISPLAY.blit(pygame.transform.smoothscale(target, (Width, Height)), (X, Y))
@@ -236,8 +237,7 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
-def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=(-1, -1, -1),
-               Opacity=255):
+def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=None, Opacity=255):
     """
     Render a Text using a font loaded into Taiyou Font Cache
     :param DISPLAY:Surface Name
@@ -254,18 +254,18 @@ def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=
         # -- Get the FontFileObject, required for all functions here -- #
         FontFileObject = GetFont_object(FontFileLocation, Size)
 
-        # -- Workaround to make Opacity Value not raise exception -- #
-        if Opacity <= 0:
-            Opacity = 0
-        if Opacity >= 255:
-            Opacity = 255
+        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(Text, antialias, ColorRGB).get_height() and not Text == "":
+            # -- Fix Opacity Range -- #
+            if Opacity < 0:
+                Opacity = 0
+            if Opacity > 255:
+                Opacity = 255
 
-        if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(
-                Text, antialias, ColorRGB).get_height() and not Text == "":
+
             # -- Render Multiple Lines -- #
             if len(Text.splitlines()) > 1:
                 for i, l in enumerate(Text.splitlines()):
-                    if not backgroundColor == (-1, -1, -1):  # -- If background was provided, render with Background
+                    if not backgroundColor == None:  # -- If background was provided, render with Background
                         FontSurface = FontFileObject.render(l, antialias, ColorRGB, backgroundColor)
 
                         if not Opacity == 255:  # -- Set the Font Opacity, if needed
@@ -282,7 +282,7 @@ def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=
                         DISPLAY.blit(FontSurface, (X, Y + Size * i))
 
             else:  # -- Render Single Line Text -- #
-                if not backgroundColor == (-1, -1, -1):  # -- If background was provided, render with Background
+                if not backgroundColor == None:  # -- If background was provided, render with Background
                     FontSurface = FontFileObject.render(Text, antialias, ColorRGB, backgroundColor)
 
                     if not Opacity == 255:  # -- Set the Font Opacity, if needed
@@ -348,33 +348,12 @@ def Surface_Blur(surface, amt, fast_scale=False):
     return surf
 
 
-def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0):
+def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0, DrawLines=False):
     if RectangleRenderingDisabled:
         return
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
-        Color = list(Color)
-
-        # -- Fix Color RGBA RGB Confusion -- #
-        if len(Color) < 4:  # -- If no Alfa argument was suplied, add 255 alfa value
-            Color.append(255)
-        if Color[0] <= 0:  # -- R
-            Color[0] = 0
-        if Color[1] <= 0:  # -- G
-            Color[1] = 0
-        if Color[2] <= 0:  # -- B
-            Color[2] = 0
-        if Color[3] <= 0:  # -- A
-            Color[3] = 0
-
-        if Color[0] > 255:  # -- R
-            Color[0] = 255
-        if Color[1] > 255:  # -- G
-            Color[1] = 255
-        if Color[2] > 255:  # -- B
-            Color[2] = 255
-        if Color[3] > 255:  # -- A
-            Color[3] = 255
-
+        # -- Fix the Color Range -- #
+        Color = FixColorRange(Color)
 
         # -- Border Radius-- #
         if BorderRadius > 0 and Border_TopRight_Radius == 0 and Border_TopLeft_Radius == 0 and Border_BottomLeft_Radius == 0 and Border_BottomRight_Radius == 0:
@@ -384,9 +363,49 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
             Border_BottomLeft_Radius = BorderRadius
 
         # -- Render the Rectangle -- #
-        pygame.draw.rect(DISPLAY, Color, Rectangle, BorderWidth, BorderRadius, Border_TopLeft_Radius,
-                         Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
+        if not DrawLines:
+            pygame.draw.rect(DISPLAY, Color, Rectangle, BorderWidth, BorderRadius, Border_TopLeft_Radius,
+                             Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
+        else:
+            gfxdraw.rectangle(DISPLAY, Rectangle, Color)
 
+def Shape_Pie(DISPLAY, X, Y, Radius, StartAngle, StopAngle, Color):
+    if X + Radius >= DISPLAY.get_width() or X < Radius:
+        Color = FixColorRange(Color)
+
+        gfxdraw.pie(DISPLAY, X, Y, Radius, StartAngle, StopAngle, Color)
+
+def FixColorRange(ColorArguments):
+    """
+    Fix the Color Range (0 - 255)
+    :param ColorArguments: Input
+    :return: Output
+    """
+    ColorArguments = list(ColorArguments)
+
+    if len(ColorArguments) < 4:  # -- Add the Alpha Argument
+        ColorArguments.append(255)
+
+    # -- Limit the Color Range -- #
+    if ColorArguments[0] < 0:  # -- R
+        ColorArguments[0] = 0
+    if ColorArguments[1] < 0:  # -- G
+        ColorArguments[1] = 0
+    if ColorArguments[2] < 0:  # -- B
+        ColorArguments[2] = 0
+    if ColorArguments[3] < 0:  # -- A
+        ColorArguments[3] = 0
+
+    if ColorArguments[0] > 255:  # -- R
+        ColorArguments[0] = 255
+    if ColorArguments[1] > 255:  # -- G
+        ColorArguments[1] = 255
+    if ColorArguments[2] > 255:  # -- B
+        ColorArguments[2] = 255
+    if ColorArguments[3] > 255:  # -- A
+        ColorArguments[3] = 255
+
+    return ColorArguments
 
 def GetFont_width(FontFileLocation, FontSize, Text):
     """

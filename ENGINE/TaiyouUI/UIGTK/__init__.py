@@ -19,6 +19,8 @@ from ENGINE import REGISTRY as reg
 from ENGINE import TaiyouUI as mainScript
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
+from ENGINE import DEBUGGING as debug
+
 import ENGINE as tge
 import pygame, sys, importlib
 
@@ -562,22 +564,22 @@ class InstalledApplicationList:
 
                 # -- Scroll the List -- #
                 if self.ScrollEnabled:
-                    if ItemRect[0] + ItemRect[2] * 2 > Surface.get_width() - self.ScrollMultiplier and self.ScrollMode == 1:
-                        self.ScrollMode = 1
-                        self.ScrollMultiplier = 1
-                        self.ScrollEnabled = False
-
-                    if ItemRect[0] - ItemRect[2] < -self.ScrollMultiplier and self.ScrollMode == 0:
+                    if ItemRect[0] + ItemRect[2] * 2 > Surface.get_width() - self.ScrollMultiplier and self.ScrollMode == 1 and self.ScrollEnabled:
                         self.ScrollMode = 0
-                        self.ScrollMultiplier = 1
+                        self.ScrollMultiplier = 1.5
                         self.ScrollEnabled = False
 
-                    if self.ScrollMode == 0:
-                        self.ScrollMultiplier += 0.5
+                    if ItemRect[0] - ItemRect[2] < -self.ScrollMultiplier and self.ScrollMode == 0 and self.ScrollEnabled:
+                        self.ScrollMode = 0
+                        self.ScrollMultiplier = 1.5
+                        self.ScrollEnabled = False
+
+                    if self.ScrollMode == 0 and self.ScrollEnabled:
+                        self.ScrollMultiplier += 1.5
                         self.ScrollX -= self.ScrollMultiplier
 
-                    elif self.ScrollMode == 1:
-                        self.ScrollMultiplier += 0.5
+                    elif self.ScrollMode == 1 and self.ScrollEnabled:
+                        self.ScrollMultiplier += 1.5
                         self.ScrollX += self.ScrollMultiplier
 
             else:  # -- Draw the Game Icon only -- #
@@ -588,7 +590,6 @@ class InstalledApplicationList:
             Surface.blit(ItemSurface, (ItemRect[0], ItemRect[1]))
 
         DISPLAY.blit(Surface, (self.Rectangle[0], self.Rectangle[1]))
-        Surface.fill((0, 0, 0, 0))
 
         if self.ScrollSlowdownEnabled:
             self.ScrollSlowdown += 1
@@ -638,10 +639,9 @@ class InstalledApplicationList:
 
         self.ScrollSlowdownEnabled = True
 
-        if not self.ScrollEnabled:
-            self.ScrollEnabled = True
-            self.ScrollMode = 0
-            self.ScrollMultiplier = 0
+        self.ScrollEnabled = True
+        self.ScrollMode = 0
+        self.ScrollMultiplier = 1.5
 
     def ScrollIndexDown(self):
         # -- Scroll the Selected Item -- #
@@ -657,10 +657,9 @@ class InstalledApplicationList:
 
         self.ScrollSlowdownEnabled = True
 
-        if not self.ScrollEnabled:
-            self.ScrollEnabled = True
-            self.ScrollMode = 1
-            self.ScrollMultiplier = 0
+        self.ScrollEnabled = True
+        self.ScrollMode = 1
+        self.ScrollMultiplier = 1.5
 
     def Update(self, event):
         # -- Only Run Events when needed. -- #
@@ -981,12 +980,16 @@ class LoadingSquare:
 
 class Slider():
     def __init__(self, Xloc, Yloc, Value):
-        self.Rectangle = pygame.Rect(Xloc, Yloc, 32, 128)
+        self.Rectangle = pygame.Rect(Xloc, Yloc, 32, 132)
         self.Value = Value
         self.LastCursorPos = (0, 0)
         self.IsBeingMoved = False
-        self.SliderRectangle = pygame.Rect
+        self.SliderRectangle = pygame.Rect(self.Rectangle[0] + 5, (self.Rectangle[1] + 5) + 0 - (self.Rectangle[1] + 5), self.Rectangle[2] - 10, 10)
         self.Opacity = 255
+        self.Surface = pygame.Surface((32, 132), pygame.SRCALPHA)
+        self.UpdateValue = True
+        self.DrawEnabled = False
+        self.FirstFrameDrawn = False
 
     def Render(self, Display):
         # -- Update Rectangles -- #
@@ -996,31 +999,40 @@ class Slider():
         if self.SliderRectangle[1] <= self.Rectangle[1] + 10:
             self.SliderRectangle[1] = self.Rectangle[1] + 10
 
-        if self.SliderRectangle[1] >= self.Rectangle[1] + self.Rectangle[3] - 10:
-            self.SliderRectangle[1] = self.Rectangle[1] + self.Rectangle[3] - 15
-
-        # -- Set the Surface -- #
-        Surface = pygame.Surface((32, 128), pygame.SRCALPHA)
-
-        # -- Set Surface Opacity -- #
-        Surface.set_alpha(self.Opacity)
+        if self.SliderRectangle[1] >= self.Rectangle[1] + self.Rectangle[3] - 12:
+            self.SliderRectangle[1] = self.Rectangle[1] + self.Rectangle[3] - 12
 
         # -- Render Background -- #
-        Surface.fill(Panels_BackgroundColor)
+        if self.DrawEnabled:
+            self.DrawObject()
+
+        if not self.FirstFrameDrawn:
+            self.FirstFrameDrawn = True
+            self.DrawObject()
+
+        # -- Set Surface Opacity -- #
+        self.Surface.set_alpha(self.Opacity)
+
+        Display.blit(self.Surface, (self.Rectangle[0], self.Rectangle[1]))
+
+        debug.Set_Parameter("self.SliderRectangle", self.SliderRectangle)
+        debug.Set_Parameter("self.IsBeingMoved", self.IsBeingMoved)
+        debug.Set_Parameter("self.Value", self.Value)
+
+    def DrawObject(self):
+        self.Surface.fill(Panels_BackgroundColor)
 
         # -- Render the Borders -- #
-        sprite.Shape_Rectangle(Surface, Panels_IndicatorColor, (0, 0, 32, 128), Panels_Indicator_Size)
+        sprite.Shape_Rectangle(self.Surface, Panels_IndicatorColor, (0, 0, 32, 128), Panels_Indicator_Size)
 
         # -- Render the Slider Background -- #
-        sprite.Shape_Rectangle(Surface, (100, 101, 103), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, self.Rectangle[3] - 15), 0, 5)
+        sprite.Shape_Rectangle(self.Surface, (100, 101, 103), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, self.Rectangle[3] - 15), 0, 5)
 
         # -- Render the Slider Percentage -- #
-        sprite.Shape_Rectangle(Surface, (255, 51, 102), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, (self.SliderRectangle[1] - self.Rectangle[1]) - self.SliderRectangle[3]), 0, 0, 5, 5)
+        sprite.Shape_Rectangle(self.Surface, (255, 51, 102), ((self.SliderRectangle[0] - self.Rectangle[0]) + 5, 10, 10, (self.SliderRectangle[1] - self.Rectangle[1]) - self.SliderRectangle[3]), 0, 0, 5, 5)
 
         # -- Render the Slider Notch -- #
-        sprite.Shape_Rectangle(Surface, (218, 218, 218), (5, self.SliderRectangle[1] - self.Rectangle[1], self.SliderRectangle[2], self.SliderRectangle[3]), 0, 15)
-
-        Display.blit(Surface, (self.Rectangle[0], self.Rectangle[1]))
+        sprite.Shape_Rectangle(self.Surface, (218, 218, 218), (5, self.SliderRectangle[1] - self.Rectangle[1], self.SliderRectangle[2], self.SliderRectangle[3]), 0, 360)
 
     def Set_X(self, Value):
         self.Rectangle[0] = Value
@@ -1036,7 +1048,7 @@ class Slider():
         self.Value = value
 
     def EventUpdate(self, event):
-        if self.Opacity >= 10:
+        if self.Opacity > 1:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.SliderRectangle.collidepoint(mainScript.Cursor_Position):
                     self.IsBeingMoved = True
@@ -1048,10 +1060,14 @@ class Slider():
 
             if self.IsBeingMoved:
                 self.LastCursorPos = (mainScript.Cursor_Position[0], mainScript.Cursor_Position[1])
+                self.UpdateValue = True
             else:
                 try:
-                    # -- Update Bar Value -- #
-                    self.Value = min((self.SliderRectangle[1] - self.SliderRectangle[3]) - (self.Rectangle[1]), 100)
+                    if self.UpdateValue:
+                        self.UpdateValue = False
+                        # -- Update Bar Value -- #
+                        self.Value = min((self.SliderRectangle[1] - self.SliderRectangle[3]) - (self.Rectangle[1]), 100)
+
                 except TypeError:
                     pass
 

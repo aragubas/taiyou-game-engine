@@ -17,26 +17,28 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "2.7"
+    return "2.8"
 def Get_SpriteVersion():
     return "2.2"
 def Get_SoundVersion():
     return "2.0"
 def Get_RegistryVersion():
-    return "1.8"
+    return "1.9 "
 def Get_UtilsVersion():
     return "1.6"
-def Get_GameObjVersion():
-    return "3.0"
+def Get_TaiyouMainVersion():
+    return "3.2"
 def Get_DeveloperConsoleVersion():
     return "2.0"
 def Get_TaiyouUIVersion():
-    return "2.8"
+    return "3.0"
 def Get_DebuggingVersion():
-    return "1.2"
+    return "1.3"
+def Get_BootloaderVersion():
+    return "1.3"
 
-
-TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_GameObjVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) - 9.0
+# -- Calculate the Version of Taiyou Game Engine -- #
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_TaiyouMainVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) + float(Get_BootloaderVersion()) - 10.0
 
 
 # -- Print Runtime Version -- #
@@ -51,6 +53,7 @@ from ENGINE import TaiyouUI
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import TaiyouUI as TaiyouUI
 from ENGINE import DEBUGGING as debug
+from ENGINE.TaiyouUI import OverlayManager as ovlMng
 import os, pygame
 
 # -- Current Game Variables -- #
@@ -79,7 +82,6 @@ InputDisableMouse = False
 IgnoreSDL2Parameters = True
 PygameFastEvent = True
 SmoothScaleTransform = "MMX"
-BitDepth = 32
 
 # -- User -- #
 UserName = ""
@@ -130,7 +132,7 @@ def InitUserData():
     LastModulesVersion.write("SOUND=" + Get_SoundVersion() + "\n")
     LastModulesVersion.write("REGISTRY=" + Get_RegistryVersion() + "\n")
     LastModulesVersion.write("UTILS=" + Get_UtilsVersion() + "\n")
-    LastModulesVersion.write("GAME_OBJ=" + Get_GameObjVersion() + "\n")
+    LastModulesVersion.write("GAME_OBJ=" + Get_TaiyouMainVersion() + "\n")
     LastModulesVersion.write("DEVELOPER_CONSOLE=" + Get_DeveloperConsoleVersion() + "\n")
     LastModulesVersion.write("TAIYOU_UI=" + Get_TaiyouUIVersion())
     LastModulesVersion.close()
@@ -231,7 +233,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Disable font rendering set to:" + str(sprite.FontRenderingDisabled ))
 
             # -- Disable Sprite Rendering -- #
-            if SplitedParms[0] == "DisableSpriteRendering":
+            elif SplitedParms[0] == "DisableSpriteRendering":
                 if SplitedParms[1] == "True":
                     sprite.SpriteRenderingDisabled = True
                 else:
@@ -240,7 +242,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Disable sprite rendering set to:" + str(sprite.SpriteRenderingDisabled))
 
             # -- Disable Rectangle Rendering -- #
-            if SplitedParms[0] == "DisableRectangleRendering":
+            elif SplitedParms[0] == "DisableRectangleRendering":
                 if SplitedParms[1] == "True":
                     sprite.RectangleRenderingDisabled = True
                 else:
@@ -249,7 +251,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Disable rectangle rendering set to:" + str(sprite.RectangleRenderingDisabled))
 
             # -- Disable Sprite Transparency -- #
-            if SplitedParms[0] == "DisableSpriteTransparency":
+            elif SplitedParms[0] == "DisableSpriteTransparency":
                 if SplitedParms[1] == "True":
                     sprite.SpriteTransparency = True
                 else:
@@ -258,7 +260,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(sprite.SpriteTransparency))
 
             # -- Disable Sound System -- #
-            if SplitedParms[0] == "DisableSoundSystem":
+            elif SplitedParms[0] == "DisableSoundSystem":
                 if SplitedParms[1] == "True":
                     sound.DisableSoundSystem = True
                 else:
@@ -267,49 +269,49 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(sound.DisableSoundSystem))
 
             # -- AppData Folder Path -- #
-            if SplitedParms[0] == "AppDataFolder":
+            elif SplitedParms[0] == "AppDataFolder":
                 TaiyouPath_AppDataFolder = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:" + str(TaiyouPath_AppDataFolder))
 
             # -- SDL Option: Video Driver -- #
-            if SplitedParms[0] == "VideoDriver":
+            elif SplitedParms[0] == "VideoDriver":
                 VideoDriver = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : Video Driver was set to:" + str(VideoDriver))
 
             # -- SDL Option: Audio Driver -- #
-            if SplitedParms[0] == "AudioDriver":
+            elif SplitedParms[0] == "AudioDriver":
                 AudioDriver = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : Audio Driver was set to:" + str(AudioDriver))
 
             # -- SoundSystem: Audio Device Frequency -- #
-            if SplitedParms[0] == "AudioFrequency":
+            elif SplitedParms[0] == "AudioFrequency":
                 AudioFrequency = int(SplitedParms[1].rstrip())
 
                 print("Taiyou.Runtime.InitEngine : Audio Frequency was set to:" + str(AudioFrequency))
 
             # -- SoundSystem: Audio Device Frame Size -- #
-            if SplitedParms[0] == "AudioSize":
+            elif SplitedParms[0] == "AudioSize":
                 AudioSize = int(SplitedParms[1].rstrip())
 
                 print("Taiyou.Runtime.InitEngine : Audio Size was set to:" + str(AudioSize))
 
             # -- SoundSystem: Audio Device Audio Channels -- #
-            if SplitedParms[0] == "AudioChannels":
+            elif SplitedParms[0] == "AudioChannels":
                 AudioChannels = int(SplitedParms[1].rstrip())
 
                 print("Taiyou.Runtime.InitEngine : Audio Channels was set to:" + str(AudioChannels))
 
             # -- SoundSystem: Audio Device Buffer Size -- #
-            if SplitedParms[0] == "AudioBufferSize":
+            elif SplitedParms[0] == "AudioBufferSize":
                 AudioBufferSize = int(SplitedParms[1].rstrip())
 
                 print("Taiyou.Runtime.InitEngine : Audio Buffer Size was set to:" + str(AudioBufferSize))
 
             # -- Run in Fullscreen -- #
-            if SplitedParms[0] == "RunInFullScreen":
+            elif SplitedParms[0] == "RunInFullScreen":
                 if SplitedParms[1].rstrip() == "True":
                     RunInFullScreen = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -320,7 +322,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : Run in Fullscreen was set to:" + str(RunInFullScreen))
 
             # -- SDL Option: Center Window -- #
-            if SplitedParms[0] == "VideoX11_CenterWindow":
+            elif SplitedParms[0] == "VideoX11_CenterWindow":
                 if SplitedParms[1].rstrip() == "True":
                     VideoX11CenterWindow = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -331,7 +333,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : VideoX11CenterWindow was set to:" + str(VideoX11CenterWindow))
 
             # -- SDL Option: DGA Mouse -- #
-            if SplitedParms[0] == "VideoX11_DGAMouse":
+            elif SplitedParms[0] == "VideoX11_DGAMouse":
                 if SplitedParms[1].rstrip() == "True":
                     VideoX11DGAMouse = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -342,7 +344,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : VideoX11DGAMouse was set to:" + str(VideoX11DGAMouse))
 
             # -- SDL Option: YUV Hardware Acelleration -- #
-            if SplitedParms[0] == "VideoX11_YUV_HWACCEL":
+            elif SplitedParms[0] == "VideoX11_YUV_HWACCEL":
                 if SplitedParms[1].rstrip() == "True":
                     VideoX11YUV_HWACCEL = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -352,21 +354,14 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : VideoX11YUV_HWACCEL was set to:" + str(VideoX11YUV_HWACCEL))
 
-            # -- TaiyouUi: Autoboot Game Folder -- #
-            if SplitedParms[0] == "AutoBoot":
-                TaiyouUI.CurrentMenuScreen = 4
-                TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
-
-                print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(TaiyouUI.loadingScreen.GameFolderToOpen))
-
             # -- SDL Option: Mouse Driver -- #
-            if SplitedParms[0] == "InputMouseDriver":
+            elif SplitedParms[0] == "InputMouseDriver":
                 InputMouseDriver = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : InputMouseDriver was set to:" + str(InputMouseDriver))
 
             # -- SDL Option: Disable Mouse -- #
-            if SplitedParms[0] == "InputDisableMouse":
+            elif SplitedParms[0] == "InputDisableMouse":
                 if SplitedParms[1].rstrip() == "True":
                     InputDisableMouse = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -377,7 +372,7 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : InputDisableMouse was set to:" + str(InputDisableMouse))
 
             # -- Ignore all SDL Parameters -- #
-            if SplitedParms[0] == "IgnoreSDL2Parameters":
+            elif SplitedParms[0] == "IgnoreSDL2Parameters":
                 if SplitedParms[1].rstrip() == "True":
                     IgnoreSDL2Parameters = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -388,13 +383,13 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : IgnoreSDL2Parameters was set to:" + str(IgnoreSDL2Parameters))
 
             # -- Sprite: SmoothScaleBackend Backend -- #
-            if SplitedParms[0] == "SmoothScaleBackend":
+            elif SplitedParms[0] == "SmoothScaleBackend":
                 SmoothScaleTransform = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : SmoothScaleBackend was set to:" + str(SmoothScaleTransform))
 
             # -- Pygame: FastEvent -- #
-            if SplitedParms[0] == "FastEvent":
+            elif SplitedParms[0] == "FastEvent":
                 if SplitedParms[1].rstrip() == "True":
                     PygameFastEvent = True
                 elif SplitedParms[1].rstrip() == "False":
@@ -405,10 +400,29 @@ def InitEngine():
                 print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
 
             # -- BitDepth Value -- #
-            if SplitedParms[0] == "BitDepth":
+            elif SplitedParms[0] == "BitDepth":
                 BitDepth = int(SplitedParms[1].rstrip())
 
                 print("Taiyou.Runtime.InitEngine : BitDepth was set to:" + str(BitDepth))
+
+            # -- Default TaiyouUI Screen Value -- #
+            elif SplitedParms[0] == "DefaultSystemUIScreen":
+                TaiyouUI.CurrentMenuScreen = int(SplitedParms[1])
+
+                print("Taiyou.Runtime.InitEngine : TaiyouUI Default Screen was set to:" + str(TaiyouUI.CurrentMenuScreen))
+
+            # -- Default Overlay Level Screen Value -- #
+            elif SplitedParms[0] == "DefaultOverlayLevel":
+                ovlMng.Set_OverlayLevel(int(SplitedParms[1]))
+
+                print("Taiyou.Runtime.InitEngine : TaiyouUI OverlayLevel was set to:" + str(ovlMng.Get_OverlayLevel()))
+
+            # -- TaiyouUi: Autoboot Game Folder -- #
+            elif SplitedParms[0] == "AutoBoot":
+                TaiyouUI.CurrentMenuScreen = 4
+                TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
+
+                print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(TaiyouUI.loadingScreen.GameFolderToOpen))
 
 
     if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #

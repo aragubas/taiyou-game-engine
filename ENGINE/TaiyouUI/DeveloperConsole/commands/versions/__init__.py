@@ -27,6 +27,6 @@ def Run(SplitedCommand):
         tge.Get_SpriteVersion(),
         tge.Get_SoundVersion(),
         tge.Get_RegistryVersion(),
-        tge.Get_GameObjVersion(),
+        tge.Get_TaiyouMainVersion(),
         utils.FormatNumber(tge.TaiyouGeneralVersion)
     ))

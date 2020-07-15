@@ -31,13 +31,12 @@ from multiprocessing import Process
 import gc
 
 # The main Entry Point
-print("TaiyouGameEngineMainScript version " + tge.Get_GameObjVersion())
+print("TaiyouGameEngineMainScript version " + tge.Get_TaiyouMainVersion())
 
 # -- Variables -- #
 GameUpdateEnabled = False
-ResiziableWindow = False
 clock = pygame.time.Clock()
-FPS = 60
+FPS = 70
 DISPLAY = pygame.display
 IsFullscreen = False
 IsMenuMode = True
@@ -51,9 +50,8 @@ GameObject = None
 LastFPSValue = 60
 
 
-def __init__():
+def Initialize():
     global DISPLAY
-    print("Taiyou Main version " + tge.Get_GameObjVersion())
 
     # -- Load Engine Options -- #
     tge.InitEngine()
@@ -68,11 +66,9 @@ def __init__():
         Channels = int(tge.AudioChannels)
         BufferSize = int(tge.AudioBufferSize)
 
-        # -- WORKAROUND: for removing audio delay -- #
-        pygame.mixer.pre_init(Frequency, Size, Channels, BufferSize)
-        pygame.init()
-        pygame.mixer.quit()
         pygame.mixer.init(Frequency, Size, Channels, BufferSize)
+
+        pygame.init()
     else:
         print("Taiyou.GameExecution.Initialize : Initializing Pygame")
         pygame.init()
@@ -88,15 +84,17 @@ def __init__():
     # -- Set Variables -- #
     print("Taiyou.GameExecution.Initialize : Set Variables")
     if not tge.RunInFullScreen:
-        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
+        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
     else:
-        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
+        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
 
-    # -- Set Invisible Cursor -- #
+    # -- Hide Mouse Cursor -- #
     pygame.mouse.set_visible(False)
+
     # -- Set Window Title -- #
     pygame.display.set_caption(WindowTitle)
 
+    # -- Initialize the Taiyou UI -- #
     SystemUI.Initialize()
 
     print("Taiyou.GameExecution.Initialize : Initialization complete.")
@@ -136,18 +134,11 @@ def ReceiveCommand(Command):
 
             CurrentRes_W = int(splitedArg[1])
             CurrentRes_H = int(splitedArg[2])
-            if ResiziableWindow and not tge.RunInFullScreen:
-                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
+            if not tge.RunInFullScreen:
+                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
 
-            if ResiziableWindow and tge.RunInFullScreen:
-                ResiziableWindow = False
-                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
-
-            if not ResiziableWindow:
-                if not tge.RunInFullScreen:
-                    DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE, tge.BitDepth)
-                else:
-                    DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN, tge.BitDepth)
+            else:
+                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
 
         elif Command.startswith("KILL") if Command else False:
             CommandWasValid = True
@@ -192,8 +183,10 @@ def ReceiveCommand(Command):
             # -- Force Collect on GC -- #
             utils.GarbageCollector_Collect()
 
+            # -- Unpause Paused Channels -- #
             sound.UnpauseGameChannel()
 
+            # -- Unload System Registy -- #
             reg.Unload(True)
 
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
@@ -236,6 +229,7 @@ def ReceiveCommand(Command):
             print("Taiyou.GameExecution.ReceiveCommand : Open Game")
             splitedArg = Command.split(':')
 
+            # -- Set Game Object -- #
             SetGameObject(splitedArg[1].rstrip())
 
         elif Command.startswith("REMOVE_GAME") if Command else False:
@@ -301,7 +295,10 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
 
     # -- Try to delete the Game Object -- #
     utils.GarbageCollector_Collect()
-    importlib.reload(GameObject)
+    try:
+        importlib.reload(GameObject)
+    except TypeError:
+        pass
     GameObject = None
     utils.GarbageCollector_Collect()
     del GameObject
@@ -332,6 +329,11 @@ def SetGameObject(GameFolder):
         print("Taiyou.GameExecution.SetGameObject : Open Game [" + GameFolder + "]")
         print("Taiyou.GameExecution.SetGameObject : MainModuleName is: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
 
+        # -- Remove any residue of Last Opened Game -- #
+        utils.GarbageCollector_Collect()
+        RemoveGame(False, False)
+        utils.GarbageCollector_Collect()
+
         # -- Initialize the Game Object -- #
         utils.GarbageCollector_Collect()
         GameObject = importlib.import_module(tge.Get_MainGameModuleName(GameFolder))
@@ -348,9 +350,6 @@ def SystemException(ex, ErrorPart="Unknown"):
 
 def EventUpdate():
     global IsMenuMode
-    global GameUpdateEnabled
-    global DISPLAY
-    global FPS
 
     # -- Internaly Process Pygame Events -- #
     pygame.fastevent.pump()
@@ -363,12 +362,6 @@ def EventUpdate():
         # -- Menu Key -- #
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
             ReceiveCommand("SET_MENU_MODE")
-
-        # -- Resize Window Event -- #
-        elif ResiziableWindow and not tge.RunInFullScreen:
-            if event.type == pygame.VIDEORESIZE:
-                # Resize the Window
-                DISPLAY = pygame.display.set_mode((event.w, event.h), pygame.DOUBLEBUF | pygame.RESIZABLE | pygame.HWACCEL)
 
         # -- Do Game Events -- #
         try:
@@ -390,16 +383,22 @@ def GameException(Exception, ErrorPart="Unknown"):
     global IsMenuMode
     global DISPLAY
 
+
+    # -- Reload System Registry -- #
+    print("Taiyou.GameException!")
     reg.Reload(True)
+
     if not reg.ReadKey_bool("/TaiyouSystem/CONF/exception_handler", True):
         raise Exception
     else:
+
         ExceptionText = "\n\nGame Exception! in [" + ErrorPart + "]:\n\n" + str(Exception) + "\n\n"
 
         tge.devel.PrintToTerminalBuffer(ExceptionText)
         GameUpdateEnabled = False
         IsMenuMode = True
         SystemUI.SystemMenuEnabled = True
+        SystemUI.CurrentMenuScreen = 0
         if not SystemUI.gameOverlay.OpenedInGameError:
             SystemUI.gameOverlay.UIOpacityAnimEnabled = True
             SystemUI.gameOverlay.OpenedInGameError = True
@@ -410,8 +409,6 @@ def GameException(Exception, ErrorPart="Unknown"):
 def Engine_Draw():
     global DISPLAY
     global IsMenuMode
-    global CurrentRes_H
-    global CurrentRes_W
 
     if not IsMenuMode:  # -- Draw System Menu
         try:
@@ -456,16 +453,14 @@ def Run():
     global DISPLAY
     global IsMenuMode
 
-    # -- Run the Update Code at Full Speed -- #
-    UpdateProcess = Process(target=Engine_Update)
-    UpdateProcess.daemon = True
-    UpdateProcess.run()
-
-    # -- Limit the FPS to run the Draw Code -- #
+    # -- Limit the FPS -- #
     clock.tick(FPS)
-    DrawProcess = Process(target=Engine_Draw)
-    DrawProcess.daemon = True
-    DrawProcess.run()
+
+    # -- Run the Update Code -- #
+    Engine_Update()
+
+    # -- Run the Draw Code -- #
+    Engine_Draw()
 
 def Destroy():
     print("Taiyou.GameExecution.Destroy : Closing [" + tge.Get_GameTitle() + "]...")
@@ -474,6 +469,7 @@ def Destroy():
     sprite.Unload()
     sound.Unload()
     pygame.quit()
+    SystemUI.SaveSettings()
     utils.GarbageCollector_Collect()
     print("Taiyou.GameExecution.Destroy : Game [" + tge.Get_GameTitle() + "] has been closed.")
     sys.exit()

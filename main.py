@@ -17,12 +17,8 @@
 from ENGINE import TaiyouMain as Taiyou
 from ENGINE import *
 
-print("Taiyou Bootstrapper version 1.1")
-
-Taiyou.__init__()  # -- Initialize Taiyou Game Engine
+Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 
 # -- Run GameLoop -- #
 while True:
     Taiyou.Run()
-
-print("Taiyou Game Engine execution has been ended.")

@@ -148,11 +148,16 @@ def ReadKey(keyName, SystemReg=False):
     global SystemReg_keys
     global reg_keys
 
-    if not SystemReg:
-        return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
-    else:
-        return SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))]
-
+    try:
+        if not SystemReg:
+            return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
+        else:
+            return SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))]
+    except ValueError:
+        if SystemReg:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
+        else:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
 def ReadKey_int(keyName, SystemReg=False):
     """
@@ -164,11 +169,16 @@ def ReadKey_int(keyName, SystemReg=False):
     global SystemReg_contents
     global SystemReg_keys
     global reg_keys
-
-    if not SystemReg:
-        return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-    else:
-        return int(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+    try:
+        if not SystemReg:
+            return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+        else:
+            return int(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+    except ValueError:
+        if SystemReg:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
+        else:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
 def ReadKey_float(keyName, SystemReg=False):
     """
@@ -181,10 +191,16 @@ def ReadKey_float(keyName, SystemReg=False):
     global SystemReg_keys
     global reg_keys
 
-    if not SystemReg:
-        return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-    else:
-        return float(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+    try:
+        if not SystemReg:
+            return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
+        else:
+            return float(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+    except ValueError:
+        if SystemReg:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
+        else:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
 def ReadKey_bool(keyName, SystemReg=False):
     """
@@ -197,16 +213,22 @@ def ReadKey_bool(keyName, SystemReg=False):
     global SystemReg_keys
     global reg_keys
 
-    if not SystemReg:
-        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-            return True
+    try:
+        if not SystemReg:
+            if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
+                return True
+            else:
+                return False
         else:
-            return False
-    else:
-        if SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))] == "True":
-            return True
+            if SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))] == "True":
+                return True
+            else:
+                return False
+    except ValueError:
+        if SystemReg:
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
         else:
-            return False
+            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
 
 
@@ -257,7 +279,7 @@ def KeyExists(keyName):
     try:
         Test = reg_contents[reg_keys.index(CorrectKeyName(keyName))]
         return True
-    except:
+    except ValueError:
         return False
 
 
@@ -276,7 +298,7 @@ def ReadKeyWithTry(keyName,defaultValue):
 
     try:
         return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
-    except:
+    except ValueError:
         WriteKey(CorrectKeyName(keyName),defaultValue)
         return defaultValue
 
@@ -294,7 +316,7 @@ def ReadKeyWithTry_int(keyName,defaultValue):
 
     try:
         return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-    except:
+    except ValueError:
         WriteKey(CorrectKeyName(keyName),str(defaultValue))
         return int(defaultValue)
 
@@ -312,7 +334,7 @@ def ReadKeyWithTry_float(keyName,defaultValue):
 
     try:
         return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-    except:
+    except ValueError:
         WriteKey(CorrectKeyName(keyName),str(defaultValue))
         return float(defaultValue)
 
@@ -334,7 +356,7 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
         else:
             return False
 
-    except:
+    except ValueError:
         WriteKey(keyName,str(defaultValue))
         if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
             return True

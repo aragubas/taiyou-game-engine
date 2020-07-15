@@ -58,7 +58,7 @@ BackgroundG = 0
 BackgroundB = 0
 
 # -- UI Loading Animation -- #
-UIOpacity_StartDelay = 5
+UIOpacity_StartDelay = 10
 UIOpacity_NextScreen = -1
 AnimationNumb = 0
 
@@ -176,7 +176,7 @@ def Draw(Display):
         # -- Render the Game List -- #
         InstalledGameList.Render(DisplaySurface)
 
-        if not InstalledGameList.SelectedApplicationID == -1:
+        if not InstalledGameList.SelectedItemIndex == -1:
             GameInfos.Draw(DisplaySurface)
 
         # -- Render Volume Slider -- #
@@ -211,7 +211,7 @@ def Update():
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
     # -- Update Game Infos -- #
-    if not InstalledGameList.SelectedApplicationID == -1:
+    if not InstalledGameList.SelectedItemIndex == -1:
         GameInfos.Update()
 
     # -- Update update Dialog -- #
@@ -244,7 +244,6 @@ def Update():
         volumeSlider.ObjX = DisplaySurface.get_width() - 35
         volumeSlider.ObjY = RestartList_Button.Rectangle[1]
         volumeSlider.Update()
-
 
         # -- Update Selected Game Infos List -- #
         if not InstalledGameList.SelectedApplicationID == -1:
@@ -297,35 +296,10 @@ def LoadingTasks():
     global UIOpacityAnim_ListLoaded
     global UIOpacity_EnableDelay
     global UIOpacity_EnableDelayEnabled
-    global DownloadersCreated
-    global DownloaderObj
+
     if UIOpacity_EnableDelay == 2: # -- Loading Task 1
         UIOpacityAnim_ListLoaded = True
         LoadGameList()
-
-def DownloadFileInLoading(Url, FilePath):
-    global DownloadersCreated
-    global UIOpacity_EnableDelayEnabled
-    global LoadingPauseMessage
-
-    UIOpacity_EnableDelayEnabled = False
-
-    if not DownloadersCreated:
-        DownloaderObj.StartDownload(reg.ReadKey("/TaiyouSystem/TaiyouOnlineServer") + Url, FilePath)
-        DownloadersCreated = True
-
-    if DownloaderObj.DownloadState == "DOWNLOADING":
-        LoadingPauseMessage = str(DownloaderObj.DownloadMetaData[1]) + "%"
-    if DownloaderObj.DownloadState == "STARTING":
-        LoadingPauseMessage = "Starting download of: [" + Url + "]..."
-
-    # -- Detect Download End -- #
-    if DownloaderObj.DownloadMetaData[1] == 100:
-        UIOpacity_EnableDelayEnabled = True
-        DownloadersCreated = False
-
-
-
 
 def UpdateOpacityAnim():
     global UIOpacityAnimState

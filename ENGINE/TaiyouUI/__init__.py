@@ -23,6 +23,7 @@ from ENGINE.TaiyouUI import GameSeletor as seletorScreen
 from ENGINE.TaiyouUI import LicenseScreen as licenseScreen
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import SaveFolderSelect as saveFolderSelectScreen
+from ENGINE.TaiyouUI.GameOverlay import SystemVolumeSlider as volumeSlider
 from ENGINE import TaiyouMain as taiyouMain
 from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
@@ -150,3 +151,7 @@ def SetMenuMode_Changes():
 
     else:
         print("Taiyou.SetMenuChanges : CurrentResolution is equals to 800x600 [{0}x{1}]".format(str(CurrentRes[0]), str(CurrentRes[1])))
+
+# -- This function is called when the Game Engine is Exiting -- #
+def SaveSettings():
+    volumeSlider.SaveSettings()

@@ -34,22 +34,14 @@ OpacityAnimation_Opacity = 0
 OpacityAnimation_Mode = 0
 LoadingNextStage = False
 LoadingStage = -1
+LoadingStageMax = 6
 LoadingNextStageDelay = 0
+LoadingStageWaitMax = 0
 LoadingSquare = gtk.LoadingSquare
 CommonDisplay = pygame.Surface((5,5))
 GameIcon = pygame.image
 GameTitle = "null"
-
-
-# -- Anim Slipe -- #
-AnimSlipeEnabled = False
-AnimSlipeColorRAddMode = 0
-AnimSlipeColorGAddMode = 0
-AnimSlipeColorBAddMode = 0
-AnimSlipeColorMode = 0
-BackgroundR = 0
-BackgroundG = 0
-BackgroundB = 0
+LoadingStageText = "No Description found"
 
 GameFolderToOpen = "null"
 
@@ -72,14 +64,12 @@ def Draw(Display):
     global LoadingStage
     global LoadingSquare
     global CommonDisplay
-    global BackgroundR
-    global BackgroundG
-    global BackgroundB
     global GameIcon
     global GameTitle
     global DialogEnabled
+    global LoadingStageText
 
-    Display.fill((BackgroundR, BackgroundG, BackgroundB))
+    Display.fill((0, 0, 0))
     CommonDisplay = Display
 
     # -- Render RAW Game Icon -- #
@@ -99,6 +89,9 @@ def Draw(Display):
     # -- Render Loading Animation -- #
     LoadingSquare.Render(Display)
 
+    # -- Render Loading Description -- #
+    sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 18, LoadingStageText, (230, 230, 230), 15, 600 - 28, Opacity=OpacityAnimation_Opacity)
+
     if DialogEnabled:
         dialog.Draw(Display)
 
@@ -107,12 +100,13 @@ def Update():
     global GameFolderToOpen
     global LoadingSquare
     global CommonDisplay
-    global AnimSlipeEnabled
     global GameTitle
     global DialogEnabled
+    global LoadingStageText
+    global LoadingStage
+    global LoadingStageMax
 
     if not DialogEnabled:
-        AnimSlipeUpdate()
         LoadingSquare.Update()
 
         LoadingSquare.Y = CommonDisplay.get_height() - 38
@@ -128,6 +122,12 @@ def Update():
         else:
             GameTitle = Handler.SelectedGameInfo[1]
 
+        # -- Update Loading Stage Text -- #
+        try:
+            LoadingStageText = "{0} {1}/{2}".format(gtk.GetLangText("step_{0}".format(str(LoadingStage)), "loading_stage_description"), str(LoadingStage), str(LoadingStageMax))
+        except FileNotFoundError:
+            LoadingStageText = ""
+
     else:
         dialog.Update()
 
@@ -136,45 +136,53 @@ def UpdateLoadingStages():
     global LoadingNextStageDelay
     global LoadingStage
     global OpacityAnimation_Enabled
+    global LoadingStageMax
+    global LoadingStageWaitMax
 
     if LoadingNextStage and not GameFolderToOpen == "null":
         LoadingStage += 1
 
         if LoadingStage == 0:
+            print("Taiyou.LoadingScreen : Saving TaiyouUI Settings...")
+            taiyouUI.SaveSettings()
+            print("Taiyou.LoadingScreen : Done!")
+            LoadingStageWaitMax = reg.ReadKey_int("/TaiyouSystem/CONF/loading_delay", True)
+
+        elif LoadingStage == 1:
             if utils.Directory_Exists(GameFolderToOpen):
                 print("Taiyou.LoadingScreen : Game Exists")
             else:
                 print("Taiyou.LoadingScreen : Game does not Exists")
 
-        elif LoadingStage == 1:
+        elif LoadingStage == 2:
             print("Taiyou.LoadingScreen : Load Folder Metadata")
             tge.LoadFolderMetaData(GameFolderToOpen)
 
-        elif LoadingStage == 2:
+        elif LoadingStage == 3:
             print("Taiyou.LoadingScreen : Load Game Sprites")
             sprite.LoadSpritesInFolder(GameFolderToOpen + "/SOURCE")
 
-        elif LoadingStage == 3:
+        elif LoadingStage == 4:
             print("Taiyou.LoadingScreen : Load Game Sounds")
             sound.LoadAllSounds(GameFolderToOpen + "/SOURCE")
 
-        elif LoadingStage == 4:
+        elif LoadingStage == 5:
             print("Taiyou.LoadingScreen : Load Game Registry Keys")
             reg.Initialize(GameFolderToOpen + "/SOURCE/REG")
 
-        elif LoadingStage == 5:
+        elif LoadingStage == 6:
             print("Taiyou.LoadingScreen : Load Game Code")
             taiyouMain.ReceiveCommand("OPEN_GAME:" + GameFolderToOpen)
 
             OpacityAnimation_Enabled = True
 
-        print("Taiyou.LoadingStage : Loading Step " + str(LoadingStage) + "/5")
+        print("Taiyou.LoadingStage : Loading Step {0}/{1}".format(str(LoadingStage), str(LoadingStageMax)))
         LoadingNextStage = False
 
-    if not OpacityAnimation_Enabled and not AnimSlipeEnabled:
+    if not OpacityAnimation_Enabled:
         LoadingNextStageDelay += 1
 
-        if LoadingNextStageDelay >= 5:
+        if LoadingNextStageDelay >= LoadingStageWaitMax:
             LoadingNextStageDelay = 0
             LoadingNextStage = True
 
@@ -187,7 +195,6 @@ def OpacityAnimation():
     global LoadingStage
     global GameFolderToOpen
     global LoadingNextStageDelay
-    global AnimSlipeEnabled
 
     if OpacityAnimation_Enabled:
         if OpacityAnimation_Mode == 0:
@@ -210,81 +217,12 @@ def OpacityAnimation():
                 LoadingNextStageDelay = 0
                 LoadingNextStage = False
                 GameFolderToOpen = "null"
-                AnimSlipeEnabled = False
 
                 taiyouUI.CurrentMenuScreen = 0
                 taiyouMain.ReceiveCommand("SET_GAME_MODE")
 
                 taiyouUI.gameOverlay.UIOpacityAnimEnabled = False
                 taiyouUI.SystemMenuEnabled = False
-
-
-def AnimSlipeUpdate():
-    global AnimSlipeEnabled
-    global AnimSlipeColorRAddMode
-    global AnimSlipeColorGAddMode
-    global AnimSlipeColorBAddMode
-    global AnimSlipeColorMode
-    global BackgroundR
-    global BackgroundG
-    global BackgroundB
-
-    if AnimSlipeEnabled:
-        AnimationSpeed = 2
-        if AnimSlipeColorMode == 0:
-            if AnimSlipeColorRAddMode == 0:
-                BackgroundR += AnimationSpeed
-            if AnimSlipeColorGAddMode == 0:
-                BackgroundG += AnimationSpeed
-            if AnimSlipeColorBAddMode == 0:
-                BackgroundB += AnimationSpeed
-
-            if BackgroundR >= 24:
-                AnimSlipeColorRAddMode = 1
-                BackgroundR = 24
-
-            if BackgroundG >= 61:
-                AnimSlipeColorGAddMode = 1
-                BackgroundG = 61
-
-            if BackgroundB >= 126:
-                AnimSlipeColorBAddMode = 1
-                BackgroundB = 126
-
-            if AnimSlipeColorRAddMode == 1 and AnimSlipeColorGAddMode == 1 and AnimSlipeColorBAddMode == 1:
-                AnimSlipeEnabled = True
-                AnimSlipeColorMode = 1
-                AnimSlipeColorRAddMode = 0
-                AnimSlipeColorGAddMode = 0
-                AnimSlipeColorBAddMode = 0
-
-        if AnimSlipeColorMode == 1:
-            if AnimSlipeColorRAddMode == 0:
-                BackgroundR -= AnimationSpeed
-            if AnimSlipeColorGAddMode == 0:
-                BackgroundG -= AnimationSpeed
-            if AnimSlipeColorBAddMode == 0:
-                BackgroundB -= AnimationSpeed
-
-            if BackgroundR <= 0:
-                AnimSlipeColorRAddMode = 1
-                BackgroundR = 0
-
-            if BackgroundG <= 0:
-                AnimSlipeColorGAddMode = 1
-                BackgroundG = 0
-
-            if BackgroundB <= 0:
-                AnimSlipeColorBAddMode = 1
-                BackgroundB = 0
-
-            if AnimSlipeColorRAddMode == 1 and AnimSlipeColorGAddMode == 1 and AnimSlipeColorBAddMode == 1:
-                AnimSlipeEnabled = False
-                AnimSlipeColorMode = 0
-                AnimSlipeColorRAddMode = 0
-                AnimSlipeColorGAddMode = 0
-                AnimSlipeColorBAddMode = 0
-
 
 def EventUpdate(event):
     global OpacityAnimation_Opacity

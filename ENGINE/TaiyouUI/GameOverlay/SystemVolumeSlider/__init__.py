@@ -43,7 +43,7 @@ def Initialize():
     global SliderObject
     global SliderObject_ToggleButton
 
-    SliderObject = gtk.Slider(800 - 48, 32, 0)
+    SliderObject = gtk.Slider(800 - 48, 32, reg.ReadKey_int("/TaiyouSystem/CONF/global_volume", True))
     SliderObject_ToggleButton = gtk.SpriteButton(pygame.Rect(0, 0, 32, 32), "/TAIYOU_UI/ICONS/SPEAKER/0.png")
 
 def Draw(DISPLAY):
@@ -81,6 +81,7 @@ def Update():
     if CommonDisplayInited:
         if not DefaultVolumeWasSet:
             DefaultVolumeWasSet = True
+            SliderObject.DrawEnabled = True
             SliderObject.SetValue(reg.ReadKey_int("/TaiyouSystem/CONF/global_volume", True))
             LastVolume = SliderObject.Value
 
@@ -88,22 +89,22 @@ def Update():
         SliderObject.Set_Opacity(SliderObject_AnimOpacity)
         SliderObject.Set_X(ObjX - 2)
 
-        if not SliderObject.Value == LastVolume:
-            reg.WriteKey("/TaiyouSystem/CONF/global_volume", str(SliderObject.Value), True)
-            print("GlobalVolume was set to:\n" + str(SliderObject.Value))
-            LastVolume = SliderObject.Value
-
         if SliderObject.Value >= 100:
             sound.GlobalVolume = 1.0
         else:
-            sound.GlobalVolume = float("0." + str(SliderObject.Value))
+            try:
+                sound.GlobalVolume = float("0." + str(SliderObject.Value))
+            except ValueError:
+                sound.GlobalVolume = float("0.0")
 
         # -- Update the Icon -- #
         if SliderObject.Value <= 45:
             SliderObject_IconIndex = 0
-        if SliderObject.Value >= 45 and SliderObject.Value <= 75:
+
+        elif SliderObject.Value >= 45 and SliderObject.Value <= 75:
             SliderObject_IconIndex = 1
-        if SliderObject.Value >= 75:
+
+        elif SliderObject.Value >= 75:
             SliderObject_IconIndex = 2
 
         # -- Update the Animation -- #
@@ -126,6 +127,7 @@ def Update():
                     SliderObject_AnimEnabled = False
                     SliderObject_AnimYEnabled = True
                     SliderObject_AnimMultiplier = 0
+                    SliderObject.DrawEnabled = True
 
             if SliderObject_AnimMode == 1 and SliderObject_AnimEnabled:
                 SliderObject_AnimMultiplier += 5
@@ -145,6 +147,7 @@ def Update():
                     SliderObject_AnimEnabled = False
                     SliderObject_AnimYEnabled = True
                     SliderObject_AnimMultiplier = 0
+                    SliderObject.DrawEnabled = False
 
         # -- Update System Slider Toggle Button -- #
         SliderObject_ToggleButton.Set_X(ObjX)
@@ -155,6 +158,9 @@ def Update():
 
         # -- Toggle Volume Slider -- #
         if SliderObject_ToggleButton.ButtonState == "UP":
+            if SliderObject.DrawEnabled:
+                SliderObject.DrawEnabled = False
+
             if not SliderObject_AnimEnabled:
                 SliderObject_AnimEnabled = True
 
@@ -164,3 +170,6 @@ def EventUpdate(event):
 
     SliderObject.EventUpdate(event)
     SliderObject_ToggleButton.EventUpdate(event)
+
+def SaveSettings():
+    reg.WriteKey("/TaiyouSystem/CONF/global_volume", str( SliderObject.Value), True)
