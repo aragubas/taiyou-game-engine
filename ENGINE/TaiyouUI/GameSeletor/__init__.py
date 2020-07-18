@@ -129,9 +129,17 @@ def LoadGameList():
 
 def UnloadGameList():
     global ValidGameFolders
+    global InstalledGameList
+
     print("TaiyouUI.UnloadGameList : Started")
     ValidGameFolders.clear()
     InstalledGameList.ClearItems()
+
+    utils.GarbageCollector_Collect()
+    del InstalledGameList
+    utils.GarbageCollector_Collect()
+
+    InstalledGameList = gtk.InstalledApplicationList(pygame.Rect(20, 50, 760, 200))
 
     print("TaiyouUI.UnloadGameList : Game List has been unloaded.")
 

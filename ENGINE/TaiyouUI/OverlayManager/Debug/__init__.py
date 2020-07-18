@@ -19,7 +19,6 @@ from ENGINE import SPRITE as sprite
 from ENGINE import TaiyouMain as main
 from ENGINE import UTILS as utils
 from ENGINE import DEBUGGING as debug
-
 TextToBeDisplayed = "FPS"
 
 def Update():
@@ -29,13 +28,12 @@ def Update():
     for i, name in enumerate(debug.DebugProfile_Names):
         DebugProfileProps += "\n{0} = '{1}'".format(name, debug.DebugProfile_Values[i])
 
-    TextToBeDisplayed = "FPS {0}/{1}; Tick: {2}\n\n==[Debug Profile]=={3}".format(str(main.FPS), utils.FormatNumber(main.clock.get_fps(), 3), utils.FormatNumber(main.clock.get_time(), 3), DebugProfileProps)
+    TextToBeDisplayed = "FPS {0}/{1}; Tick: {2}\n\n==[Debug Profile]=={3}\n\nMemoryUsage:{4}".format(str(main.FPS), utils.FormatNumber(main.clock.get_fps(), 3), utils.FormatNumber(main.clock.get_time(), 3), DebugProfileProps, utils.FormatNumber(utils.Get_MemoryUsage(), 3, ("B", "KB", "MB", "GB")))
 
 def Draw(DISPLAY):
     global TextToBeDisplayed
 
     sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, TextToBeDisplayed, (250, 255, 250), 15, 15, False, (20, 30, 23), Opacity=240)
-
 
 def EventUpdate(event):
     pass

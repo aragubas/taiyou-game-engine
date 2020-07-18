@@ -17,7 +17,7 @@
 
 # -- Imports -- #
 import ENGINE as tge
-import os, shutil, requests, string, random, threading, zipfile, urllib.request, gc
+import os, shutil, requests, string, random, threading, zipfile, urllib.request, gc, psutil
 from pathlib import Path
 from urllib.error import HTTPError
 
@@ -158,8 +158,8 @@ class Downloader:
         self.Url = Url
         # -- Restart some Variables -- #
         self.DownloadMetaData.clear()
-        self.DownloadMetaData.append("0") # -- Index 0 is File Size
-        self.DownloadMetaData.append("0") # -- Index 1 is Download Progress
+        self.DownloadMetaData.append("0")  # -- Index 0 is File Size
+        self.DownloadMetaData.append("0")  # -- Index 1 is Download Progress
 
         # -- Create the Path for Download -- #
         Directory_MakeDir(Get_DirectoryOfFilePath(self.InstanceFileName))
@@ -178,3 +178,6 @@ def GarbageCollector_GetInfos():
     InfosString = "Count: {0}".format(gc.get_count())
 
     return InfosString
+
+def Get_MemoryUsage():
+    return psutil.Process(os.getpid()).memory_full_info()[0]

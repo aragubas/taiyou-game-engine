@@ -467,51 +467,14 @@ class InputBox:
 class InstalledApplicationList:
     def __init__(self, Rectangle):
         self.Rectangle = Rectangle
-        # -- Selected item Vars -- #
-        self.ApplicationName = list()
-        self.ApplicationID = list()
-        self.ApplicationVersion = list()
-        self.ApplicationSourceFolder = list()
-        self.ApplicationBanner = list()
-        self.ApplicationFolderName = list()
-        self.ApplicationFolderInfos = list()
-        self.ItemApperAnimationEnabled = list()
-        self.ItemApperAnimationNumb = list()
-        self.ItemApperAnimationMode = list()
-        self.ItemApperAnimationToggle = list()
-        self.ItemSurface = list()
-        self.ApplicationBannerAnimation = list()
-        self.ApplicationBannerAnimationAmount = list()
-        self.ItemSelectedCurrentFrame = list()
-        self.ItemSelectedCurrentFrameUpdateDelay = list()
-        self.ApplicationBannerAnimationFrameDelay = list()
-
-        self.ItemSelected = list()
-        self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
-        self.SelectedApplicationID = ""
-        self.SelectedApplicationVersion = ""
-        self.SelectedApplicationFolderName = ""
-        self.SelectedItemIndex = -1
-        self.SelectedApplicationFolderInfos = None
-        self.SelectedApplicationIcon = sprite.DefaultSprite
-
-        self.ScrollX = 0
-        self.ScrollMode = 0
-        self.ScrollEnabled = False
-        self.ScrollMultiplier = 1
-
-        self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
-        self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
-        self.SurfaceOpacity = 255
-        self.ScrollSlowdown = 0
-        self.ScrollSlowdownEnabled = False
+        self.SetObjects()
 
     def Render(self, DISPLAY):
         Surface = pygame.Surface((self.Rectangle[2], self.Rectangle[3]), pygame.SRCALPHA)
         Surface.set_alpha(self.SurfaceOpacity)
 
         # -- Render the Selected Item text -- #
-        sprite.FontRender(Surface, ApplicationListList_FontFile, 24, self.SelectedItem, (250, 250, 250), 3, 3)
+        sprite.FontRender(Surface, ApplicationListList_FontFile, 24, self.SelectedItem, (250, 250, 250), 3, 1)
 
         for i, itemNam in enumerate(self.ApplicationName):
             if self.SelectedItemIndex == i:
@@ -524,7 +487,7 @@ class InstalledApplicationList:
 
             AnimationSpeed = 15
             if not self.ItemSelected[i]:
-                OpctMax = 50
+                OpctMax = 30
                 self.ItemApperAnimationEnabled[i] = True
                 self.ItemApperAnimationMode[i] = 0
                 self.ItemApperAnimationToggle[i] = False
@@ -556,7 +519,7 @@ class InstalledApplicationList:
             # -- Set Surface Alpha -- #
             ItemSurface.set_alpha(self.ItemApperAnimationNumb[i])
 
-            if self.ItemSelected[i]:  # -- Update Item Code, only when Selected -- #
+            if self.ItemSelected[i]:  # -- Update Item Animation, only when Selected -- #
                 self.ItemSelectedCurrentFrameUpdateDelay[i] += 1
 
                 if self.ItemSelectedCurrentFrameUpdateDelay[i] >= self.ApplicationBannerAnimationFrameDelay[i]:
@@ -605,31 +568,98 @@ class InstalledApplicationList:
                 self.ScrollSlowdownEnabled = False
 
     def ClearItems(self):
-        self.ApplicationName.clear()
-        self.ApplicationID.clear()
-        self.ApplicationVersion.clear()
-        self.ApplicationSourceFolder.clear()
-        self.ApplicationBanner.clear()
-        self.ApplicationFolderName.clear()
-        self.ApplicationBannerAnimation.clear()
-        self.ApplicationBannerAnimationAmount.clear()
-        self.ApplicationBannerAnimationFrameDelay.clear()
+        utils.GarbageCollector_Collect()
 
-        self.ItemApperAnimationEnabled.clear()
-        self.ItemApperAnimationNumb.clear()
-        self.ItemApperAnimationMode.clear()
-        self.ItemApperAnimationToggle.clear()
+        # -- Selected item Vars -- #
+        del self.ApplicationName
+        del self.ApplicationID
+        del self.ApplicationVersion
+        del self.ApplicationSourceFolder
+        del self.ApplicationBanner
+        del self.ApplicationFolderName
+        del self.ApplicationFolderInfos
+        del self.ItemApperAnimationEnabled
+        del self.ItemApperAnimationNumb
+        del self.ItemApperAnimationMode
+        del self.ItemApperAnimationToggle
+        del self.ItemSurface
+        del self.ApplicationBannerAnimation
+        del self.ApplicationBannerAnimationAmount
+        del self.ItemSelectedCurrentFrame
+        del self.ItemSelectedCurrentFrameUpdateDelay
+        del self.ApplicationBannerAnimationFrameDelay
+        utils.GarbageCollector_Collect()
 
-        self.ItemSelected.clear()
+        del self.ItemSelected
+        del self.SelectedItem
+        del self.SelectedApplicationID
+        del self.SelectedApplicationVersion
+        del self.SelectedApplicationFolderName
+        del self.SelectedItemIndex
+        del self.SelectedApplicationFolderInfos
+        del self.SelectedApplicationIcon
+        utils.GarbageCollector_Collect()
 
+        del self.ScrollX
+        del self.ScrollMode
+        del self.ScrollEnabled
+        del self.ScrollMultiplier
+        utils.GarbageCollector_Collect()
+
+        del self.ButtonLeftRectangle
+        del self.ButtonRightRectangle
+        del self.SurfaceOpacity
+        del self.ScrollSlowdown
+        del self.ScrollSlowdownEnabled
+        utils.GarbageCollector_Collect()
+
+        self.SetObjects()
+
+    def SetObjects(self):
+        utils.GarbageCollector_Collect()
+
+        # -- Selected item Vars -- #
+        self.ApplicationName = list()
+        self.ApplicationID = list()
+        self.ApplicationVersion = list()
+        self.ApplicationSourceFolder = list()
+        self.ApplicationBanner = list()
+        self.ApplicationFolderName = list()
+        self.ApplicationFolderInfos = list()
+        self.ItemApperAnimationEnabled = list()
+        self.ItemApperAnimationNumb = list()
+        self.ItemApperAnimationMode = list()
+        self.ItemApperAnimationToggle = list()
+        self.ItemSurface = list()
+        self.ApplicationBannerAnimation = list()
+        self.ApplicationBannerAnimationAmount = list()
+        self.ItemSelectedCurrentFrame = list()
+        self.ItemSelectedCurrentFrameUpdateDelay = list()
+        self.ApplicationBannerAnimationFrameDelay = list()
+        utils.GarbageCollector_Collect()
+
+        self.ItemSelected = list()
         self.SelectedItem = GetLangText("horizontal_items_view_default_text", "gtk")
         self.SelectedApplicationID = ""
+        self.SelectedApplicationVersion = ""
         self.SelectedApplicationFolderName = ""
+        self.SelectedItemIndex = -1
         self.SelectedApplicationFolderInfos = None
         self.SelectedApplicationIcon = sprite.DefaultSprite
-        self.SelectedItemIndex = -1
+        utils.GarbageCollector_Collect()
 
         self.ScrollX = 0
+        self.ScrollMode = 0
+        self.ScrollEnabled = False
+        self.ScrollMultiplier = 1
+        utils.GarbageCollector_Collect()
+
+        self.ButtonLeftRectangle = pygame.Rect(0, 0, 32, 32)
+        self.ButtonRightRectangle = pygame.Rect(34, 0, 32, 32)
+        self.SurfaceOpacity = 255
+        self.ScrollSlowdown = 0
+        self.ScrollSlowdownEnabled = False
+        utils.GarbageCollector_Collect()
 
     def ScrollIndexUp(self):
         # -- Scroll the Selected Item -- #

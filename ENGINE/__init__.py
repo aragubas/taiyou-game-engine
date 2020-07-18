@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "2.8"
+    return "2.9"
 def Get_SpriteVersion():
     return "2.2"
 def Get_SoundVersion():
@@ -25,17 +25,17 @@ def Get_SoundVersion():
 def Get_RegistryVersion():
     return "2.1"
 def Get_UtilsVersion():
-    return "1.6"
+    return "1.7"
 def Get_TaiyouMainVersion():
-    return "3.2"
+    return "3.3"
 def Get_DeveloperConsoleVersion():
     return "2.0"
 def Get_TaiyouUIVersion():
-    return "3.2"
+    return "3.3"
 def Get_DebuggingVersion():
-    return "1.3"
+    return "1.4"
 def Get_BootloaderVersion():
-    return "1.3"
+    return "1.4"
 
 # -- Calculate the Version of Taiyou Game Engine -- #
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_TaiyouMainVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) + float(Get_BootloaderVersion()) - 10.0
@@ -91,6 +91,11 @@ UserLanguage = ""
 TaiyouPath_AppDataFolder = "Taiyou/HOME/AppsData"
 TaiyouPath_SystemPath = "Taiyou/SYSTEM/"
 TaiyouPath_TaiyouConfigFile = TaiyouPath_SystemPath + "Taiyou.config"
+
+# -- Debug -- #
+StepByStepDebug_Enabled = False
+StepByStepDebug_Step = True
+
 
 def InitUserData():
     global UserName
@@ -216,6 +221,7 @@ def InitEngine():
     global SmoothScaleTransform
     global PygameFastEvent
     global BitDepth
+    global StepByStepDebug_Enabled
 
     print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
     conf_file = open(TaiyouPath_TaiyouConfigFile)
@@ -425,6 +431,18 @@ def InitEngine():
                 TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(TaiyouUI.loadingScreen.GameFolderToOpen))
+
+            # -- Step by Step Debug -- #
+            elif SplitedParms[0] == "DEBUG_Step":
+                if SplitedParms[1].rstrip() == "True":
+                    StepByStepDebug_Enabled = True
+                elif SplitedParms[1].rstrip() == "False":
+                    StepByStepDebug_Enabled = False
+                else:
+                    StepByStepDebug_Enabled = False
+
+                print("Taiyou.Runtime.InitEngine : StepByStepDebug was set to:" + str(StepByStepDebug_Enabled))
+
 
 
     if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #

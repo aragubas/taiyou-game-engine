@@ -39,7 +39,6 @@ SpriteTransparency = False
 CurrentLoadedFonts_Name = ()
 CurrentLoadedFonts_Contents = ()
 
-
 def LoadSpritesInFolder(FolderName):
     global Sprites_Name
     global Sprites_Data
@@ -141,11 +140,24 @@ def Unload():
     global CurrentLoadedFonts_Contents
     global CurrentLoadedFonts_Name
 
+    utils.GarbageCollector_Collect()
+    del Sprites_Data
+    del Sprites_Name
+    del Fonts_Data
+    del Fonts_Name
+    del CurrentLoadedFonts_Name
+    del CurrentLoadedFonts_Name
+    utils.GarbageCollector_Collect()
+
     Sprites_Data = ()
     Sprites_Name = ()
 
     CurrentLoadedFonts_Contents = ()
     CurrentLoadedFonts_Name = ()
+
+    Fonts_Data = ()
+    Fonts_Name = ()
+
 
     print("Sprite.Unload : Reloading TaiyouUi Sprites...")
 
@@ -240,6 +252,9 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
 
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
+
+def IsOnScreen(DISPLAY, X, Y, Width, Height):
+    return X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height
 
 def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=None, Opacity=255):
     """

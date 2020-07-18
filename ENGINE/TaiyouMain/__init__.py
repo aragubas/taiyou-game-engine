@@ -187,7 +187,7 @@ def ReceiveCommand(Command, Arguments=None):
             CommandWasValid = True
             IsSpecialEvent = True
 
-            print("Taiyou.GameExecution.ReceiveCommand : Set Game Mode")
+            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : Enabling Game Mode...")
 
             # -- Disable System Menu -- #
             IsMenuMode = False
@@ -202,9 +202,13 @@ def ReceiveCommand(Command, Arguments=None):
             sound.UnpauseGameChannel()
 
             # -- Unload System Registy -- #
+            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : Unloading System Registry...")
             reg.Unload(True)
 
-            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
+            # -- Force Collect on GC -- #
+            utils.GarbageCollector_Collect()
+            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : Done")
+
 
         elif Command == 6:
             CommandWasValid = True
@@ -213,7 +217,7 @@ def ReceiveCommand(Command, Arguments=None):
             # -- Reload System Reg -- #
             reg.Reload(True)
 
-            print("Taiyou.GameExecution.ReceiveCommand : Set Game Mode")
+            print("Taiyou.GameExecution.ReceiveCommand : Set Menu Mode")
 
             if not IsMenuMode:
                 SystemUI.CurrentMenuScreen = 0
@@ -234,8 +238,6 @@ def ReceiveCommand(Command, Arguments=None):
                     SystemUI.SystemMenuEnabled = True
                     SystemUI.gameOverlay.UIOpacityAnimEnabled = True
                     SystemUI.gameOverlay.UIOpacityScreenCopyied = False
-
-            print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
 
         elif Command == 7:
             CommandWasValid = True
@@ -267,9 +269,11 @@ def ReceiveCommand(Command, Arguments=None):
                 return
 
             # -- Reload System Reg -- #
+            print("Taiyou.GameExecution.ReceiveCommand.SwitchSaveFolder : Reloading System Registry...")
             reg.Reload(True)
 
             if not IsMenuMode:
+                print("Taiyou.GameExecution.ReceiveCommand.SwitchSaveFolder : Enabling System Menu")
                 # -- Force Collect on GC -- #
                 utils.GarbageCollector_Collect()
 
@@ -277,7 +281,7 @@ def ReceiveCommand(Command, Arguments=None):
                 GameUpdateEnabled = False
                 SystemUI.saveFolderSelectScreen.CopyOfTheScreen = DISPLAY.copy()
                 sound.PauseGameChannel()
-                print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
+                print("Taiyou.GameExecution.ReceiveCommand.SetMenuMode : All Sounds on Game Channel has been paused.")
                 FPS = 70  # -- Default TaiyouUI FPS
                 SystemUI.CurrentMenuScreen = 3
 
@@ -321,16 +325,13 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
             pass
 
         utils.GarbageCollector_Collect()
+        for count in range(0, sys.getrefcount(GameObject) - 1):
+            del GameObject
+            utils.GarbageCollector_Collect()
+
+        utils.GarbageCollector_Collect()
         GameObject = None
 
-        utils.GarbageCollector_Collect()
-        del GameObject
-
-        utils.GarbageCollector_Collect()
-        GameObject = None
-
-        utils.GarbageCollector_Collect()
-        del GameObject
     except:
         utils.GarbageCollector_Collect()
 
@@ -380,6 +381,8 @@ def SystemException(ex, ErrorPart="Unknown"):
 
 def EventUpdate():
     global IsMenuMode
+    global StepByStep_Step
+    global StepByStep_EnabledToggle
 
     # -- Internaly Process Pygame Events -- #
     pygame.fastevent.pump()
@@ -392,6 +395,19 @@ def EventUpdate():
         # -- Menu Key -- #
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
             ReceiveCommand(6)
+
+        if tge.StepByStepDebug_Enabled or StepByStep_EnabledToggle:
+            if event.type == pygame.KEYUP and event.key == pygame.K_F8:
+                StepByStep_Step = True
+
+            if event.type == pygame.KEYUP and event.key == pygame.K_F7:
+                StepByStep_EnabledToggle = True
+                if tge.StepByStepDebug_Enabled:
+                    tge.StepByStepDebug_Enabled = False
+                else:
+                    tge.StepByStepDebug_Enabled = True
+
+
 
         # -- Do Game Events -- #
         try:
@@ -454,14 +470,8 @@ def Engine_Draw():
     # -- Draw the Overlay -- #
     ovelMng.Render(DISPLAY)
 
-    # -- Flip the Screen -- #
-    pygame.display.flip()
-
 
 def Engine_Update():
-    # -- Update Events -- #
-    EventUpdate()
-
     # -- If not MenuMode, update the Game -- #
     if not IsMenuMode:
         try:
@@ -477,12 +487,41 @@ def Engine_Update():
     # -- Update Overlay -- #
     ovelMng.Update()
 
+StepByStep_Step = False
+StepByStep_EnabledToggle = False
+
 def Run():
     global GameObject
     global FPS
     global DISPLAY
     global IsMenuMode
+    global StepByStep_Step
 
+    # -- Run Events -- #
+    EventUpdate()
+
+    if not tge.StepByStepDebug_Enabled:
+        CodeUpdate()
+
+    else:
+        if StepByStep_Step:
+            CodeUpdate()
+
+            StepByStep_Step = False
+
+        Text = "##### Step by Step Debbuging #####\n" \
+               "--Press F8 to step\n" \
+               "--Press F7 to toggle-disable\n\n" \
+
+        sprite.FontRender(DISPLAY, "/UbuntuMono_Bold.ttf", 12, Text, (255, 255, 255), 10, 10, backgroundColor=(0, 0, 0))
+        # -- Flip the Screen -- #
+        pygame.display.flip()
+
+    # -- Flip the Screen -- #
+    pygame.display.flip()
+
+
+def CodeUpdate():
     # -- Run the Update Code -- #
     Engine_Update()
 
@@ -491,6 +530,7 @@ def Run():
 
     # -- Run the Draw Code -- #
     Engine_Draw()
+
 
 def Destroy():
     print("Taiyou.GameExecution.Destroy : Save TaiyouUI Settings")
