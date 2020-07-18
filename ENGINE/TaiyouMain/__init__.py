@@ -100,10 +100,28 @@ def Initialize():
     print("Taiyou.GameExecution.Initialize : Initialization complete.")
 
 
-def ReceiveCommand(Command):
+def ReceiveCommand(Command, Arguments=None):
+    """
+    Sends a command to the Game Engine
+    \n
+    Command:                   Argument\n
+    0 - Set FPS:                Integer\n
+    1 - Set Resolution:         [Width]x[Height]\n
+    2 - KILL:                   None\n
+    3 - OverlayLevel:           Integer\n
+    4 - Set Icon:               String [Sprite Name loaded on Sprite System]\n
+    5 - Set Game Mode:          None\n
+    6 - Set Menu Mode:          None\n
+    7 - Open Game:              String [GameFolder Name]\n
+    8 - Remove Game:            None\n
+    9 - Set Title:              String\n
+    10 - Switch Game Folder:    None\n
+    :param Command:CommandCode
+    :param Arguments:Argument of Specified Command
+    :return:
+    """
     global IsMenuMode
     global DISPLAY
-    global ResiziableWindow
     global FPS
     global LastFPSValue
     global GameUpdateEnabled
@@ -114,33 +132,32 @@ def ReceiveCommand(Command):
     IsSpecialEvent = False
 
     try:
-        if Command.startswith("SET_FPS") if Command else False:
+        if Command == 0:
             CommandWasValid = True
             IsSpecialEvent = True
 
-            splitedArg = Command.split(':')
-            FPS = int(splitedArg[1])
+            FPS = int(Arguments)
 
             LastFPSValue = FPS
 
             print("Taiyou.GameExecution.ReceiveCommand : MaxFPS Set to:" + str(FPS))
 
-        elif Command.startswith("SET_RESOLUTION") if Command else False:
+        elif Command == 1:
             CommandWasValid = True
             IsSpecialEvent = True
 
-            splitedArg = Command.split(':')
-            print("Taiyou.GameExecution.ReceiveCommand : Set Resolution to: {0}x{1}".format(str(splitedArg[1]), str(splitedArg[2])))
+            splitedArg = Arguments.split('x')
+            print("Taiyou.GameExecution.ReceiveCommand : Set Resolution to: {0}x{1}".format(str(splitedArg[0]), str(splitedArg[1])))
 
-            CurrentRes_W = int(splitedArg[1])
-            CurrentRes_H = int(splitedArg[2])
+            CurrentRes_W = int(splitedArg[0])
+            CurrentRes_H = int(splitedArg[1])
             if not tge.RunInFullScreen:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
 
             else:
                 DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
 
-        elif Command.startswith("KILL") if Command else False:
+        elif Command == 2:
             CommandWasValid = True
             IsSpecialEvent = True
 
@@ -148,27 +165,25 @@ def ReceiveCommand(Command):
 
             Destroy()
 
-        elif Command.startswith("OVERLAY_LEVEL") if Command else False:
+        elif Command == 3:
             CommandWasValid = True
             IsSpecialEvent = True
 
-            splitedArg = Command.split(':')
+            splitedArg = int(Arguments)
 
             ovelMng.Set_OverlayLevel(int(splitedArg[1]))
 
             print("Taiyou.GameExecution.ReceiveCommand : Set OVERLAY_LEVEL to " + splitedArg[1])
 
-        elif Command.startswith("SET_ICON") if Command else False:
+        elif Command == 4:
             CommandWasValid = True
             IsSpecialEvent = True
 
-            splitedArg = Command.split(':')
+            pygame.display.set_icon(sprite.GetSprite(Arguments))
 
-            pygame.display.set_icon(sprite.GetSprite(splitedArg[1]))
+            print("Taiyou.GameExecution.ReceiveCommand : Set Icon to " + str(Arguments))
 
-            print("Taiyou.GameExecution.ReceiveCommand : Set Icon to " + splitedArg[1])
-
-        elif Command.startswith("SET_GAME_MODE") if Command else False:
+        elif Command == 5:
             CommandWasValid = True
             IsSpecialEvent = True
 
@@ -191,7 +206,7 @@ def ReceiveCommand(Command):
 
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been unpaused.")
 
-        elif Command.startswith("SET_MENU_MODE") if Command else False:
+        elif Command == 6:
             CommandWasValid = True
             IsSpecialEvent = True
 
@@ -222,17 +237,16 @@ def ReceiveCommand(Command):
 
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
 
-        elif Command.startswith("OPEN_GAME") if Command else False:
+        elif Command == 7:
             CommandWasValid = True
             IsSpecialEvent = True
 
-            print("Taiyou.GameExecution.ReceiveCommand : Open Game")
-            splitedArg = Command.split(':')
-
             # -- Set Game Object -- #
-            SetGameObject(splitedArg[1].rstrip())
+            SetGameObject(Arguments.rstrip())
 
-        elif Command.startswith("REMOVE_GAME") if Command else False:
+            print("Taiyou.GameExecution.ReceiveCommand : Open Game [{0}]".format(str(Arguments).rstrip()))
+
+        elif Command == 8:
             CommandWasValid = True
             IsSpecialEvent = True
 
@@ -240,13 +254,12 @@ def ReceiveCommand(Command):
 
             RemoveGame()
 
-        elif Command.startswith("SET_TITLE") if Command else False:
+        elif Command == 9:
             CommandWasValid = True
-            splitedArg = Command.split(';')
 
-            pygame.display.set_caption(splitedArg[1])
+            pygame.display.set_caption(Arguments)
 
-        elif Command.startswith("SWITCH_SAVE_FOLDER") if Command else False:
+        elif Command == 10:
             CommandWasValid = True
 
             # -- Check if is Necessary to Select a Save Folder -- #
@@ -274,12 +287,18 @@ def ReceiveCommand(Command):
                     SystemUI.saveFolderSelectScreen.UIOpacityScreenCopyied = False
 
         if not CommandWasValid:
-            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Invalid Command:\n'{0}'".format(Command))
+            Txt = "TaiyouMessage: Invalid Command:\n'{0}'".format(Command)
+            tge.devel.PrintToTerminalBuffer(Txt)
+            print(Txt)
         elif IsSpecialEvent:
-            tge.devel.PrintToTerminalBuffer("TaiyouMessage: Command Processed:\n'{0}'".format(Command))
+            Txt = "TaiyouMessage: Command Processed:\n'{0}'".format(Command)
+            tge.devel.PrintToTerminalBuffer(Txt)
+            print(Txt)
 
     except IndexError:
-        tge.devel.PrintToTerminalBuffer("TaiyouMessage EXCEPTION\nThe last command does not have the necessary number of arguments.")
+        Txt = "TaiyouMessage EXCEPTION\nThe Command {0}\ndoes not have the necessary number of arguments.".format(str(Command))
+        tge.devel.PrintToTerminalBuffer(Txt)
+        print(Txt)
 
 def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
     global GameObject
@@ -288,25 +307,32 @@ def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
     # -- Call the Game Unload Function on Game -- #
     try:
         GameObject.Unload()
-    except AttributeError:
+    except:
         print("Taiyou.GameExecution.RemoveGame : Game has no Unload Function.")
 
     # -- Try to delete the Game Object -- #
     print("Taiyou.GameExecution.RemoveGame : Unloading Game Code")
 
-    utils.GarbageCollector_Collect()
     try:
         utils.GarbageCollector_Collect()
-        importlib.reload(GameObject)
+        try:
+            importlib.reload(GameObject)
+        except:
+            pass
+
         utils.GarbageCollector_Collect()
-    except TypeError:
-        pass
-    GameObject = None
-    utils.GarbageCollector_Collect()
-    del GameObject
-    utils.GarbageCollector_Collect()
-    GameObject = None
-    utils.GarbageCollector_Collect()
+        GameObject = None
+
+        utils.GarbageCollector_Collect()
+        del GameObject
+
+        utils.GarbageCollector_Collect()
+        GameObject = None
+
+        utils.GarbageCollector_Collect()
+        del GameObject
+    except:
+        utils.GarbageCollector_Collect()
 
     print("Taiyou.GameExecution.RemoveGame : Done!")
 
@@ -365,7 +391,7 @@ def EventUpdate():
 
         # -- Menu Key -- #
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
-            ReceiveCommand("SET_MENU_MODE")
+            ReceiveCommand(6)
 
         # -- Do Game Events -- #
         try:
@@ -457,24 +483,28 @@ def Run():
     global DISPLAY
     global IsMenuMode
 
-    # -- Limit the FPS -- #
-    clock.tick(FPS)
-
     # -- Run the Update Code -- #
     Engine_Update()
+
+    # -- Limit the FPS -- #
+    clock.tick(FPS)
 
     # -- Run the Draw Code -- #
     Engine_Draw()
 
 def Destroy():
-    print("Taiyou.GameExecution.Destroy : Closing [" + tge.Get_GameTitle() + "]...")
+    print("Taiyou.GameExecution.Destroy : Save TaiyouUI Settings")
+    # -- Save Settings -- #
+    SystemUI.SaveSettings()
+
+    print("Taiyou.GameExecution.Destroy : Unloading all loaded assets")
     # -- Unload Things -- #
     reg.Unload()
     sprite.Unload()
     sound.Unload()
     pygame.quit()
-    SystemUI.SaveSettings()
+
     utils.GarbageCollector_Collect()
-    print("Taiyou.GameExecution.Destroy : Game [" + tge.Get_GameTitle() + "] has been closed.")
+    print("Taiyou.GameExecution.Destroy : Taiyou Game Engine has been closed.")
     sys.exit()
 

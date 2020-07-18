@@ -31,7 +31,7 @@ def Get_TaiyouMainVersion():
 def Get_DeveloperConsoleVersion():
     return "2.0"
 def Get_TaiyouUIVersion():
-    return "3.1"
+    return "3.2"
 def Get_DebuggingVersion():
     return "1.3"
 def Get_BootloaderVersion():

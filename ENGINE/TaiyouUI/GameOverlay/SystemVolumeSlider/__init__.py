@@ -157,12 +157,13 @@ def Update():
         SliderObject_ToggleButton.Set_Sprite("/TAIYOU_UI/ICONS/SPEAKER/{0}.png".format(str(SliderObject_IconIndex)))
 
         # -- Toggle Volume Slider -- #
-        if SliderObject_ToggleButton.ButtonState == "UP":
+        if SliderObject_ToggleButton.ButtonState == 2:
             if SliderObject.DrawEnabled:
                 SliderObject.DrawEnabled = False
 
             if not SliderObject_AnimEnabled:
                 SliderObject_AnimEnabled = True
+
 
 def EventUpdate(event):
     global SliderObject
@@ -172,4 +173,4 @@ def EventUpdate(event):
     SliderObject_ToggleButton.EventUpdate(event)
 
 def SaveSettings():
-    reg.WriteKey("/TaiyouSystem/CONF/global_volume", str( SliderObject.Value), True)
+    reg.WriteKey("/TaiyouSystem/CONF/global_volume", str(SliderObject.Value), True)

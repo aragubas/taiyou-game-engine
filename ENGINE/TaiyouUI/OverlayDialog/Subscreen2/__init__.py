@@ -52,7 +52,6 @@ def Initialize():
     OK_Button = gtk.Button(pygame.Rect(0, 0, 0, 0), gtk.GetLangText("ok_button"), 18)
     OK_Button.CustomColisionRectangle = True
 
-
     InputBox = gtk.InputBox(0, 0, 0, 0, "Default", 20)
 
     InputBox.CustomColision = True
@@ -102,15 +101,15 @@ def Update():
         No_Button.Set_X(Yes_Button.Rectangle[0] + Yes_Button.Rectangle[2] + 3)
         No_Button.Set_Y(Handler.CommonDisplay.get_height() - No_Button.Rectangle[3] - 5)
 
-        if Yes_Button.ButtonState == "UP":
-            ResponseTrigger = True
+        if Yes_Button.ButtonState == 2:
             Response = "YES"
+            ResponseTrigger = True
             Handler.DialogOpctAnim_AnimEnabled = True
 
-        if No_Button.ButtonState == "UP":
-            Handler.DialogOpctAnim_AnimEnabled = True
-            ResponseTrigger = True
+        if No_Button.ButtonState == 2:
             Response = "NO"
+            ResponseTrigger = True
+            Handler.DialogOpctAnim_AnimEnabled = True
 
     elif ResponseType == "INPUT":
         # -- Update Input Button -- #
@@ -126,12 +125,10 @@ def Update():
         OK_Button.Set_X(5)
         OK_Button.Set_Y(Handler.CommonDisplay.get_height() - OK_Button.Rectangle[3] - 5)
 
-        if OK_Button.ButtonState == "UP":
+        if OK_Button.ButtonState == 2:
             Handler.DialogOpctAnim_AnimEnabled = True
             ResponseTrigger = True
             Response = "OK"
-
-
 
     Handler.MessageTitle = MessageTitle
 
@@ -139,8 +136,8 @@ def SetMessage(title, message):
     global MessageTitle
     global Message
 
-    MessageTitle = title
-    Message = message
+    MessageTitle = title.rstrip()
+    Message = message.rstrip()
 
 
 def EventUpdate(event):

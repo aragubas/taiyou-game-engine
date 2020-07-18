@@ -23,9 +23,9 @@ from ENGINE.TaiyouUI import DeveloperConsole as developWindow
 import ENGINE as tge
 from ENGINE import UTILS as utils
 from ENGINE import TaiyouUI as UiHandler
-from ENGINE.TaiyouUI.GameOverlay import WarnDialog as warnDialog
 from ENGINE.TaiyouUI.GameOverlay import SystemVolumeSlider as volumeSlider
 from ENGINE import TaiyouMain as taiyouMain
+from ENGINE import DEBUGGING as debug
 
 TopBarRectangle = pygame.Rect(0, 0, 0, 0)
 DownBarRectangle = pygame.Rect(0, 0, 0, 0)
@@ -39,7 +39,7 @@ TopMenu_MainMenu = gtk.Button
 
 # -- Animation -- #
 UIOpacity = 0
-UIOpacityAnimSpeed = 15
+UIOpacityAnimSpeed = 13
 UIOpacityAnimEnabled = True
 UIOpacityAnimState = 0
 UIOpacityPauseGame = True
@@ -59,7 +59,7 @@ ObjectsInitialized = False
 
 # -- Copy of Screen -- #
 CopyOfScreen_Last = False
-CopyOfScreen_Result = pygame.Surface
+CopyOfScreen_Result = pygame.Surface((0, 0))
 CopyOfScreen_BlurAmount = 0
 
 
@@ -68,12 +68,14 @@ ExitToMainMenuAnim = False
 ExitToMainMenuAnimOpacity = 0
 ExitTOMainMenuSurfaceCreated = False
 ExitToMainMenuOpacityAnimBG = pygame.Surface((0, 0))
+PendingToExitToMainMenu = False
 
+# -- Controls -- #
+ControlsEnabled = False
 
 def Initialize():
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
-    global TopMenu_RestartGame
     global TopMenu_MainMenu
 
     # -- Top Menu Buttons -- #
@@ -81,7 +83,6 @@ def Initialize():
     TopMenu_DeveloperConsoleButton = gtk.Button(pygame.Rect(3, 1, 5, 5), gtk.GetLangText("console", "overlay"), 18)
     TopMenu_MainMenu = gtk.Button(pygame.Rect(3, 1, 1, 3), gtk.GetLangText("exit", "overlay"), 18)
 
-    warnDialog.Initialize()
     volumeSlider.Initialize()
     developWindow.Initialize()
 
@@ -145,25 +146,18 @@ def Draw(Display):
 
     Display.blit(UIObjectsSurface, (0, 0))
 
-    # -- Warn Dialog -- #
-    warnDialog.Render(Display)
-
-    # -- Render the Exit to Main Menu Animation -- #
-    if ExitToMainMenuAnim and ExitTOMainMenuSurfaceCreated:
-        ExitToMainMenuOpacityAnimBG.fill((0, 0, 0))
-        ExitToMainMenuOpacityAnimBG.set_alpha(ExitToMainMenuAnimOpacity * 2)
-
-        Display.blit(ExitToMainMenuOpacityAnimBG, (0, 0))
-
 
 def Draw_ScreenshotOfGameScreen(Display):
     global CopyOfScreen_Result
     global CopyOfScreen_Last
     global CopyOfScreen_BlurAmount
+    global ExitToMainMenuAnim
+    global ExitTOMainMenuSurfaceCreated
+    global ExitToMainMenuAnimOpacity
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True))
+        CopyOfScreen_BlurAmount = max(1.0, UIOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True)) * 32
 
     if UIOpacityAnimEnabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
@@ -188,6 +182,10 @@ def Draw_ScreenshotOfGameScreen(Display):
     if CopyOfScreen_Last and not UIOpacityAnimEnabled:  # -- Render the last frame of animation -- #
         Display.blit(CopyOfScreen_Result, (0, 0))
 
+        if ExitToMainMenuAnim and ExitTOMainMenuSurfaceCreated:
+            ExitToMainMenuOpacityAnimBG.set_alpha(ExitToMainMenuAnimOpacity)
+            Display.blit(ExitToMainMenuOpacityAnimBG, (0, 0))
+
 
 def Update():
     global TopBarRectangle
@@ -206,6 +204,9 @@ def Update():
     global ExitToMainMenuAnim
     global ExitToMainMenuOpacityAnimBG
     global ObjectsInitialized
+    global PendingToExitToMainMenu
+    global ExitToMainMenuAnimOpacity
+    global ControlsEnabled
 
     if ObjectsInitialized:
         volumeSlider.Update()
@@ -218,14 +219,10 @@ def Update():
             ExitToMainMenuOpacityAnimBG = pygame.Surface((DISPLAYObject.get_width(), DISPLAYObject.get_height()))
             ExitTOMainMenuSurfaceCreated = True
 
-    # -- Restart Game Dialog -- #
-    warnDialog.Update()
-
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
     TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 34)
-    DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(),
-                                   34)
+    DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 34)
 
     # -- Set Objects X -- #
     TopMenu_BackToGame_Button.Set_X(AnimationNumb + 2)
@@ -237,22 +234,8 @@ def Update():
     TopMenu_DeveloperConsoleButton.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
     TopMenu_MainMenu.Set_Y(TopMenu_BackToGame_Button.Rectangle[1])
 
-    if TopMenu_BackToGame_Button.ButtonState == "UP" and not warnDialog.Enabled:
-        UIOpacityAnim_OutSoundPlayed = False
-        if not UIOpacityAnimEnabled:
-            UIOpacityAnimEnabled = True
-            tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToGame_function)[Back to Game]")
-
-    if TopMenu_DeveloperConsoleButton.ButtonState == "UP" and not warnDialog.Enabled:
-        if ConsoleWindowEnabled:
-            ConsoleWindowEnabled = False
-        else:
-            ConsoleWindowEnabled = True
-
-    if TopMenu_MainMenu.ButtonState == "UP" and not warnDialog.Enabled:
-        # -- Alert to Exit -- #
-        ShowWarnDialog(gtk.GetLangText("restartconfirm_title_generic", "overlay"),
-                       gtk.GetLangText("restartconfirm_text_exit", "overlay"), 1)
+    if ControlsEnabled:
+        UpdateControls()
 
     # -- Run the Menu Animation -- #
     UpdateOpacityAnim()
@@ -263,6 +246,48 @@ def Update():
     # -- Update Developer Console Windows -- #
     if ConsoleWindowEnabled:
         developWindow.Update()
+
+def UpdateControls():
+    global TopMenu_BackToGame_Button
+    global UIOpacityAnim_OutSoundPlayed
+    global UIOpacityAnimEnabled
+    global ControlsEnabled
+    global ConsoleWindowEnabled
+    global PendingToExitToMainMenu
+    global TopMenu_MainMenu
+    global ExitToMainMenuAnim
+
+    if TopMenu_BackToGame_Button .ButtonState == 2:
+        UIOpacityAnim_OutSoundPlayed = False
+        if not UIOpacityAnimEnabled:
+            UIOpacityAnimEnabled = True
+            ControlsEnabled = False
+            tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToGame_func)[Variables Set]")
+
+    if TopMenu_DeveloperConsoleButton.ButtonState == 2:
+        if ConsoleWindowEnabled:
+            ConsoleWindowEnabled = False
+        else:
+            ConsoleWindowEnabled = True
+
+    if TopMenu_MainMenu.ButtonState == 2:
+        TopMenu_MainMenu.ButtonState = 0
+        taiyouMain.SystemUI.OverlayDialogEnabled = True
+        taiyouMain.SystemUI.ovelDiag.Subscreen = 2
+
+        PendingToExitToMainMenu = True
+        taiyouMain.SystemUI.ovelDiag.subscreen2.Response = ""
+        taiyouMain.SystemUI.ovelDiag.subscreen2.ResponseType = "YESNO"
+        taiyouMain.SystemUI.ovelDiag.subscreen2.SetMessage(gtk.GetLangText("restartconfirm_title_generic", "overlay"), gtk.GetLangText("restartconfirm_text_exit", "overlay"))
+        tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToMainMenu_func)[Variables Set]")
+
+    if PendingToExitToMainMenu:
+        if taiyouMain.SystemUI.ovelDiag.subscreen2.ResponseTrigger:
+            if taiyouMain.SystemUI.ovelDiag.subscreen2.Response == "YES":
+                tge.devel.PrintToTerminalBuffer("TaiyouUI.PendingOperations :\n(ExitToMainMenu)[Function Called]")
+                ExitToMainMenuAnim = True
+                PendingToExitToMainMenu = False
+                ControlsEnabled = False
 
 
 def ShowWarnDialog(Title, Text, ActionType):
@@ -296,9 +321,10 @@ def UpdateOpacityAnim():
     global OpenedInGameError
     global UIOpacityAnim_InGameErrorSoundPlayed
     global CopyOfScreen_Last
+    global ControlsEnabled
 
     if UIOpacityAnimEnabled:
-        if UIOpacityAnimState == 0:  # <- Enter Animation
+        if UIOpacityAnimState == 0:  # <- When Opening the Menu;
             UIOpacity += UIOpacityAnimSpeed
 
             # -- Copy the Screen Surface -- #
@@ -323,8 +349,9 @@ def UpdateOpacityAnim():
                 UIOpacityAnim_InSoundPlayed = True
                 UIOpacityAnim_OutSoundPlayed = True
                 print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
+                ControlsEnabled = True
 
-        if UIOpacityAnimState == 1:  # <- Exit Animation
+        if UIOpacityAnimState == 1:  # <- When Backing to the Game
             UIOpacity -= UIOpacityAnimSpeed
 
             # -- Close Windows -- #
@@ -336,33 +363,30 @@ def UpdateOpacityAnim():
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
                 UIOpacityAnim_OutSoundPlayed = True
 
-            if UIOpacity <= 0:  # <- Triggers Animation End
+            if UIOpacity <= 0:
+                # -- Restart Variables -- #
                 UIOpacity = 0
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
-                taiyouMain.ReceiveCommand("GAME_UPDATE:True")
-                # -- Unload the Surfaces -- #
-                CopyOfTheScreen = pygame.Surface((0, 0), pygame.SRCALPHA)
-                DarkerBackgroundSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
-                UIObjectsSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
+                CopyOfTheScreen.fill((0, 0, 0))
+                DarkerBackgroundSurface.fill((0, 0, 0))
+                UIObjectsSurface.fill((0, 0, 0))
+                CopyOfTheScreen.fill((0, 0, 0))
+                CopyOfScreen_Result.fill((0, 0, 0))
                 UIOpacityPauseGame = False
                 UIObjectsSurfaceUpdated = False
-                warnDialog.SurfacesUpdated = False
                 ConsoleWindowEnabled = False
                 CopyOfScreen_Last = False
-
-                # -- Initialize the Game when exiting -- #
-                if ExitToInitializeGame:
-                    ExitToInitializeGame = False
-                    taiyouMain.ReceiveCommand("TOGGLE_GAME_START")
-                    taiyouMain.ReceiveCommand("SET_GAME_MODE")
-
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
                 OpenedInGameError = False
-                taiyouMain.ReceiveCommand("SET_GAME_MODE")
                 UIOpacityAnim_InGameErrorSoundPlayed = False
                 UiHandler.SystemMenuEnabled = False
+                ControlsEnabled = False
+
+                # -- Enable GameLoop -- #
+                taiyouMain.ReceiveCommand(5)
+
 
 
 # -- Update the ExitToMainMenu Animation -- #
@@ -376,28 +400,45 @@ def ExitToMainMenu_UpdateAnim():
     global UIOpacityAnim_InSoundPlayed
     global UIOpacityAnim_OutSoundPlayed
     global UIOpacityAnimState
+    global PendingToExitToMainMenu
+    global UIOpacity
+    global UIOpacityAnimSpeed
+    global ExitTOMainMenuSurfaceCreated
+    global CopyOfScreen_Result
+    global ConsoleWindowEnabled
+    global UIOpacityAnim_InGameErrorSoundPlayed
+    global OpenedInGameError
+    global CopyOfScreen_Last
+    global UIOpacityPauseGame
+    global ControlsEnabled
 
     if ExitToMainMenuAnim:
-        ExitToMainMenuAnimOpacity += 5
+        ControlsEnabled = False
+        ExitToMainMenuAnimOpacity += UIOpacityAnimSpeed
+        UIOpacity -= UIOpacityAnimSpeed
 
         if ExitToMainMenuAnimOpacity >= 255:
-            # -- Restart the RestarGameConfirm -- #
-            warnDialog.AnimOpacity = 0
-            warnDialog.AnimMode = 0
-            warnDialog.AnimEnabled = False
-            warnDialog.Enabled = False
+            # -- Restart Variables -- #
             ExitToMainMenuAnim = False
             ExitToMainMenuAnimOpacity = 0
             UIObjectsSurfaceUpdated = False
-            warnDialog.SurfacesUpdated = False
-            CopyOfTheScreen.fill((0, 0, 0))
-
-            # -- Restart Animation -- #
             UIOpacity = 0
-            UIOpacityAnimEnabled = True
+            UIOpacityAnimEnabled = False
+            UIOpacityAnimState = 0
+            CopyOfTheScreen.fill((0, 0, 0))
+            DarkerBackgroundSurface.fill((0, 0, 0))
+            UIObjectsSurface.fill((0, 0, 0))
+            CopyOfTheScreen.fill((0, 0, 0))
+            CopyOfScreen_Result.fill((0, 0, 0))
+            UIOpacityPauseGame = False
+            UIObjectsSurfaceUpdated = False
+            ConsoleWindowEnabled = False
+            CopyOfScreen_Last = False
             UIOpacityAnim_InSoundPlayed = False
             UIOpacityAnim_OutSoundPlayed = False
-            UIOpacityAnimState = 0
+            OpenedInGameError = False
+            UIOpacityAnim_InGameErrorSoundPlayed = False
+            UiHandler.SystemMenuEnabled = True
 
             # -- Update the Main Menu Scenarios -- #
             taiyouMain.ReceiveCommand("SET_MENU_MODE")
@@ -408,6 +449,7 @@ def ExitToMainMenu_UpdateAnim():
             UiHandler.CurrentMenuScreen = 2
 
 
+
 def EventUpdate(event):
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
@@ -416,21 +458,11 @@ def EventUpdate(event):
     global TopMenu_MainMenu
 
     # -- Update Buttons Events -- #
-    if not warnDialog.Enabled:
-        TopMenu_BackToGame_Button.Update(event)
-        TopMenu_DeveloperConsoleButton.Update(event)
-        TopMenu_MainMenu.Update(event)
-        volumeSlider.EventUpdate(event)
+    TopMenu_BackToGame_Button.Update(event)
+    TopMenu_DeveloperConsoleButton.Update(event)
+    TopMenu_MainMenu.Update(event)
+    volumeSlider.EventUpdate(event)
 
-        # -- Update the Console only when it is Enabled -- #
-        if ConsoleWindowEnabled:
-            developWindow.EventUpdate(event)
-
-    # -- Update the Surface when Window Size Changes -- #
-    if event.type == pygame.VIDEORESIZE:
-        UIObjectsSurfaceUpdated = False
-        warnDialog.SurfacesUpdated = False
-
-    # -- Update Dialog Buttons -- #
-    if warnDialog.Enabled:
-        warnDialog.EventUpdate(event)
+    # -- Update the Console only when it is Enabled -- #
+    if ConsoleWindowEnabled:
+        developWindow.EventUpdate(event)

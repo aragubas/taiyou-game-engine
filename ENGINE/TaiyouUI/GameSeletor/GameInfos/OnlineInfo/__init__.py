@@ -25,11 +25,10 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as ovelDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos as Handler
 from ENGINE.TaiyouUI import GameSeletor as HandlerOfHandler
 
-Placeholder = "Place a Holder"
 
 # -- Buttons -- #
 RunUpdater_Button = gtk.Button
@@ -58,10 +57,10 @@ def Initialize():
     global RunUpdater_Button
     global UpdateMetadata_Button
 
-    RunUpdater_Button = gtk.Button(pygame.Rect(5,5,5,5), gtk.GetLangText("updater_button", "game_infos/online"), 20)
+    RunUpdater_Button = gtk.Button(pygame.Rect(5, 5, 5, 5), gtk.GetLangText("updater_button", "game_infos/online"), 20)
     RunUpdater_Button.CustomColisionRectangle = True
 
-    UpdateMetadata_Button = gtk.Button(pygame.Rect(5,5,5,5), gtk.GetLangText("metadata_update", "game_infos/online"), 20)
+    UpdateMetadata_Button = gtk.Button(pygame.Rect(5, 5, 5, 5), gtk.GetLangText("metadata_update", "game_infos/online"), 20)
     UpdateMetadata_Button.CustomColisionRectangle = True
 
 def Update():
@@ -82,27 +81,30 @@ def Update():
     UpdateMetadata_Button.Set_ColisionY(Handler.GameInfosSurface_Dest[1] + UpdateMetadata_Button.Rectangle[1])
 
     # -- Update Button -- #
-    if RunUpdater_Button.ButtonState == "UP":
+    if RunUpdater_Button .ButtonState == 2:
         # -- Set Variables -- #
         HandlerOfHandler.ApplicationUpdateDialogEnabled = True
-        UpdateDiag.ApplicationID = HandlerOfHandler.SelectedGameInfo[0]
-        UpdateDiag.ApplicationName = HandlerOfHandler.SelectedGameInfo[1]
-        UpdateDiag.ApplicationVersion = float(HandlerOfHandler.SelectedGameInfo[2])
-        UpdateDiag.ApplicationFolder = HandlerOfHandler.SelectedGameInfo[3]
-        RunUpdater_Button.ButtonState = "INACTIVE"
+        ovelDiag.ApplicationID = HandlerOfHandler.SelectedGameInfo[0]
+        ovelDiag.ApplicationName = HandlerOfHandler.SelectedGameInfo[1]
+        ovelDiag.ApplicationVersion = float(HandlerOfHandler.SelectedGameInfo[2])
+        ovelDiag.ApplicationFolder = HandlerOfHandler.SelectedGameInfo[3]
+        taiyouUI.OverlayDialogEnabled = True
+
+        RunUpdater_Button.ButtonState = 0
 
     # -- Metadata Update Button -- #
-    if UpdateMetadata_Button.ButtonState == "UP":
+    if UpdateMetadata_Button .ButtonState == 2:
         # -- Set Variables -- #
         HandlerOfHandler.ApplicationUpdateDialogEnabled = True
-        UpdateDiag.ApplicationID = HandlerOfHandler.SelectedGameInfo[0]
-        UpdateDiag.ApplicationName = HandlerOfHandler.SelectedGameInfo[1]
-        UpdateDiag.ApplicationVersion = float(HandlerOfHandler.SelectedGameInfo[2])
-        UpdateDiag.ApplicationFolder = HandlerOfHandler.SelectedGameInfo[3]
-        UpdateDiag.subscreen1.IsMetadataUpdate = True
-        UpdateDiag.subscreen1.VersionChecking = False
+        ovelDiag.ApplicationID = HandlerOfHandler.SelectedGameInfo[0]
+        ovelDiag.ApplicationName = HandlerOfHandler.SelectedGameInfo[1]
+        ovelDiag.ApplicationVersion = float(HandlerOfHandler.SelectedGameInfo[2])
+        ovelDiag.ApplicationFolder = HandlerOfHandler.SelectedGameInfo[3]
+        ovelDiag.subscreen1.IsMetadataUpdate = True
+        ovelDiag.subscreen1.VersionChecking = False
+        taiyouUI.OverlayDialogEnabled = True
 
-        UpdateMetadata_Button.ButtonState = "INACTIVE"
+        UpdateMetadata_Button.ButtonState = 0
 
 
 

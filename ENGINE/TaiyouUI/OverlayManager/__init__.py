@@ -61,25 +61,17 @@ def EventUpdate(event):
     elif CurrentOverlayID == 2:
         debugOverlay.EventUpdate(event)
 
-    KeyWasValid = False
-
     # -- Toggle Keys -- #
     if event.type == pygame.KEYUP and event.key == pygame.K_F11:  # -- Screenshot Overlay -- #
-        KeyWasValid = True
-
         Set_OverlayLevel(1)
 
     elif event.type == pygame.KEYUP and event.key == pygame.K_F10:  # -- FPS Overlay Key -- #
-        KeyWasValid = True
-
         if Get_OverlayLevel() == 0:
             Set_OverlayLevel(-1)
         else:
             Set_OverlayLevel(0)
 
     elif event.type == pygame.KEYUP and event.key == pygame.K_F9:  # -- Debug Profile Overlay Key -- #
-        KeyWasValid = True
-
         if Get_OverlayLevel() == 2:
             Set_OverlayLevel(-1)
         else:

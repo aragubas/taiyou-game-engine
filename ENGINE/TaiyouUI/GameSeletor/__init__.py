@@ -26,7 +26,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
-from ENGINE.TaiyouUI import OverlayDialog as UpdateDiag
+from ENGINE.TaiyouUI import OverlayDialog as ovelDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos
 
 # -- Buttons -- #
@@ -65,9 +65,6 @@ AnimationNumb = 0
 # -- UI Surface -- #
 DisplaySurface = pygame.Surface((0,0))
 DisplaySurfaceInited = False
-
-# -- Application Update Dialog -- #
-ApplicationUpdateDialogEnabled = False
 
 # -- List of all valid game folders -- #
 ValidGameFolders = list()
@@ -112,7 +109,7 @@ def Initialize():
 
     UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay", True)
 
-    UpdateDiag.Initialize()
+    ovelDiag.Initialize()
     GameInfos.Initialize()
 
     # -- Initialize Volume Slider -- #
@@ -124,7 +121,6 @@ def LoadGameList():
     UnloadGameList()
 
     ValidGameFolders = ListInstalledGames()
-
 
     for game in ValidGameFolders:
         InstalledGameList.AddItem(game)
@@ -151,8 +147,7 @@ def Draw(Display):
     global SeletorLoadingSquare
     global RestartList_Button
     global UIOpacity_EnableDelayEnabled
-    global ApplicationUpdateDialogEnabled
-    Display.fill((0, 0, 0, 0))
+    Display.fill((0, 0, 0))
 
     if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
         SeletorLoadingSquare.Render(Display)
@@ -160,7 +155,7 @@ def Draw(Display):
         if not UIOpacity_EnableDelayEnabled and UIOpacity_EnableDelay <= UIOpacity_StartDelay:
             sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 18, LoadingPauseMessage, (240, 240, 240), 5, 600 - 23)
 
-    if DisplaySurfaceInited and not ApplicationUpdateDialogEnabled:
+    if DisplaySurfaceInited:
         DisplaySurface.fill((BackgroundR, BackgroundG, BackgroundB))
         DisplaySurface.set_alpha(UIOpacity)
 
@@ -184,9 +179,6 @@ def Draw(Display):
 
     Display.blit(DisplaySurface, (0,0))
 
-    if ApplicationUpdateDialogEnabled:
-        UpdateDiag.Draw(Display)
-
     # -- Set the Display Inited Variable -- #
     if not DisplaySurfaceInited:
         DisplaySurface = pygame.Surface((800,600))
@@ -205,20 +197,17 @@ def Update():
     global SeletorLoadingSquare
     global RestartList_Button
     global UIOpacity_EnableDelay
-    global ApplicationUpdateDialogEnabled
     global SelectedGameInfo
 
+    # -- Set the Animation Numb -- #
     AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
     # -- Update Game Infos -- #
     if not InstalledGameList.SelectedItemIndex == -1:
         GameInfos.Update()
 
-    # -- Update update Dialog -- #
-    if ApplicationUpdateDialogEnabled:
-        UpdateDiag.Subscreen = 1
-
-        UpdateDiag.Update()
+    # -- Set Correct Subscreen -- #
+    ovelDiag.Subscreen = 1
 
     # -- Update Loading Square -- #
     if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
@@ -230,7 +219,7 @@ def Update():
         SeletorLoadingSquare.Opacity = UIOpacity_EnableDelay + 50 - UIOpacity
 
     # -- Update Bar's Positions -- #
-    if DisplaySurfaceInited and not ApplicationUpdateDialogEnabled:
+    if DisplaySurfaceInited:
         TopPanel_Rect = pygame.Rect(0, AnimationNumb, DisplaySurface.get_width(), 35)
 
         InstalledGameList.SurfaceOpacity = AnimationNumb * 2.5 + 255
@@ -250,11 +239,11 @@ def Update():
             SelectedGameInfo = (InstalledGameList.SelectedApplicationID.rstrip(), InstalledGameList.SelectedItem.rstrip(), InstalledGameList.SelectedApplicationVersion.rstrip(), InstalledGameList.SelectedApplicationFolderName.rstrip(), InstalledGameList.SelectedApplicationIcon)
 
         # -- Refresh Button -- #
-        if RestartList_Button.ButtonState == "UP":
+        if RestartList_Button.ButtonState == 2:
             UIOpacity_AnimExitToOpenApplication = False
             UIOpacityAnimEnabled = True
 
-        if SelectApplication_Button.ButtonState == "UP":
+        if SelectApplication_Button.ButtonState == 2:
             if not InstalledGameList.SelectedApplicationID == -1:
                 UIOpacityAnimEnabled = True
                 UIOpacity_AnimExitToOpenApplication = True
@@ -268,29 +257,24 @@ def EventUpdate(event):
     global UIOpacityAnimEnabled
     global UIOpacity_AnimExitToOpenApplication
     global RestartList_Button
-    global ApplicationUpdateDialogEnabled
 
     # -- Update Buttons -- #
-    if not ApplicationUpdateDialogEnabled:
-        SelectApplication_Button.Update(event)
-        RestartList_Button.Update(event)
+    SelectApplication_Button.Update(event)
+    RestartList_Button.Update(event)
 
-        # -- Update Lists -- #
-        InstalledGameList.Update(event)
+    # -- Update Lists -- #
+    InstalledGameList.Update(event)
 
+    if not InstalledGameList.SelectedApplicationID == -1:
+        GameInfos.EventUpdate(event)
+
+    if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
         if not InstalledGameList.SelectedApplicationID == -1:
-            GameInfos.EventUpdate(event)
+            UIOpacityAnimEnabled = True
+            UIOpacity_AnimExitToOpenApplication = True
 
-        if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
-            if not InstalledGameList.SelectedApplicationID == -1:
-                UIOpacityAnimEnabled = True
-                UIOpacity_AnimExitToOpenApplication = True
-        volumeSlider.EventUpdate(event)
+    volumeSlider.EventUpdate(event)
 
-
-    # -- Event Application Update Ready Message -- #
-    if ApplicationUpdateDialogEnabled:
-        UpdateDiag.EventUpdate(event)
 
 def LoadingTasks():
     global UIOpacityAnim_ListLoaded
@@ -315,21 +299,20 @@ def UpdateOpacityAnim():
     global UIOpacity_StartDelay
     global UIOpacityAnim_ListLoaded
 
-    if not ApplicationUpdateDialogEnabled:
-        if UIOpacity_EnableDelayEnabled:
-            UIOpacity_EnableDelay += 1
+    if UIOpacity_EnableDelayEnabled:
+        UIOpacity_EnableDelay += 1
 
-        LoadingTasks()
+    LoadingTasks()
 
-    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= UIOpacity_StartDelay and not ApplicationUpdateDialogEnabled:
+    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= UIOpacity_StartDelay:
         if UIOpacityAnimState == 0:  # <- Enter Animation
             UIOpacity += UIOpacityAnimSpeed
 
-            if BackgroundR < 0:
+            if BackgroundR < gtk.GameSeletor_BackgroundColor[0]:
                 BackgroundR += 1
-            if BackgroundG < 1:
+            if BackgroundG < gtk.GameSeletor_BackgroundColor[1]:
                 BackgroundG += 1
-            if BackgroundB < 12:
+            if BackgroundB < gtk.GameSeletor_BackgroundColor[2]:
                 BackgroundB += 1
 
             # -- Play the In Sound -- #

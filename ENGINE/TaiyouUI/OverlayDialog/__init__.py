@@ -32,6 +32,8 @@ DialogRectangle = pygame.Rect
 CommonDisplay = pygame.Surface
 CommonDisplayScreenPos = (0,0)
 CommonDisplayInitialized = False
+BGDarkSurfaceCreated = False
+BGDarkSurface = pygame.Surface((0, 0))
 
 # -- Application Details -- #
 ApplicationName = "null"
@@ -40,18 +42,33 @@ ApplicationVersion = 1.0
 ApplicationFolder = "null"
 MessageTitle = "null"
 
-Subscreen = 1
+# -- Animation Variables -- #
+DialogOpctAnim_AnimEnabled = True
+DialogOpctAnim_AnimMode = 0
+DialogOpctAnim_AnimOpacity = 0
+DialogOpctAnim_AnimNumb = 0
+
+DialogOpctAnim_Enabled = False
+DialogOpenSoundPlayed = False
+
+# -- Copy of Screen -- #
+CopyOfScreen_Last = False
+CopyOfScreen_Result = pygame.Surface
+CopyOfScreen_BlurAmount = 0
+CopyOfScreen_Set = False
+
+Subscreen = -1
 
 def Initialize():
     global DialogRectangle
     global MessageTitle
     global CommonDisplayScreenPos
-    DialogRectangle = pygame.Rect(0,0,395,250)
+    DialogRectangle = pygame.Rect(0, 0, 395, 250)
 
     subscreen1.Initialize()
     subscreen2.Initialize()
 
-    CommonDisplayScreenPos = (5,5)
+    CommonDisplayScreenPos = (-1000, -1000)
 
     MessageTitle = gtk.GetLangText("title", "update_diag")
 
@@ -62,6 +79,11 @@ def Draw(Display):
     global CommonDisplayScreenPos
     global DialogOpctAnim_AnimNumb
     global MessageTitle
+    global BGDarkSurfaceCreated
+    global BGDarkSurface
+
+    # -- Draw the Copy of Screen -- #
+    Draw_ScreenshotOfGameScreen(Display)
 
     if CommonDisplayInitialized:
         # -- Draw the Background -- #
@@ -77,11 +99,46 @@ def Draw(Display):
             subscreen2.Draw(CommonDisplay)
 
         CommonDisplayScreenPos = (Display.get_width() / 2 - 395 / 2, Display.get_height() / 2 - 150 / 2 - DialogOpctAnim_AnimNumb * 2.5 / 3.10)
-        BgDarker = pygame.Surface((Display.get_width(), Display.get_height()))
-        BgDarker.set_alpha(DialogOpctAnim_AnimOpacity)
-        Display.blit(BgDarker, (0,0))
+        if not BGDarkSurfaceCreated:
+            BGDarkSurfaceCreated = True
+            BGDarkSurface = pygame.Surface((Display.get_width(), Display.get_height()))
+
+        BGDarkSurface.set_alpha(DialogOpctAnim_AnimOpacity)
+        Display.blit(BGDarkSurface, (0, 0))
 
         Display.blit(CommonDisplay, CommonDisplayScreenPos)
+
+def Draw_ScreenshotOfGameScreen(Display):
+    global CopyOfScreen_Result
+    global CopyOfScreen_Last
+    global CopyOfScreen_BlurAmount
+
+    # -- Blur Amount Value -- #
+    if not CopyOfScreen_Last:
+        CopyOfScreen_BlurAmount = max(1.0, DialogOpctAnim_AnimOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True))
+
+    if DialogOpctAnim_AnimEnabled:  # -- Draw the Animation -- #
+        CopyOfScreen_Last = False
+        if reg.ReadKey_bool("/TaiyouSystem/CONF/blur_enabled", True):
+            # -- Pixalizate if Overlay Pixalizate is True -- #
+            if not reg.ReadKey_bool("/TaiyouSystem/CONF/overlay_pixelizate", True):
+                # -- Blur the Copy of Screen -- #
+                Display.blit(sprite.Surface_Blur(taiyouUI.ScreenLastFrame, CopyOfScreen_BlurAmount), (0, 0))
+            else:
+                # -- Pixalizate Copy of Screen -- #
+                Display.blit(sprite.Surface_Blur(taiyouUI.ScreenLastFrame, CopyOfScreen_BlurAmount, True), (0, 0))
+
+        else:
+            Display.blit(CopyOfTheScreen, (0, 0))
+
+    # -- Draw the Last Frame -- #
+    if not CopyOfScreen_Last and not DialogOpctAnim_AnimEnabled:
+        CopyOfScreen_Result = sprite.Surface_Blur(taiyouUI.ScreenLastFrame, CopyOfScreen_BlurAmount)
+        CopyOfScreen_Last = True
+
+    # -- Render the Last Frame -- #
+    if CopyOfScreen_Last and not DialogOpctAnim_AnimEnabled:  # -- Render the last frame of animation -- #
+        Display.blit(CopyOfScreen_Result, (0, 0))
 
 def EventUpdate(event):
     if Subscreen == 1:
@@ -113,21 +170,14 @@ def Update():
         elif Subscreen == 2:
             subscreen2.Update()
 
-
-
-DialogOpctAnim_AnimEnabled = True
-DialogOpctAnim_AnimMode = 0
-DialogOpctAnim_AnimOpacity = 0
-DialogOpctAnim_AnimNumb = 0
-DialogOpctAnim_Enabled = False
-DialogOpenSoundPlayed = False
-
 def DialogOpctOpacity():
     global DialogOpctAnim_AnimEnabled
     global DialogOpctAnim_AnimMode
     global DialogOpctAnim_AnimOpacity
     global DialogOpctAnim_AnimNumb
     global DialogOpenSoundPlayed
+    global BGDarkSurfaceCreated
+    global BGDarkSurface
 
     if DialogOpctAnim_AnimEnabled:
         DialogOpctAnim_AnimNumb = DialogOpctAnim_AnimOpacity - 255 + 15
@@ -152,8 +202,9 @@ def DialogOpctOpacity():
                 DialogOpctAnim_AnimMode = 0
                 DialogOpctAnim_AnimEnabled = True
                 DialogOpenSoundPlayed = False
-
-                seletorScreen.ApplicationUpdateDialogEnabled = False
+                BGDarkSurfaceCreated = False
+                BGDarkSurface.fill((0, 0, 0))
+                taiyouUI.OverlayDialogEnabled = False
 
 def ResetAnimation():
     global DialogOpctAnim_AnimEnabled

@@ -189,6 +189,8 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
     :param Width:Scale Width
     :param Height:Scale Height
     :param SmoothScaling:Smooth Pixels [This option can decrease peformace]
+    :param Opacity: Alpha value of sprite's surface
+    :param ColorKey: ColorKey of sprite
     :return:
     """
     if not SpriteRenderingDisabled:
@@ -262,7 +264,6 @@ def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=
                 Opacity = 0
             if Opacity > 255:
                 Opacity = 255
-
 
             # -- Render Multiple Lines -- #
             if len(Text.splitlines()) > 1:

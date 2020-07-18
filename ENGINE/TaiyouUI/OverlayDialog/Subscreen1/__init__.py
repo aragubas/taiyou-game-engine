@@ -50,9 +50,6 @@ def Initialize():
     OK_Button = gtk.Button(pygame.Rect(0,0,0,0), gtk.GetLangText("ok_button"), 18)
     OK_Button.CustomColisionRectangle = True
 
-
-
-
 def Draw(Display):
     global UpdateProgressBar_Rectangle
     global LoadingAnimSquare
@@ -89,9 +86,6 @@ def Draw(Display):
         sprite.FontRender(Display, "/Ubuntu_Bold.ttf", 14, gtk.GetLangText(UpdateCompletedMessage, "update_diag").format(DwObj.DownloadState.replace("ERROR_", "")), (240, 240, 240), 5, 25)
 
         OK_Button.Render(Display)
-
-
-
 
 def Update():
     global UpdateProgressBar_Rectangle
@@ -139,7 +133,7 @@ def Update():
             OK_Button.Set_X(5)
             OK_Button.Set_Y(Handler.CommonDisplay.get_height() - OK_Button.Rectangle[3] - 5)
 
-            if OK_Button.ButtonState == "UP":
+            if OK_Button.ButtonState == 2:
                 Handler.DialogOpctAnim_AnimEnabled = True
 
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Confirm", True))
@@ -155,7 +149,7 @@ def Update():
                 FileIsDownloading = False
                 IsMetadataUpdate = False
                 DownloadError = False
-                OK_Button.ButtonState = "INACTIVE"
+                OK_Button.ButtonState = 0
 
         if DownloaderEnabled:
             LoadingAnimSquare.Set_Y(Handler.CommonDisplay.get_height() - 38)
@@ -163,7 +157,6 @@ def Update():
             LoadingAnimSquare.Update()
 
             UpdateDownloader()
-
 
         # -- Set Progress -- #
         UpdateProgressBar_Rectangle = pygame.Rect(5, Handler.DialogRectangle[3] - 20, (Handler.DialogRectangle[2] - 44) * UpdateProgress / 100, 15)
@@ -253,23 +246,23 @@ def Update_Steps():
 
         print("TaiyouUI.ApplicationUpdateDiag : Update Step; " + str(UpdateStep))
 
-        if UpdateStep == 0: # -- Download Current Version Data -- #
+        if UpdateStep == 0:  # -- Download Current Version Data -- #
             TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/version"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version")
 
-        if UpdateStep == 1: # -- Compare Versions -- #
+        if UpdateStep == 1:  # -- Compare Versions -- #
             if float(open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version").read()) == Handler.ApplicationVersion:
                 UpdateCompletedMessage = "version_already_updated"
                 UpdateCompleted = True
                 UpdateStepCanAdd = False
                 VersionChecking = False
 
-        if UpdateStep == 2: # -- Download the Update File -- #
+        if UpdateStep == 2:  # -- Download the Update File -- #
             VersionChecking = False
             TaskUrl = reg.ReadKey("TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/updateFile.zip"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/updateFile.zip")
 
-        if UpdateStep == 3: # -- Copy Updated Files -- #
+        if UpdateStep == 3:  # -- Copy Updated Files -- #
             UpdateStepCanAdd = False
             UpdateFileZipPath = "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/updateFile.zip"
 
@@ -277,7 +270,7 @@ def Update_Steps():
 
             UpdateStepCanAdd = True
 
-        if UpdateStep == 4: # -- Unzip File  -- #
+        if UpdateStep == 4:  # -- Unzip File  -- #
             UpdateStepCanAdd = False
             print("Unzip File")
 
@@ -287,18 +280,18 @@ def Update_Steps():
 
             UpdateStepCanAdd = True
 
-        if UpdateStep == 5: # -- Download Patch Notes -- #
+        if UpdateStep == 5:  # -- Download Patch Notes -- #
             TaskUrl = reg.ReadKey("/TaiyouSystem/TaiyouOnlineGameIDPath", True) + Handler.ApplicationID + "/patchNotes"
             SetDownloadTask(TaskUrl, "Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes")
 
-        if UpdateStep == 6: # -- Write some Registry Keys -- #
+        if UpdateStep == 6:  # -- Write some Registry Keys -- #
             # -- Write Current Version
             reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/CurrentVersion", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/version", "r").read().rstrip())
             reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/PatchNotes", open("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID + "/patchNotes", "r").read().rstrip())
 
             reg.WriteKey("/TaiyouSystem/UPDATER/" + Handler.ApplicationID + "/ApplicationDataHasBeenDownloaded", "True")
 
-        if UpdateStep == 7: # -- Delete Temporary Files -- #
+        if UpdateStep == 7:  # -- Delete Temporary Files -- #
             UpdateStepCanAdd = False
 
             utils.Directory_Remove("Taiyou/HOME/Webcache/UPDATER/" + Handler.ApplicationID) # Delete All downloaded files
@@ -336,8 +329,6 @@ def Update_MetaSteps():
 
             UpdateCompleted = True
             UpdateCompletedMessage = "metadw_download_completests"
-
-
 
 def EventUpdate(event):
     global OK_Button

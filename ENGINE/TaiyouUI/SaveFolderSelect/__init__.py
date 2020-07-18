@@ -56,10 +56,9 @@ ControlsPanel = pygame.Rect(0, 0, 550, 35)
 CreateFolderButton = gtk.Button
 DeleteFolderButton = gtk.Button
 RenameFolderButton = gtk.Button
-OverlayDialogEnabled = False
 
 # -- etc -- #
-PendingOperation = "null"
+PendingOperation = "null" """Pending Operation on Save Folder\n0 - Delete\n1 - Create\n2 - Rename"""
 
 def Initialize():
     global SelectFolderButton
@@ -73,11 +72,6 @@ def Initialize():
     CreateFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_create_folder", "save_fs"), 18)
     DeleteFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_delete_folder", "save_fs"), 18)
     RenameFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_rename_folder", "save_fs"), 18)
-
-    # -- Initialize Overlay Dialog -- #
-    ovlDiag.Initialize()
-
-    ovlDiag.subscreen2.SetMessage("wax", "ceira?")
 
 def ReloadSaveList():
     global VerticalList
@@ -208,9 +202,6 @@ def Draw(Display):
 
     Display.blit(UIObjectsSurface, (0, 0))
 
-    if OverlayDialogEnabled:
-        ovlDiag.Draw(Display)
-
 
 def Draw_ScreenshotOfGameScreen(Display):
     global CopyOfScreen_Result
@@ -219,7 +210,7 @@ def Draw_ScreenshotOfGameScreen(Display):
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, UIOpacity - reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True))
+        CopyOfScreen_BlurAmount = max(1.0, UIOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True)) * 32
 
     if UIOpacityAnimEnabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
@@ -255,7 +246,6 @@ def Update():
     global CreateFolderButton
     global UpdateSaveLists
     global DeleteFolderButton
-    global OverlayDialogEnabled
     global PendingOperation
     global RenameFolderButton
 
@@ -265,44 +255,35 @@ def Update():
 
     UpdateOpacityAnim()
 
-    if OverlayDialogEnabled:
-        # -- Set the Correct Subscreen for Overlay Dialog -- #
-        ovlDiag.Subscreen = 2
+    # -- Set the Correct Subscreen for Overlay Dialog -- #
+    ovlDiag.Subscreen = 2
+    if not PendingOperation == "null":
+        # -- Do Pending Operation -- #
+        try:
+            if PendingOperation == 0:
+                if ovlDiag.subscreen2.Response == "YES":
+                    DeleteSaveFolder(VerticalList.Selected_Name)
 
-        ovlDiag.Update()
+            elif PendingOperation == 1:
+                CreateSaveFolder(ovlDiag.subscreen2.Response)
 
-        if ovlDiag.subscreen2.ResponseTrigger:
-            if ovlDiag.DialogOpctAnim_AnimOpacity <= 10:
-                OverlayDialogEnabled = False
-                ovlDiag.ResetAnimation()
+            elif PendingOperation == 2:
+                RenameSaveFolder(VerticalList.Selected_Name, ovlDiag.subscreen2.Response)
 
-                # -- Do Pending Operation -- #
-                try:
-                    if PendingOperation == "DELETE":
-                        if ovlDiag.subscreen2.Response == "YES":
-                            DeleteSaveFolder(VerticalList.Selected_Name)
+        except Exception as ex:
+            print("Taiyou.SaveFolderSelect : Error while processing the operation[" + PendingOperation + "]\nError: " + str(ex))
 
-                    elif PendingOperation == "CREATE":
-                        CreateSaveFolder(ovlDiag.subscreen2.Response)
+            ovlDiag.subscreen2.ResponseType = "OK"
+            ovlDiag.subscreen2.ResponseTrigger = False
+            ovlDiag.DialogOpctAnim_Enabled = True
+            ovlDiag.DialogOpctAnim_AnimMode = 0
+            ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_error_title", "save_fs"), gtk.GetLangText("diag_error_text", "save_fs").format(PendingOperation))
 
-                    elif PendingOperation == "RENAME":
-                        RenameSaveFolder(VerticalList.Selected_Name, ovlDiag.subscreen2.Response)
+        PendingOperation = "null"
+        ovlDiag.subscreen2.Response = "null"
+        ovlDiag.subscreen2.ResponseTrigger = False
 
-                except Exception as ex:
-                    print("Taiyou.SaveFolderSelect : Error while processing the operation[" + PendingOperation + "]\nError: " + str(ex))
-
-                    OverlayDialogEnabled = True
-                    ovlDiag.subscreen2.ResponseType = "OK"
-                    ovlDiag.subscreen2.ResponseTrigger = False
-                    ovlDiag.DialogOpctAnim_Enabled = True
-                    ovlDiag.DialogOpctAnim_AnimMode = 0
-                    ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_error_title", "save_fs"), gtk.GetLangText("diag_error_text", "save_fs").format(PendingOperation))
-
-                PendingOperation = "null"
-                ovlDiag.subscreen2.Response = "null"
-                ovlDiag.subscreen2.ResponseTrigger = False
-
-    if UIObjectsSurfaceUpdated and not OverlayDialogEnabled:
+    if UIObjectsSurfaceUpdated:
         # -- Update Animation Numb -- #
         AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
 
@@ -328,32 +309,33 @@ def Update():
         RenameFolderButton.Set_X(CreateFolderButton.Rectangle[0] + CreateFolderButton.Rectangle[2] + 3)
 
         # -- Select Folder -- #
-        if SelectFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
+        if SelectFolderButton .ButtonState == 2 and not VerticalList.Selected_Name == "null":
             tge.Set_SaveFolder(VerticalList.Selected_Name + "/")
 
             UIOpacityAnimEnabled = True
 
         # -- Create Folder -- #
-        if CreateFolderButton.ButtonState == "UP":
-            OverlayDialogEnabled = True
-            PendingOperation = "CREATE"
+        if CreateFolderButton .ButtonState == 2:
+            taiyouMain.SystemUI.OverlayDialogEnabled = True
+            PendingOperation = 1
             ovlDiag.subscreen2.InputBox.CharacterLimit = 14
             ovlDiag.subscreen2.ResponseType = "INPUT"
 
             ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_create_title", "save_fs"), gtk.GetLangText("diag_create_text", "save_fs"))
 
         # -- Delete Folder -- #
-        if DeleteFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
-            OverlayDialogEnabled = True
-            PendingOperation = "DELETE"
+        if DeleteFolderButton .ButtonState == 2 and not VerticalList.Selected_Name == "null":
+            taiyouMain.SystemUI.OverlayDialogEnabled = True
+            PendingOperation = 0
             ovlDiag.subscreen2.ResponseType = "YESNO"
 
             ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_delete_title", "save_fs"), gtk.GetLangText("diag_delete_text", "save_fs").format(VerticalList.Selected_Name))
 
         # -- Rename Folder -- #
-        if RenameFolderButton.ButtonState == "UP" and not VerticalList.Selected_Name == "null":
-            OverlayDialogEnabled = True
-            PendingOperation = "RENAME"
+        if RenameFolderButton .ButtonState == 2 and not VerticalList.Selected_Name == "null":
+            taiyouMain.SystemUI.OverlayDialogEnabled = True
+
+            PendingOperation = 2
             ovlDiag.subscreen2.ResponseType = "INPUT"
             ovlDiag.subscreen2.InputBox.CharacterLimit = 14
             ovlDiag.subscreen2.InputBox.text = VerticalList.Selected_Name
@@ -365,7 +347,6 @@ def UpdateOpacityAnim():
     global UIOpacity
     global UIOpacityAnimEnabled
     global UIOpacityAnimSpeed
-    global CopyOfTheScreen
     global UIObjectsSurface
     global UIObjectsSurfaceUpdated
     global UIOpacityAnim_InSoundPlayed
@@ -403,9 +384,7 @@ def UpdateOpacityAnim():
                 UIOpacity = 0
                 UIOpacityAnimEnabled = False
                 UIOpacityAnimState = 0
-                taiyouMain.ReceiveCommand("GAME_UPDATE:True")
                 # -- Unload the Surfaces -- #
-                CopyOfTheScreen = pygame.Surface((0, 0), pygame.SRCALPHA)
                 UIObjectsSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
                 UIOpacityPauseGame = False
                 UIObjectsSurfaceUpdated = False
@@ -413,7 +392,7 @@ def UpdateOpacityAnim():
 
                 UIOpacityAnim_InSoundPlayed = False
                 UIOpacityAnim_OutSoundPlayed = False
-                taiyouMain.ReceiveCommand("SET_GAME_MODE")
+                taiyouMain.ReceiveCommand(5)
                 UIOpacityAnim_InGameErrorSoundPlayed = False
                 UiHandler.SystemMenuEnabled = False
 
@@ -422,15 +401,10 @@ def EventUpdate(event):
     global VerticalList
     global CreateFolderButton
     global DeleteFolderButton
-    global OverlayDialogEnabled
     global RenameFolderButton
 
-    if not OverlayDialogEnabled:
-        SelectFolderButton.Update(event)
-        VerticalList.Update(event)
-        CreateFolderButton.Update(event)
-        DeleteFolderButton.Update(event)
-        RenameFolderButton.Update(event)
-
-    else:
-        ovlDiag.EventUpdate(event)
+    SelectFolderButton.Update(event)
+    VerticalList.Update(event)
+    CreateFolderButton.Update(event)
+    DeleteFolderButton.Update(event)
+    RenameFolderButton.Update(event)

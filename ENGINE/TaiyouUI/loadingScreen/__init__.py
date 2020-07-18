@@ -172,7 +172,7 @@ def UpdateLoadingStages():
 
         elif LoadingStage == 6:
             print("Taiyou.LoadingScreen : Load Game Code")
-            taiyouMain.ReceiveCommand("OPEN_GAME:" + GameFolderToOpen)
+            taiyouMain.ReceiveCommand(7, GameFolderToOpen)
 
             OpacityAnimation_Enabled = True
 
@@ -219,10 +219,10 @@ def OpacityAnimation():
                 GameFolderToOpen = "null"
 
                 taiyouUI.CurrentMenuScreen = 0
-                taiyouMain.ReceiveCommand("SET_GAME_MODE")
+                taiyouMain.ReceiveCommand(5)
 
                 taiyouUI.gameOverlay.UIOpacityAnimEnabled = False
                 taiyouUI.SystemMenuEnabled = False
 
 def EventUpdate(event):
-    global OpacityAnimation_Opacity
+    pass
