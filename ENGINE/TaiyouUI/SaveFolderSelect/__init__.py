@@ -115,11 +115,11 @@ def WriteSaveFS(name):
     Year = str(datetime.datetime.today().year)
     Hour = str(datetime.datetime.today().hour)
     Minutes = str(datetime.datetime.today().minute)
-    Secound = str(datetime.datetime.today().second)
+    Second = str(datetime.datetime.today().second)
 
     f = open(FilePath, "w+")
     f.write("Name;" + str(name))
-    f.write("\nDescription;{0}".format(gtk.GetLangText("savefs_created_at", "save_fs").format(Day, Month, Year, Hour, Minutes, Secound)))
+    f.write("\nDescription;{0}".format(gtk.GetLangText("savefs_created_at", "save_fs").format(Day, Month, Year, Hour, Minutes, Second)))
     f.close()
 
 

@@ -150,9 +150,6 @@ def Unload():
     utils.GarbageCollector_Collect()
     del Sprites_Data
     del Sprites_Name
-    del Fonts_Data
-    del Fonts_Name
-    del CurrentLoadedFonts_Name
     del CurrentLoadedFonts_Name
     utils.GarbageCollector_Collect()
 

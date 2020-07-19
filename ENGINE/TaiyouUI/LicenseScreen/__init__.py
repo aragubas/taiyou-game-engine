@@ -101,7 +101,6 @@ def Draw(DISPLAY):
     global GlobalOpacity
     global LicenseText
 
-
     DISPLAY.fill((0, 0, 0))
     # -- Render Background -- #
     sprite.ImageRender(DISPLAY, "/TAIYOU_UI/BG/loading_bg.png", 0, 0, SmoothScaling=True, Opacity=GlobalOpacity)

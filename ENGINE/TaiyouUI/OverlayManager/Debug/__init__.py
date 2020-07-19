@@ -19,7 +19,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import TaiyouMain as main
 from ENGINE import UTILS as utils
 from ENGINE import DEBUGGING as debug
-TextToBeDisplayed = "FPS"
+TextToBeDisplayed = "Content Freeze"
 
 def Update():
     global TextToBeDisplayed

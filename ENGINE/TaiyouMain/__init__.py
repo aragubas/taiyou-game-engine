@@ -209,7 +209,6 @@ def ReceiveCommand(Command, Arguments=None):
             utils.GarbageCollector_Collect()
             print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : Done")
 
-
         elif Command == 6:
             CommandWasValid = True
             IsSpecialEvent = True
@@ -408,8 +407,6 @@ def EventUpdate():
                 else:
                     tge.StepByStepDebug_Enabled = True
 
-
-
         # -- Do Game Events -- #
         try:
             if not IsMenuMode:
@@ -429,7 +426,6 @@ def GameException(Exception, ErrorPart="Unknown"):
     global GameUpdateEnabled
     global IsMenuMode
     global DISPLAY
-
 
     # -- Reload System Registry -- #
     print("Taiyou.GameException!")

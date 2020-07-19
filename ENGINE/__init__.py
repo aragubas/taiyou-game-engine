@@ -478,7 +478,6 @@ def CloseGameFolder():
     global CurrentGame_Title
     global CurrentGame_ID
     global CurrentGame_Version
-    global CurrentGame_SourceFolder
     global CurrentGame_Folder
     global CurrentGame_SaveFolderDecided
     global CurrentGame_SaveFolderSelected
@@ -487,7 +486,6 @@ def CloseGameFolder():
     CurrentGame_Title = "null"
     CurrentGame_ID = "null"
     CurrentGame_Version = "null"
-    CurrentGame_SourceFolder = "null"
     CurrentGame_Folder = "null"
     CurrentGame_SaveFolderSelected = "null"
     CurrentGame_SaveFolderDecided = False
