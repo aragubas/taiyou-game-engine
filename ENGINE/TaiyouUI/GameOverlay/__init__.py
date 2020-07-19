@@ -154,6 +154,7 @@ def Draw_ScreenshotOfGameScreen(Display):
     global ExitToMainMenuAnim
     global ExitTOMainMenuSurfaceCreated
     global ExitToMainMenuAnimOpacity
+    global Background_FrequentColor
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:

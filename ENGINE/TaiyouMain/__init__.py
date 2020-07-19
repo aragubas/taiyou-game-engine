@@ -383,6 +383,7 @@ def EventUpdate():
     global IsMenuMode
     global StepByStep_Step
     global StepByStep_EnabledToggle
+    global DISPLAY
 
     # -- Internaly Process Pygame Events -- #
     pygame.fastevent.pump()

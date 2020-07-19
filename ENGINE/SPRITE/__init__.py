@@ -20,6 +20,13 @@ from ENGINE import UTILS as utils
 import ENGINE as tge
 import pygame, sys, os
 from pygame import gfxdraw
+import binascii
+import struct
+from PIL import Image
+import numpy as np
+import scipy
+import scipy.misc
+import scipy.cluster
 
 print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
 
@@ -154,10 +161,6 @@ def Unload():
 
     CurrentLoadedFonts_Contents = ()
     CurrentLoadedFonts_Name = ()
-
-    Fonts_Data = ()
-    Fonts_Name = ()
-
 
     print("Sprite.Unload : Reloading TaiyouUi Sprites...")
 
@@ -405,22 +408,22 @@ def FixColorRange(ColorArguments):
         ColorArguments.append(255)
 
     # -- Limit the Color Range -- #
-    if ColorArguments[0] < 0:  # -- R
+    if int(ColorArguments[0]) < 0:  # -- R
         ColorArguments[0] = 0
-    if ColorArguments[1] < 0:  # -- G
+    if int(ColorArguments[1]) < 0:  # -- G
         ColorArguments[1] = 0
-    if ColorArguments[2] < 0:  # -- B
+    if int(ColorArguments[2]) < 0:  # -- B
         ColorArguments[2] = 0
-    if ColorArguments[3] < 0:  # -- A
+    if int(ColorArguments[3]) < 0:  # -- A
         ColorArguments[3] = 0
 
-    if ColorArguments[0] > 255:  # -- R
+    if int(ColorArguments[0]) > 255:  # -- R
         ColorArguments[0] = 255
-    if ColorArguments[1] > 255:  # -- G
+    if int(ColorArguments[1]) > 255:  # -- G
         ColorArguments[1] = 255
-    if ColorArguments[2] > 255:  # -- B
+    if int(ColorArguments[2]) > 255:  # -- B
         ColorArguments[2] = 255
-    if ColorArguments[3] > 255:  # -- A
+    if int(ColorArguments[3]) > 255:  # -- A
         ColorArguments[3] = 255
 
     return ColorArguments
@@ -456,3 +459,22 @@ def GetFont_height(FontFileLocation, FontSize, Text):
 
     return GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(
         Text.splitlines())
+
+def GetImage_DominantColor(Surface, Number_Clusters=5):
+    strFormat = 'RGBA'
+    raw_str = pygame.image.tostring(Surface, strFormat)
+    ConvertedImage = Image.frombytes(strFormat, Surface.get_size(), raw_str)
+
+    ConvertedImage = ConvertedImage.resize((100, 100))  # optional, to reduce time
+    ar = np.asarray(ConvertedImage)
+    shape = ar.shape
+    ar = ar.reshape(scipy.product(shape[:2]), shape[2]).astype(float)
+
+    codes, dist = scipy.cluster.vq.kmeans(ar, Number_Clusters)
+
+    vecs, dist = scipy.cluster.vq.vq(ar, codes)  # assign codes
+    counts, bins = scipy.histogram(vecs, len(codes))  # count occurrences
+
+    index_max = scipy.argmax(counts)  # find most frequent
+    peak = codes[index_max]
+    return peak
