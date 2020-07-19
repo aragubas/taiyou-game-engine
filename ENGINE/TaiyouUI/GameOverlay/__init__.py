@@ -442,13 +442,13 @@ def ExitToMainMenu_UpdateAnim():
             UiHandler.SystemMenuEnabled = True
 
             # -- Update the Main Menu Scenarios -- #
-            taiyouMain.ReceiveCommand("SET_MENU_MODE")
-            taiyouMain.ReceiveCommand("REMOVE_GAME")
+            taiyouMain.ReceiveCommand(6)
+            taiyouMain.ReceiveCommand(8)
 
             UiHandler.SetMenuMode_Changes()
 
             UiHandler.CurrentMenuScreen = 2
-
+            UiHandler.Cursor_CurrentLevel = 0
 
 
 def EventUpdate(event):
