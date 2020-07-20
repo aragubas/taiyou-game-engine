@@ -18,7 +18,6 @@
 from ENGINE.TaiyouUI.OverlayManager import Screenshot as screenshotOverlay
 from ENGINE.TaiyouUI.OverlayManager import Frametime as frametimeOverlay
 from ENGINE.TaiyouUI.OverlayManager import Debug as debugOverlay
-from ENGINE import *
 import pygame
 CurrentOverlayID = 2
 

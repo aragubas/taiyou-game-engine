@@ -43,6 +43,10 @@ Button_Inactive_BackgroundColor = (1, 22, 39, 150)
 Button_BackgroundColor = (12, 22, 14)
 Button_BorderRadius = 5
 
+InputBox_ActiveColor = (1, 22, 39)
+InputBox_DeactiveColor = (15, 27, 44)
+
+
 # -- Panels Size -- #
 Panels_Indicator_Size = 2
 
@@ -381,16 +385,12 @@ class Window:
             self.Resiziable = False
 
 
-COLOR_INACTIVE = (1, 22, 39)
-COLOR_ACTIVE = (15, 27, 44)
-
-
 class InputBox:
     def __init__(self, x, y, w, h, text='LO', FontSize=12):
         self.rect = pygame.Rect(x, y, w, h)
         self.colisionRect = pygame.Rect(x, y, w, h)
         self.CustomColision = False
-        self.color = COLOR_INACTIVE
+        self.color = InputBox_DeactiveColor
         self.text = text
         self.active = False
         self.DefaultText = text
@@ -417,7 +417,7 @@ class InputBox:
             else:
                 self.active = False
             # Change the current color of the input box.
-            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+            self.color = InputBox_ActiveColor if self.active else InputBox_DeactiveColor
         if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.key == pygame.K_BACKSPACE:
