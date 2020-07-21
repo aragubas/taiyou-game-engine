@@ -23,6 +23,7 @@ TextToBeDisplayed = "Content Freeze"
 
 def Update():
     global TextToBeDisplayed
+
     DebugProfileProps = ""
 
     for i, name in enumerate(debug.DebugProfile_Names):
@@ -32,8 +33,8 @@ def Update():
 
 def Draw(DISPLAY):
     global TextToBeDisplayed
-
     sprite.FontRender(DISPLAY, "/PressStart2P.ttf", 9, TextToBeDisplayed, (250, 255, 250), 15, 15, False, (20, 30, 23), Opacity=240)
+
 
 def EventUpdate(event):
     pass

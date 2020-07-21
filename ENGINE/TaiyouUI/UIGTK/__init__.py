@@ -46,6 +46,11 @@ Button_BorderRadius = 5
 InputBox_ActiveColor = (1, 22, 39)
 InputBox_DeactiveColor = (15, 27, 44)
 
+# -- Notificaion Fonts -- #
+Notification_TitleFont = "/Ubuntu_Bold.ttf"
+Notification_TextFont = "/Ubuntu_Bold.ttf"
+
+
 
 # -- Panels Size -- #
 Panels_Indicator_Size = 2

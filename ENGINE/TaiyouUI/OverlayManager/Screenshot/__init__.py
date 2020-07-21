@@ -114,6 +114,7 @@ def UpdateAnimation():
             ScreenshotTaken = False
             FirstDraw = False
             handler.Set_OverlayLevel(-1)
+            handler.notificationOverlay.SetNotification(gtk.GetLangText("dialog_title", "screenshot_ui"), gtk.GetLangText("dialog_text", "screenshot_ui"), "/TAIYOU_UI/ICONS/taiyou_icon.png")
 
 
 def EventUpdate(event):
