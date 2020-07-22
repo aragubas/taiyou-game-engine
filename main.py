@@ -1,4 +1,4 @@
-#! /usr/bin/python3.7
+#! /usr/bin/python3.8
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");

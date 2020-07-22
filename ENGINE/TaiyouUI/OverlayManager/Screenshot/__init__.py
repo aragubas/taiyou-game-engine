@@ -20,6 +20,7 @@ import ENGINE as tge
 from ENGINE import SPRITE as sprite
 from ENGINE.TaiyouUI import UIGTK as gtk
 from ENGINE import SOUND as sound
+from ENGINE import TaiyouMain as taiyouMain
 from ENGINE import REGISTRY as reg
 from ENGINE import UTILS as utils
 from ENGINE.TaiyouUI import OverlayManager as handler
@@ -114,8 +115,11 @@ def UpdateAnimation():
             ScreenshotTaken = False
             FirstDraw = False
             handler.Set_OverlayLevel(-1)
-            handler.notificationOverlay.SetNotification(gtk.GetLangText("dialog_title", "screenshot_ui"), gtk.GetLangText("dialog_text", "screenshot_ui"), "/TAIYOU_UI/ICONS/taiyou_icon.png")
 
+            if not taiyouMain.IsMenuMode: reg.Reload(True)
+            handler.notificationOverlay.SetNotification(gtk.GetLangText("dialog_title", "screenshot_ui"), gtk.GetLangText("dialog_text", "screenshot_ui"), sprite.GetSprite("/TAIYOU_UI/ICONS/taiyou_icon.png"))
+
+            if not taiyouMain.IsMenuMode: reg.Unload(True)
 
 def EventUpdate(event):
     pass

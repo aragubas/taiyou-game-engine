@@ -27,7 +27,7 @@ Animation_Mode = True
 DeltaTime = 0
 DeltaTimeMax = 50
 Surface = None
-MinWidth = 50
+MinWidth = 150
 Width = MinWidth
 
 # -- Notification Message Related -- #
@@ -93,10 +93,10 @@ def Draw(DISPLAY):
         sprite.Shape_Rectangle(Surface, (200, 200, 200), (0, 0, Animation_Rectangle[2], Animation_Rectangle[3]), 3, 2)
 
         if not Icon is "null":
-            GlobalX = 6 + 96 + 3
+            GlobalX = 102
 
             # -- Render Notification Icon -- #
-            sprite.ImageRender(Surface, Icon, 9, 6, 90, Animation_Rectangle[3] - 12, True)
+            sprite.ImageRender(Surface, Icon, 9, 6, 90, Animation_Rectangle[3] - 12, True, ImageNotLoaded=True)
         else:
             GlobalX = 6
 
@@ -108,7 +108,7 @@ def Draw(DISPLAY):
 
         DISPLAY.blit(Surface, (Animation_Rectangle[0], Animation_Rectangle[1]))
 
-def SetNotification(title, text, icon="null", DeltaMax=300):
+def SetNotification(title, text, icon=None, DeltaMax=300):
     global Title
     global Message
     global Icon
@@ -135,38 +135,51 @@ def SetNotification(title, text, icon="null", DeltaMax=300):
     OverlayManager.CurrentOverlayID = 3
     Width = MinWidth
 
-    TitleWidth = sprite.GetFont_width(gtk.Notification_TitleFont, 22, Title)
-    TextWidth = sprite.GetFont_width(gtk.Notification_TextFont, 18, text)
+    TitleWidth = sprite.GetFont_width(gtk.Notification_TitleFont, 22, Title) + 8
+    TextWidth = sprite.GetFont_width(gtk.Notification_TextFont, 18, text) + 8
+
+    if TitleWidth > Width:
+        Width += TitleWidth
+
+    if TextWidth > Width:
+        Width += TextWidth - MinWidth / 2
+
+    print("Dif : " + str(Width))
 
     #remove_last = string[:-1]
 
-    if TextWidth > MinWidth:
-        Width += TextWidth + 6
-
-    elif TitleWidth > MinWidth:
-        Width += TitleWidth + 6
-
     Vezes = 0
-    Calculated = (6 + 96) + TitleWidth + 6
+    Calculated = MinWidth + TitleWidth + 8
 
-    while Calculated > Width:
-        Vezes += 1
-        Title = Title[:-1]
+#    while Calculated > Width:
+#        Vezes += 1
+#        Title = Title[:-1]
+#
+#        TitleWidth = sprite.GetFont_width(gtk.Notification_TitleFont, 22, Title)
+#        Calculated = TitleWidth + 8
 
-        TitleWidth = sprite.GetFont_width(gtk.Notification_TitleFont, 22, Title)
-        Calculated = (6 + 96) + TitleWidth + 6
-
-    else:
-        if Vezes > 1:
-            Title = Title[:-1]
-            Title += "..."
+#        print(Title)
 
 #    else:
-#        Title = Title[:-4]
-#        Title += "..."
+#        if Vezes > 1:
+#            Title = Title[:-1]
+#            Title += "..."
 
-#    if not Icon is "null":
-#        Width += 96
+#    Vezes = 0
+#    Calculated = MinWidth + TextWidth + 8
+#    while Calculated > Width:
+#        Vezes += 1
+#        Message = Message[:-1]
+#
+#        TextWidth = sprite.GetFont_width(gtk.Notification_TextFont, 18, Message) + 8
+#        Calculated = TextWidth + 8
+
+#        print("222Times: " + str(Vezes))
+#    else:
+#        if Vezes > 1:
+#            Message = Message[:-1]
+#            Message += "..."
+
 
 def BlurBackground(DISPLAY, Rectangle, SourceSurface, BlurAmmount=100, BlackContrast=50, Offset=(0, 0)):
     """

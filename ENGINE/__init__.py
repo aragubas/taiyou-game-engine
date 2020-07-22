@@ -19,11 +19,11 @@
 def Get_Version():
     return "2.9"
 def Get_SpriteVersion():
-    return "2.2"
+    return "2.3"
 def Get_SoundVersion():
     return "2.0"
 def Get_RegistryVersion():
-    return "2.1"
+    return "2.2"
 def Get_UtilsVersion():
     return "1.7"
 def Get_TaiyouMainVersion():
@@ -35,7 +35,7 @@ def Get_TaiyouUIVersion():
 def Get_DebuggingVersion():
     return "1.4"
 def Get_BootloaderVersion():
-    return "1.4"
+    return "1.5"
 
 # -- Calculate the Version of Taiyou Game Engine -- #
 TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_TaiyouMainVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_TaiyouUIVersion()) + float(Get_DebuggingVersion()) + float(Get_BootloaderVersion()) - 10.0

@@ -40,6 +40,7 @@ LoadingStageWaitMax = 0
 LoadingSquare = gtk.LoadingSquare
 CommonDisplay = pygame.Surface((5,5))
 GameIcon = pygame.image
+GameIconLoc = ""
 GameTitle = "null"
 LoadingStageText = "No Description found"
 
@@ -54,6 +55,7 @@ DialogExcp = Exception
 def Initialize():
     global LoadingSquare
     global GameIcon
+    global GameIconLoc
     GameIcon = sprite.GetSprite("/TAIYOU_UI/no_icon.png")
 
     LoadingSquare = gtk.LoadingSquare(5, 5)
@@ -72,7 +74,7 @@ def Draw(Display):
     Display.fill((0, 0, 0))
     CommonDisplay = Display
 
-    # -- Render RAW Game Icon -- #
+    # -- Render Game Icon -- #
     LogoSur = pygame.Surface((240 * 2, 150 * 2), pygame.SRCALPHA)
     if not DialogEnabled:
         LogoSur.set_alpha(OpacityAnimation_Opacity)
@@ -125,6 +127,7 @@ def Update():
         # -- Update Loading Stage Text -- #
         try:
             LoadingStageText = "{0} {1}/{2}".format(gtk.GetLangText("step_{0}".format(str(LoadingStage)), "loading_stage_description"), str(LoadingStage), str(LoadingStageMax))
+
         except FileNotFoundError:
             LoadingStageText = ""
 

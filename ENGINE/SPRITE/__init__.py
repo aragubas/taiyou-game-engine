@@ -191,11 +191,11 @@ def UnloadSprite(SpriteResourceName):
         print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
 
 
-def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None):
+def ImageRender(DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None, ImageNotLoaded=False):
     """
     Render a Image loaded to the Sprite System
     :param DISPLAY:Surface to be rendered
-    :param spriteName:Sprite Resource Name [starting with /]
+    :param sprite:Sprite Resource Name [starting with /]
     :param X:X Location
     :param Y:Y Location
     :param Width:Scale Width
@@ -203,6 +203,7 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
     :param SmoothScaling:Smooth Pixels [This option can decrease peformace]
     :param Opacity: Alpha value of sprite's surface
     :param ColorKey: ColorKey of sprite
+    :param ImageNotLoaded:Set True if sprite parameter is not a string
     :return:
     """
     if not SpriteRenderingDisabled:
@@ -213,48 +214,38 @@ def ImageRender(DISPLAY, spriteName, X, Y, Width=0, Height=0, SmoothScaling=Fals
             Opacity = 255
 
         try:
-            if X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height:
-                if Width == 0 and Height == 0:  # -- Render Images With no Transformation -- #
-                    if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
-                        target = GetSprite(spriteName)
-                        target.set_alpha(Opacity)
+            if IsOnScreen(DISPLAY, X, Y, Width, Height):
+                # -- Set the Image Variable -- #
+                if not ImageNotLoaded:
+                    Image = GetSprite(sprite)
+                else:
+                    Image = sprite
 
-                        if not ColorKey == (0, 0, 0):  # -- Set the Color Key if needed -- #
-                            target.set_colorkey(ColorKey)
+                if Width == 0 and Height == 0:  # -- Render Image With no Transformation -- #
+                    Image.set_alpha(Opacity)
+                    Image.set_colorkey(ColorKey)
 
-                        DISPLAY.blit(target, (X, Y))
-                    else:  # -- Render Images without Alpha Transparency -- #
-                        DISPLAY.blit(GetSprite(spriteName), (X, Y))
+                    DISPLAY.blit(Image, (X, Y))
 
                 else:
-                    if not SmoothScaling:  # -- Render Images without SmoothScaling -- #
-                        if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
-                            target = GetSprite(spriteName)
-                            target.set_alpha(Opacity)
+                    if not SmoothScaling:  # -- Render Images with Fast Scaling -- #
+                        Image.set_alpha(Opacity)
+                        Image.set_colorkey(ColorKey)
 
-                            if not ColorKey == None:  # -- Set the Color Key if needed -- #
-                                target.set_colorkey(ColorKey)
+                        DISPLAY.blit(pygame.transform.scale(Image, (Width, Height)), (X, Y))
+                    else:  # -- Render Image with Smooth Scaling -- #
+                        Image.set_alpha(Opacity)
+                        Image.set_colorkey(ColorKey)
 
-                            DISPLAY.blit(pygame.transform.scale(target, (Width, Height)), (X, Y))
-                        else:  # -- Render Images without Alpha Transparency -- #
-                            DISPLAY.blit(pygame.transform.scale(GetSprite(spriteName), (Width, Height)), (X, Y))
-                    else:
-                        if not Opacity == 255:  # -- Render Images with Alpha Transparency -- #
-                            target = GetSprite(spriteName)
-                            target.set_alpha(Opacity)
-
-                            if not ColorKey == None:  # -- Set the Color Key if needed -- #
-                                target.set_colorkey(ColorKey)
-
-                            DISPLAY.blit(pygame.transform.smoothscale(target, (Width, Height)), (X, Y))
-                        else:  # -- Render Images without Alpha Transparency -- #
-                            DISPLAY.blit(pygame.transform.smoothscale(GetSprite(spriteName), (Width, Height)), (X, Y))
+                        DISPLAY.blit(pygame.transform.smoothscale(Image, (Width, Height)), (X, Y))
+            else:
+                print("Not in screen")
 
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
 def IsOnScreen(DISPLAY, X, Y, Width, Height):
-    return X <= DISPLAY.get_width() and X >= 0 - Width and Y <= DISPLAY.get_height() and Y >= 0 - Height
+    return X <= DISPLAY.get_width() and X >= (0 - Width) and Y <= DISPLAY.get_height() and Y >= (0 - Height)
 
 def FontRender(DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=None, Opacity=255):
     """
