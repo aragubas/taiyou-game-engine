@@ -117,6 +117,7 @@ def Update():
         InputBox.Set_Y(Handler.CommonDisplay.get_height() - InputBox.rect[3] - 5)
 
         InputBox.colisionRect = pygame.Rect(Handler.CommonDisplayScreenPos[0] + InputBox.rect[0], Handler.CommonDisplayScreenPos[1] + InputBox.rect[1], InputBox.rect[2], InputBox.rect[3])
+        InputBox.active = True
 
     elif ResponseType == "OK":
         # -- Update OK Button -- #
@@ -135,6 +136,7 @@ def Update():
 def SetMessage(title, message):
     global MessageTitle
     global Message
+    taiyouUI.OverlayDialogEnabled = True
 
     MessageTitle = title.rstrip()
     Message = message.rstrip()

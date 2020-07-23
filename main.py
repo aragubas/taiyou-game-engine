@@ -22,4 +22,3 @@ Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 while True:
     Taiyou.Run()
 
-

@@ -39,14 +39,14 @@ TopMenu_MainMenu = gtk.Button
 
 # -- Animation -- #
 UIOpacity = 0
-UIOpacityAnimSpeed = 13
-UIOpacityAnimEnabled = True
-UIOpacityAnimState = 0
 UIOpacityPauseGame = True
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacityAnim_InGameErrorSoundPlayed = False
 AnimationNumb = 0
+
+# -- Global Animation Controller -- #
+GlobalAnimationController = gtk.AnimationController
 
 # -- Console Window -- #
 ConsoleWindowEnabled = False
@@ -77,6 +77,7 @@ def Initialize():
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
     global TopMenu_MainMenu
+    global GlobalAnimationController
 
     # -- Top Menu Buttons -- #
     TopMenu_BackToGame_Button = gtk.Button(pygame.Rect(3, 1, 5, 5), gtk.GetLangText("back", "overlay"), 18)
@@ -86,6 +87,8 @@ def Initialize():
     volumeSlider.Initialize()
     developWindow.Initialize()
 
+    GlobalAnimationController = gtk.AnimationController(multiplierRestart=True)
+    GlobalAnimationController.ValueMultiplierSpeed = gtk.AnimationSpeed + 0.9
 
 def Draw(Display):
     global UIObjectsSurface
@@ -93,8 +96,6 @@ def Draw(Display):
     global TopMenu_BackToGame_Button
     global TopMenu_DeveloperConsoleButton
     global UIOpacity
-    global UIOpacityAnimEnabled
-    global UIOpacityAnimState
     global DarkerBackgroundSurface
     global DISPLAYObject
     global CopyOfTheScreen
@@ -154,13 +155,13 @@ def Draw_ScreenshotOfGameScreen(Display):
     global ExitToMainMenuAnim
     global ExitTOMainMenuSurfaceCreated
     global ExitToMainMenuAnimOpacity
-    global Background_FrequentColor
+    global GlobalAnimationController
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
         CopyOfScreen_BlurAmount = max(1.0, UIOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True)) * 32
 
-    if UIOpacityAnimEnabled:  # -- Draw the Animation -- #
+    if GlobalAnimationController.Enabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
         if reg.ReadKey_bool("/TaiyouSystem/CONF/blur_enabled", True):
             # -- Pixalizate if Overlay Pixalizate is True -- #
@@ -175,12 +176,12 @@ def Draw_ScreenshotOfGameScreen(Display):
             Display.blit(CopyOfTheScreen, (0, 0))
 
     # -- Draw the Last Frame -- #
-    if not CopyOfScreen_Last and not UIOpacityAnimEnabled:
+    if not CopyOfScreen_Last and not GlobalAnimationController.Enabled:
         CopyOfScreen_Result = sprite.Surface_Blur(CopyOfTheScreen, CopyOfScreen_BlurAmount)
         CopyOfScreen_Last = True
 
     # -- Render the Last Frame -- #
-    if CopyOfScreen_Last and not UIOpacityAnimEnabled:  # -- Render the last frame of animation -- #
+    if CopyOfScreen_Last and not GlobalAnimationController.Enabled:  # -- Render the last frame of animation -- #
         Display.blit(CopyOfScreen_Result, (0, 0))
 
         if ExitToMainMenuAnim and ExitTOMainMenuSurfaceCreated:
@@ -193,9 +194,7 @@ def Update():
     global UIObjectsSurface
     global TopMenu_DeveloperConsoleButton
     global TopMenu_BackToGame_Button
-    global UIOpacityAnimEnabled
     global AnimationNumb
-    global UIOpacityAnimSpeed
     global DownBarRectangle
     global ConsoleWindowEnabled
     global ExitToInitializeGame
@@ -220,7 +219,7 @@ def Update():
             ExitToMainMenuOpacityAnimBG = pygame.Surface((DISPLAYObject.get_width(), DISPLAYObject.get_height()))
             ExitTOMainMenuSurfaceCreated = True
 
-    AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+    AnimationNumb = UIOpacity - 255
 
     TopBarRectangle = pygame.Rect(0, AnimationNumb, UIObjectsSurface.get_width(), 34)
     DownBarRectangle = pygame.Rect(0, UIObjectsSurface.get_height() - AnimationNumb - 25, UIObjectsSurface.get_width(), 34)
@@ -239,7 +238,8 @@ def Update():
         UpdateControls()
 
     # -- Run the Menu Animation -- #
-    UpdateOpacityAnim()
+    if not ExitToMainMenuAnim:
+        UpdateOpacityAnim()
 
     # -- Run the Back to Main Menu Animation -- #
     ExitToMainMenu_UpdateAnim()
@@ -251,17 +251,16 @@ def Update():
 def UpdateControls():
     global TopMenu_BackToGame_Button
     global UIOpacityAnim_OutSoundPlayed
-    global UIOpacityAnimEnabled
     global ControlsEnabled
     global ConsoleWindowEnabled
     global PendingToExitToMainMenu
     global TopMenu_MainMenu
     global ExitToMainMenuAnim
 
-    if TopMenu_BackToGame_Button .ButtonState == 2:
+    if TopMenu_BackToGame_Button.ButtonState == 2:
         UIOpacityAnim_OutSoundPlayed = False
-        if not UIOpacityAnimEnabled:
-            UIOpacityAnimEnabled = True
+        if not GlobalAnimationController.Enabled:
+            GlobalAnimationController.Enabled = True
             ControlsEnabled = False
             tge.devel.PrintToTerminalBuffer("TaiyouUI.Buttons :\n(BackToGame_func)[Variables Set]")
 
@@ -306,10 +305,7 @@ def ShowWarnDialog(Title, Text, ActionType):
 
 
 def UpdateOpacityAnim():
-    global UIOpacityAnimState
     global UIOpacity
-    global UIOpacityAnimEnabled
-    global UIOpacityAnimSpeed
     global CopyOfTheScreen
     global DarkerBackgroundSurface
     global UIObjectsSurface
@@ -324,11 +320,13 @@ def UpdateOpacityAnim():
     global CopyOfScreen_Last
     global ControlsEnabled
     global ExitTOMainMenuSurfaceCreated
+    global GlobalAnimationController
 
-    if UIOpacityAnimEnabled:
-        if UIOpacityAnimState == 0:  # <- When Opening the Menu;
-            UIOpacity += UIOpacityAnimSpeed
+    GlobalAnimationController.Update()
+    UIOpacity = GlobalAnimationController.Value
 
+    if GlobalAnimationController.Enabled:
+        if GlobalAnimationController.CurrentMode:  # <- When Opening the Menu;
             # -- Copy the Screen Surface -- #
             if not UIOpacityPauseGame:
                 UIOpacityPauseGame = True
@@ -344,19 +342,15 @@ def UpdateOpacityAnim():
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
                 UIOpacityAnim_InSoundPlayed = True
 
-            if UIOpacity >= 255:  # <- Triggers Animation End
+            if GlobalAnimationController.Value >= 255:
                 UIOpacity = 255
-                UIOpacityAnimEnabled = False
-                UIOpacityAnimState = 1
                 UIOpacityAnim_InSoundPlayed = True
                 UIOpacityAnim_OutSoundPlayed = True
                 print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
                 ControlsEnabled = True
                 ExitTOMainMenuSurfaceCreated = False
 
-        if UIOpacityAnimState == 1:  # <- When Backing to the Game
-            UIOpacity -= UIOpacityAnimSpeed
-
+        elif not GlobalAnimationController.CurrentMode:  # <- When Backing to the Game
             # -- Close Windows -- #
             if not OpenedInGameError:
                 ConsoleWindowEnabled = False
@@ -366,11 +360,14 @@ def UpdateOpacityAnim():
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
                 UIOpacityAnim_OutSoundPlayed = True
 
-            if UIOpacity <= 0:
+            if GlobalAnimationController.Value <= 0:
+                UIOpacity = 0
                 UnloadVars()
 
                 # -- Enable GameLoop -- #
                 taiyouMain.ReceiveCommand(5)
+                print("Taiyou.SystemUI.AnimationTrigger : Animation End.")
+
 
 # -- Set all Variable to Default Value -- #
 def UnloadVars():
@@ -379,13 +376,10 @@ def UnloadVars():
     global UIObjectsSurfaceUpdated
     global CopyOfTheScreen
     global UIOpacity
-    global UIOpacityAnimEnabled
     global UIOpacityAnim_InSoundPlayed
     global UIOpacityAnim_OutSoundPlayed
-    global UIOpacityAnimState
     global PendingToExitToMainMenu
     global UIOpacity
-    global UIOpacityAnimSpeed
     global ExitTOMainMenuSurfaceCreated
     global CopyOfScreen_Result
     global ConsoleWindowEnabled
@@ -394,11 +388,11 @@ def UnloadVars():
     global CopyOfScreen_Last
     global UIOpacityPauseGame
     global ControlsEnabled
+    global GlobalAnimationController
+    global ExitToMainMenuAnim
 
     # -- Restart Variables -- #
     UIOpacity = 0
-    UIOpacityAnimEnabled = False
-    UIOpacityAnimState = 0
     CopyOfTheScreen.fill((0, 0, 0))
     DarkerBackgroundSurface.fill((0, 0, 0))
     UIObjectsSurface.fill((0, 0, 0))
@@ -415,33 +409,39 @@ def UnloadVars():
     UiHandler.SystemMenuEnabled = False
     ControlsEnabled = False
     ExitTOMainMenuSurfaceCreated = False
-
+    GlobalAnimationController.Enabled = True
+    GlobalAnimationController.CurrentMode = True
+    GlobalAnimationController.DisableSignal = False
+    GlobalAnimationController.ValueMultiplier = 1
+    GlobalAnimationController.Value = 0
+    ExitToMainMenuAnim = False
 
 # -- Update the ExitToMainMenu Animation -- #
 def ExitToMainMenu_UpdateAnim():
     global ExitToMainMenuAnim
     global ControlsEnabled
-    global ExitToMainMenuAnimOpacity
-    global UIOpacityAnimSpeed
     global UIOpacity
+    global ExitToMainMenuAnimOpacity
 
     if ExitToMainMenuAnim:
         ControlsEnabled = False
-        ExitToMainMenuAnimOpacity += UIOpacityAnimSpeed
-        UIOpacity -= UIOpacityAnimSpeed
+        UIOpacity -= 5.0
+        ExitToMainMenuAnimOpacity += 10.5
 
-        if ExitToMainMenuAnimOpacity >= 255:
+        if UIOpacity <= 0:
+            # -- Restart Variables -- #
             UnloadVars()
-
-            UiHandler.SetMenuMode_Changes()
-
-            UiHandler.CurrentMenuScreen = 2
-            UiHandler.Cursor_CurrentLevel = 0
-            UiHandler.SystemMenuEnabled = True
 
             # -- Go To the Main Menu  -- #
             taiyouMain.ReceiveCommand(8)
             taiyouMain.ReceiveCommand(6)
+            UiHandler.CurrentMenuScreen = 2
+            UiHandler.Cursor_CurrentLevel = 0
+            UiHandler.SystemMenuEnabled = True
+
+            # -- Set Menu Mode DISPLAY Changes -- #
+            UiHandler.SetMenuMode_Changes()
+
 
 
 def EventUpdate(event):

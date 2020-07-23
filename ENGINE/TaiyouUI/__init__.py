@@ -174,6 +174,9 @@ def EventUpdate(event):
 def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges")
 
+    # -- Hide Mouse Cursor -- #
+    pygame.mouse.set_visible(False)
+
     # -- Set the Window Title -- #
     taiyouMain.ReceiveCommand(9, "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
 

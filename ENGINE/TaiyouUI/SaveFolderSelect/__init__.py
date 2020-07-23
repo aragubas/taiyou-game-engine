@@ -28,9 +28,6 @@ import os, datetime, dis
 
 # -- Animation -- #
 UIOpacity = 0
-UIOpacityAnimSpeed = 15
-UIOpacityAnimEnabled = True
-UIOpacityAnimState = 0
 UIOpacityPauseGame = True
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
@@ -43,6 +40,7 @@ UpdateSaveLists = False
 CopyOfScreen_Last = False
 CopyOfScreen_Result = pygame.Surface
 CopyOfScreen_BlurAmount = 0
+CopyOfTheScreen = pygame.Surface((5, 5))
 
 # -- Surfaces -- #
 UIObjectsSurfaceUpdated = False
@@ -59,6 +57,7 @@ RenameFolderButton = gtk.Button
 
 # -- etc -- #
 PendingOperation = "null" """Pending Operation on Save Folder\n0 - Delete\n1 - Create\n2 - Rename"""
+GlobalAnimationController = gtk.AnimationController
 
 def Initialize():
     global SelectFolderButton
@@ -66,12 +65,15 @@ def Initialize():
     global CreateFolderButton
     global DeleteFolderButton
     global RenameFolderButton
+    global GlobalAnimationController
 
     VerticalList = gtk.VerticalListWithDescription(pygame.Rect(0, 0, 550, 250))
     SelectFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_select_folder", "save_fs"), 18)
     CreateFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_create_folder", "save_fs"), 18)
     DeleteFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_delete_folder", "save_fs"), 18)
     RenameFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_rename_folder", "save_fs"), 18)
+
+    GlobalAnimationController = gtk.AnimationController()
 
 def ReloadSaveList():
     global VerticalList
@@ -124,24 +126,31 @@ def WriteSaveFS(name):
 
 
 def CreateSaveFolder(name):
-    # -- Create Directory -- #
-    utils.Directory_MakeDir(tge.Get_GlobalAppDataFolder() + name)
+    print("Taiyou.SaveFolderSelect.DeleteSaveFolder : Create Save Operation\n{0}".format(name))
 
-    # -- Write the save_fs File  -- #
-    WriteSaveFS(name)
+    if not utils.Directory_Exists(tge.Get_GlobalAppDataFolder() + name + "/.save_fs"):
+        # -- Create Directory -- #
+        utils.Directory_MakeDir(tge.Get_GlobalAppDataFolder() + name)
 
-    ReloadSaveList()
+        # -- Write the save_fs File  -- #
+        WriteSaveFS(name)
+
+        ReloadSaveList()
+    else:
+        raise FileExistsError(name)
 
 def DeleteSaveFolder(name):
     FilePath = tge.Get_GlobalAppDataFolder() + name
-    print("Taiyou.SaveFolderSelect.DeleteSaveFolder : Requested Path[" + FilePath + "]")
+    print("Taiyou.SaveFolderSelect.DeleteSaveFolder : Delete Save Operation\n{0}".format(name))
 
     utils.Directory_Remove(FilePath)
 
     ReloadSaveList()
 
 def RenameSaveFolder(source, new_name):
-    FilePath = tge.Get_GlobalAppDataFolder()
+    FilePath = "./{0}".format(tge.Get_GlobalAppDataFolder())
+
+    print("Taiyou.SaveFolderSelect.DeleteSaveFolder : Rename Save Operation\n{0} -> {1}".format(source, new_name))
 
     # -- Rename Actual Directory -- #
     utils.Directory_Rename(FilePath + source, FilePath + new_name)
@@ -155,8 +164,6 @@ def RenameSaveFolder(source, new_name):
 
 def Draw(Display):
     global UIOpacity
-    global UIOpacityAnimEnabled
-    global UIOpacityAnimState
     global AnimationNumb
     global UIObjectsSurfaceUpdated
     global CopyOfScreen_BlurAmount
@@ -207,6 +214,7 @@ def Draw_ScreenshotOfGameScreen(Display):
     global CopyOfScreen_Result
     global CopyOfScreen_Last
     global CopyOfScreen_BlurAmount
+    global CopyOfTheScreen
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
@@ -240,7 +248,6 @@ def Update():
     global UIObjectsSurfaceUpdated
     global UIObjectsSurface
     global AnimationNumb
-    global UIOpacityAnimEnabled
     global VerticalList
     global ControlsPanel
     global CreateFolderButton
@@ -270,8 +277,15 @@ def Update():
             elif PendingOperation == 2:
                 RenameSaveFolder(VerticalList.Selected_Name, ovlDiag.subscreen2.Response)
 
+        except FileExistsError as saveNam:
+            ovlDiag.subscreen2.ResponseType = "OK"
+            ovlDiag.subscreen2.ResponseTrigger = False
+            ovlDiag.DialogOpctAnim_Enabled = True
+            ovlDiag.DialogOpctAnim_AnimMode = 0
+            ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_already_exits_title", "save_fs"), gtk.GetLangText("diag_already_exits_text", "save_fs").format(str(saveNam)))
+
         except Exception as ex:
-            print("Taiyou.SaveFolderSelect : Error while processing the operation[" + PendingOperation + "]\nError: " + str(ex))
+            print("Taiyou.SaveFolderSelect : Error while processing the operation[{0}]\nError: {1}".format(str(PendingOperation), str(ex)))
 
             ovlDiag.subscreen2.ResponseType = "OK"
             ovlDiag.subscreen2.ResponseTrigger = False
@@ -285,7 +299,7 @@ def Update():
 
     if UIObjectsSurfaceUpdated:
         # -- Update Animation Numb -- #
-        AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+        AnimationNumb = UIOpacity - 255
 
         # -- Update Select Folder Button -- #
         SelectFolderButton.Set_X(15)
@@ -312,7 +326,7 @@ def Update():
         if SelectFolderButton .ButtonState == 2 and not VerticalList.Selected_Name == "null":
             tge.Set_SaveFolder(VerticalList.Selected_Name + "/")
 
-            UIOpacityAnimEnabled = True
+            GlobalAnimationController.Enabled = True
 
         # -- Create Folder -- #
         if CreateFolderButton .ButtonState == 2:
@@ -343,10 +357,40 @@ def Update():
             ovlDiag.subscreen2.SetMessage(gtk.GetLangText("diag_rename_title", "save_fs"), gtk.GetLangText("diag_rename_text", "save_fs").format(VerticalList.Selected_Name))
 
 def UpdateOpacityAnim():
-    global UIOpacityAnimState
+    global GlobalAnimationController
     global UIOpacity
-    global UIOpacityAnimEnabled
-    global UIOpacityAnimSpeed
+    global UIOpacityAnim_InSoundPlayed
+    global UIOpacityAnim_OutSoundPlayed
+
+    GlobalAnimationController.Update()
+
+    if GlobalAnimationController.Enabled:
+        UIOpacity = GlobalAnimationController.Value
+
+        if GlobalAnimationController.CurrentMode:  # <- Enter Animation
+            # -- Play the In Sound -- #
+            if not UIOpacityAnim_InSoundPlayed:
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
+                UIOpacityAnim_InSoundPlayed = True
+
+            if GlobalAnimationController.Value >= 255:  # <- Triggers Animation End
+                UIOpacity = 255
+                UIOpacityAnim_InSoundPlayed = True
+                UIOpacityAnim_OutSoundPlayed = True
+
+        elif not GlobalAnimationController.CurrentMode:  # <- Enter Animation
+            # -- Play the Out Sound -- #
+            if not UIOpacityAnim_OutSoundPlayed:
+                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
+                UIOpacityAnim_OutSoundPlayed = True
+
+            if GlobalAnimationController.Value <= 0:  # <- Triggers Animation End
+                RestartVariables()
+                taiyouMain.ReceiveCommand(5)
+
+
+def RestartVariables():
+    global UIOpacity
     global UIObjectsSurface
     global UIObjectsSurfaceUpdated
     global UIOpacityAnim_InSoundPlayed
@@ -354,47 +398,25 @@ def UpdateOpacityAnim():
     global UIOpacityAnim_InGameErrorSoundPlayed
     global CopyOfScreen_Last
     global UIOpacityPauseGame
+    global GlobalAnimationController
 
-    if UIOpacityAnimEnabled:
-        if UIOpacityAnimState == 0:  # <- Enter Animation
-            UIOpacity += UIOpacityAnimSpeed
+    UIOpacity = 0
+    # -- Unload the Surfaces -- #
+    UIObjectsSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
+    UIOpacityPauseGame = False
+    UIObjectsSurfaceUpdated = False
+    CopyOfScreen_Last = False
 
-            # -- Play the In Sound -- #
-            if not UIOpacityAnim_InSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
-                UIOpacityAnim_InSoundPlayed = True
+    UIOpacityAnim_InSoundPlayed = False
+    UIOpacityAnim_OutSoundPlayed = False
+    UIOpacityAnim_InGameErrorSoundPlayed = False
+    UiHandler.SystemMenuEnabled = False
+    GlobalAnimationController.Enabled = True
+    GlobalAnimationController.CurrentMode = True
+    GlobalAnimationController.DisableSignal = False
+    GlobalAnimationController.ValueMultiplier = 1
+    GlobalAnimationController.Value = 0
 
-            if UIOpacity >= 255:  # <- Triggers Animation End
-                UIOpacity = 255
-                UIOpacityAnimEnabled = False
-                UIOpacityAnimState = 1
-                UIOpacityAnim_InSoundPlayed = True
-                UIOpacityAnim_OutSoundPlayed = True
-                print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
-
-        if UIOpacityAnimState == 1:  # <- Exit Animation
-            UIOpacity -= UIOpacityAnimSpeed
-
-            # -- Play the Out Sound -- #
-            if not UIOpacityAnim_OutSoundPlayed:
-                sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
-                UIOpacityAnim_OutSoundPlayed = True
-
-            if UIOpacity <= 0:  # <- Triggers Animation End
-                UIOpacity = 0
-                UIOpacityAnimEnabled = False
-                UIOpacityAnimState = 0
-                # -- Unload the Surfaces -- #
-                UIObjectsSurface = pygame.Surface((0, 0), pygame.SRCALPHA)
-                UIOpacityPauseGame = False
-                UIObjectsSurfaceUpdated = False
-                CopyOfScreen_Last = False
-
-                UIOpacityAnim_InSoundPlayed = False
-                UIOpacityAnim_OutSoundPlayed = False
-                taiyouMain.ReceiveCommand(5)
-                UIOpacityAnim_InGameErrorSoundPlayed = False
-                UiHandler.SystemMenuEnabled = False
 
 def EventUpdate(event):
     global SelectFolderButton

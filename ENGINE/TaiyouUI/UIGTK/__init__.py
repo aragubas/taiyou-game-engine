@@ -50,13 +50,14 @@ InputBox_DeactiveColor = (15, 27, 44)
 Notification_TitleFont = "/Ubuntu_Bold.ttf"
 Notification_TextFont = "/Ubuntu_Bold.ttf"
 
-
-
 # -- Panels Size -- #
 Panels_Indicator_Size = 2
 
 # -- GameSeletor Colors -- #
 GameSeletor_BackgroundColor = (0, 2, 27)
+
+# -- Animations -- #
+AnimationSpeed = 1.0
 
 # -- Font Files -- #
 Button_FontFile = "/Ubuntu_Bold.ttf"
@@ -1177,3 +1178,49 @@ class SpriteButton:
 
     def Set_Sprite(self, Value):
         self.Sprite = Value
+
+class AnimationController:
+    def __init__(self, multiplierSpeed=1.0, maxValue=255, minValue=0, multiplierRestart=False):
+        self.Enabled = True
+        self.CurrentMode = True
+        self.Value = 0
+        self.ValueMultiplier = 0
+        self.ValueMultiplierSpeed = multiplierSpeed
+        self.MaxValue = maxValue
+        self.MinValue = minValue
+        self.DisableSignal = False
+        self.RestartMultiplier = multiplierRestart
+
+    def Update(self):
+        if self.DisableSignal:
+            # -- Animation TRUE end -- #
+            if self.Value >= self.MaxValue:
+                self.Value = self.MaxValue
+                self.Enabled = False
+                self.CurrentMode = False
+                if self.RestartMultiplier:
+                    self.ValueMultiplier = 0
+
+            elif self.Value <= self.MinValue:  # -- Animation FALSE end -- #
+                self.Value = self.MinValue
+                self.Enabled = False
+                self.ValueMultiplier = 0
+                self.CurrentMode = True
+
+            self.DisableSignal = False
+
+        if self.Enabled:
+            # -- Increase the Multiplier -- #
+            self.ValueMultiplier += self.ValueMultiplierSpeed
+
+            if self.CurrentMode:
+                self.Value += self.ValueMultiplier
+
+                if self.Value >= self.MaxValue:
+                    self.DisableSignal = True
+
+            else:
+                self.Value -= self.ValueMultiplier
+
+                if self.Value <= self.MinValue:
+                    self.DisableSignal = True

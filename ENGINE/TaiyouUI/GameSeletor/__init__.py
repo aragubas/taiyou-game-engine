@@ -28,6 +28,7 @@ from ENGINE import REGISTRY as reg
 from ENGINE.TaiyouUI import loadingScreen as loadingScreen
 from ENGINE.TaiyouUI import OverlayDialog as ovelDiag
 from ENGINE.TaiyouUI.GameSeletor import GameInfos
+from ENGINE import DEBUGGING as debug
 
 # -- Buttons -- #
 RestartList_Button = gtk.Button
@@ -42,11 +43,11 @@ TopPanel_Rect = pygame.Rect(0,0,30,30)
 # -- Animation Fields -- #
 SeletorLoadingSquare = gtk.LoadingSquare
 
+# -- Animation Controllers -- #
+GlobalAnimation_Controller = gtk.AnimationController
+
 # -- UI Animation -- #
 UIOpacity = 0
-UIOpacityAnimSpeed = 15
-UIOpacityAnimEnabled = True
-UIOpacityAnimState = 0
 UIOpacityAnim_InSoundPlayed = False
 UIOpacityAnim_OutSoundPlayed = False
 UIOpacity_AnimExitToOpenApplication = False
@@ -101,6 +102,8 @@ def Initialize():
     global UIOpacity_StartDelay
     global RestartList_Button
     global DownloaderObj
+    global GlobalAnimation_Controller
+
     SelectApplication_Button = gtk.Button(pygame.Rect(0, 0, 5, 5), gtk.GetLangText("select_button", "seletor"), 20)
     InstalledGameList = gtk.InstalledApplicationList(pygame.Rect(20, 50, 760, 200))
     RestartList_Button = gtk.Button(pygame.Rect(0,0,5,5), gtk.GetLangText("restart_button", "seletor"), 20)
@@ -115,6 +118,10 @@ def Initialize():
     # -- Initialize Volume Slider -- #
     volumeSlider.Initialize()
 
+    # -- Set Animation Controllers -- #
+    GlobalAnimation_Controller = gtk.AnimationController()
+
+
 def LoadGameList():
     global ValidGameFolders
     print("TaiyouUI.LoadGameList : Started")
@@ -124,6 +131,7 @@ def LoadGameList():
 
     for game in ValidGameFolders:
         InstalledGameList.AddItem(game)
+
     print("TaiyouUI.LoadGameList : Game List has been reloaded.")
 
 
@@ -157,7 +165,7 @@ def Draw(Display):
     global UIOpacity_EnableDelayEnabled
     Display.fill((0, 0, 0))
 
-    if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
+    if GlobalAnimation_Controller.Enabled and GlobalAnimation_Controller.CurrentMode:
         SeletorLoadingSquare.Render(Display)
 
         if not UIOpacity_EnableDelayEnabled and UIOpacity_EnableDelay <= UIOpacity_StartDelay:
@@ -192,7 +200,6 @@ def Draw(Display):
         DisplaySurface = pygame.Surface((800,600))
         DisplaySurfaceInited = True
 
-
 def Update():
     global AnimationNumb
     global TopPanel_Rect
@@ -208,7 +215,7 @@ def Update():
     global SelectedGameInfo
 
     # -- Set the Animation Numb -- #
-    AnimationNumb = UIOpacity - 255 + UIOpacityAnimSpeed
+    AnimationNumb = UIOpacity - 253
 
     # -- Update Game Infos -- #
     if not InstalledGameList.SelectedItemIndex == -1:
@@ -218,7 +225,7 @@ def Update():
     ovelDiag.Subscreen = 1
 
     # -- Update Loading Square -- #
-    if UIOpacityAnimEnabled and UIOpacityAnimState == 0:
+    if GlobalAnimation_Controller.Enabled and GlobalAnimation_Controller.CurrentMode:
         if DisplaySurfaceInited:
             SeletorLoadingSquare.X = DisplaySurface.get_width() - 38
             SeletorLoadingSquare.Y = DisplaySurface.get_height() - 38
@@ -249,12 +256,12 @@ def Update():
         # -- Refresh Button -- #
         if RestartList_Button.ButtonState == 2:
             UIOpacity_AnimExitToOpenApplication = False
-            UIOpacityAnimEnabled = True
+            GlobalAnimation_Controller.Enabled = True
 
         if SelectApplication_Button.ButtonState == 2:
             if not InstalledGameList.SelectedApplicationID == -1:
-                UIOpacityAnimEnabled = True
                 UIOpacity_AnimExitToOpenApplication = True
+                GlobalAnimation_Controller.Enabled = True
 
     # -- Update the In/Out Animation -- #
     UpdateOpacityAnim()
@@ -262,7 +269,6 @@ def Update():
 def EventUpdate(event):
     global InstalledGameList
     global SelectApplication_Button
-    global UIOpacityAnimEnabled
     global UIOpacity_AnimExitToOpenApplication
     global RestartList_Button
 
@@ -278,10 +284,11 @@ def EventUpdate(event):
 
     if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
         if not InstalledGameList.SelectedApplicationID == -1:
-            UIOpacityAnimEnabled = True
+            GlobalAnimation_Controller.Enabled = True
             UIOpacity_AnimExitToOpenApplication = True
 
     volumeSlider.EventUpdate(event)
+
 
 
 def LoadingTasks():
@@ -289,15 +296,12 @@ def LoadingTasks():
     global UIOpacity_EnableDelay
     global UIOpacity_EnableDelayEnabled
 
-    if UIOpacity_EnableDelay == 2: # -- Loading Task 1
+    if UIOpacity_EnableDelay == 2:  # -- Loading Task 1
         UIOpacityAnim_ListLoaded = True
         LoadGameList()
 
 def UpdateOpacityAnim():
-    global UIOpacityAnimState
     global UIOpacity
-    global UIOpacityAnimEnabled
-    global UIOpacityAnimSpeed
     global UIOpacityAnim_InSoundPlayed
     global UIOpacityAnim_OutSoundPlayed
     global BackgroundR
@@ -306,38 +310,46 @@ def UpdateOpacityAnim():
     global UIOpacity_EnableDelay
     global UIOpacity_StartDelay
     global UIOpacityAnim_ListLoaded
+    global GlobalAnimation_Controller
 
     if UIOpacity_EnableDelayEnabled:
         UIOpacity_EnableDelay += 1
 
     LoadingTasks()
 
-    if UIOpacityAnimEnabled and UIOpacity_EnableDelay >= UIOpacity_StartDelay:
-        if UIOpacityAnimState == 0:  # <- Enter Animation
-            UIOpacity += UIOpacityAnimSpeed
+    if UIOpacity_EnableDelay >= UIOpacity_StartDelay:
+        GlobalAnimation_Controller.Update()
+
+        if GlobalAnimation_Controller.Enabled and GlobalAnimation_Controller.CurrentMode:  # <- Enter Animation
+            UIOpacity = GlobalAnimation_Controller.Value
 
             if BackgroundR < gtk.GameSeletor_BackgroundColor[0]:
                 BackgroundR += 1
+            else:
+                BackgroundR = gtk.GameSeletor_BackgroundColor[0]
+
             if BackgroundG < gtk.GameSeletor_BackgroundColor[1]:
                 BackgroundG += 1
+            else:
+                BackgroundR = gtk.GameSeletor_BackgroundColor[1]
+
             if BackgroundB < gtk.GameSeletor_BackgroundColor[2]:
                 BackgroundB += 1
+            else:
+                BackgroundR = gtk.GameSeletor_BackgroundColor[2]
 
             # -- Play the In Sound -- #
             if not UIOpacityAnim_InSoundPlayed:
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/In", True))
                 UIOpacityAnim_InSoundPlayed = True
 
-            if UIOpacity >= 255:  # <- Triggers Animation End
+            if GlobalAnimation_Controller.Value >= 255:  # <- Triggers Animation End
                 UIOpacity = 255
-                UIOpacityAnimEnabled = False
-                UIOpacityAnimState = 1
                 UIOpacityAnim_InSoundPlayed = True
                 UIOpacityAnim_OutSoundPlayed = True
-                print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
 
-        if UIOpacityAnimState == 1:  # <- Exit Animation
-            UIOpacity -= UIOpacityAnimSpeed
+        elif GlobalAnimation_Controller.Enabled and not GlobalAnimation_Controller.CurrentMode:  # <- Exit Animation
+            UIOpacity = GlobalAnimation_Controller.Value
 
             if BackgroundR > 0:
                 BackgroundR -= 1
@@ -351,20 +363,21 @@ def UpdateOpacityAnim():
                 sound.PlaySound(reg.ReadKey("/TaiyouSystem/SND/Out", True))
                 UIOpacityAnim_OutSoundPlayed = True
 
-            if UIOpacity <= 0:  # <- Triggers Animation End
-                UIOpacity = 0
-                UIOpacityAnimEnabled = True
-                UIOpacityAnimState = 0
-                UIOpacityAnim_ListLoaded = False
-                UIOpacity_EnableDelay = 0
+        if GlobalAnimation_Controller.Value <= 0 and not GlobalAnimation_Controller.Enabled and GlobalAnimation_Controller.CurrentMode:  # <- Triggers Animation End
+            UIOpacityAnim_ListLoaded = False
+            UIOpacity_EnableDelay = 0
 
-                if UIOpacity_AnimExitToOpenApplication:
-                    loadingScreen.GameFolderToOpen = InstalledGameList.SelectedApplicationFolderName.rstrip()
-                    loadingScreen.GameIcon = SelectedGameInfo[4]
-                    taiyouUI.CurrentMenuScreen = 4
+            # -- Open the Selected Game -- #
+            if UIOpacity_AnimExitToOpenApplication:
+                loadingScreen.GameFolderToOpen = InstalledGameList.SelectedApplicationFolderName.rstrip()
+                loadingScreen.GameIcon = SelectedGameInfo[4]
+                taiyouUI.CurrentMenuScreen = 4
 
-                UnloadGameList() # -- Re-Load the Game List -- #
-                if not UIOpacity_NextScreen == -1:
-                    taiyouUI.CurrentMenuScreen = UIOpacity_NextScreen
+            # -- Re-Load the Game List -- #
+            UnloadGameList()
 
-                print("Taiyou.SystemUI.AnimationTrigger : Animation End.")
+            # -- Set to Another Screen -- #
+            if not UIOpacity_NextScreen == -1:
+                taiyouUI.CurrentMenuScreen = UIOpacity_NextScreen
+
+            GlobalAnimation_Controller.Enabled = True

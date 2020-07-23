@@ -52,6 +52,10 @@ LastFPSValue = 60
 
 def Initialize():
     global DISPLAY
+    global CurrentRes_W
+    global CurrentRes_H
+
+    print("Taiyou.GameExecution.Initialize : Initializing Game Engine...")
 
     # -- Load Engine Options -- #
     tge.InitEngine()
@@ -83,16 +87,9 @@ def Initialize():
 
     # -- Set Variables -- #
     print("Taiyou.GameExecution.Initialize : Set Variables")
-    if not tge.RunInFullScreen:
-        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
-    else:
-        DISPLAY = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
-
-    # -- Hide Mouse Cursor -- #
-    pygame.mouse.set_visible(False)
-
-    # -- Set Window Title -- #
-    pygame.display.set_caption(WindowTitle)
+    CurrentRes_W = 800
+    CurrentRes_H = 600
+    SetDisplay()
 
     # -- Initialize the Taiyou UI -- #
     SystemUI.Initialize()
@@ -214,26 +211,25 @@ def ReceiveCommand(Command, Arguments=None):
                 # -- Reload System Reg -- #
                 reg.Reload(True)
 
-                print("Taiyou.GameExecution.ReceiveCommand : Set Menu Mode")
-
+                # -- Set Variables -- #
                 SystemUI.CurrentMenuScreen = 0
                 IsMenuMode = True
-                GameUpdateEnabled = False
                 SystemUI.gameOverlay.CopyOfTheScreen = DISPLAY.copy()
                 sound.PauseGameChannel()
-                print("Taiyou.GameExecution.ReceiveCommand.SetGameMode : All Sounds on Game Channel has been paused.")
                 FPS = 70  # -- Default TaiyouUI FPS
+                SystemUI.SystemMenuEnabled = True
 
                 # -- Force GC to collect -- #
                 utils.GarbageCollector_Collect()
 
                 # -- Print GC infos -- #
-                print(utils.GarbageCollector_GetInfos())
+                print("Garbage Collector Infos:\n{0}".format(utils.GarbageCollector_GetInfos()))
 
-                if not SystemUI.SystemMenuEnabled and SystemUI.CurrentMenuScreen == 0:
-                    SystemUI.SystemMenuEnabled = True
-                    SystemUI.gameOverlay.UIOpacityAnimEnabled = True
-                    SystemUI.gameOverlay.UIOpacityScreenCopyied = False
+                # -- Set GameOverlayScreen Variables -- #
+                SystemUI.gameOverlay.GlobalAnimationController.Enabled = True
+                SystemUI.gameOverlay.GlobalAnimationController.CurrentMode = True
+
+                SystemUI.gameOverlay.UIOpacityScreenCopyied = False
 
         elif Command == 7:
             CommandWasValid = True
@@ -242,13 +238,9 @@ def ReceiveCommand(Command, Arguments=None):
             # -- Set Game Object -- #
             SetGameObject(Arguments.rstrip())
 
-            print("Taiyou.GameExecution.ReceiveCommand : Open Game [{0}]".format(str(Arguments).rstrip()))
-
         elif Command == 8:
             CommandWasValid = True
             IsSpecialEvent = True
-
-            print("Taiyou.GameExecution.ReceiveCommand : Remove Game Object, and unload all data related to it")
 
             RemoveGame()
 
@@ -265,11 +257,9 @@ def ReceiveCommand(Command, Arguments=None):
                 return
 
             # -- Reload System Reg -- #
-            print("Taiyou.GameExecution.ReceiveCommand.SwitchSaveFolder : Reloading System Registry...")
             reg.Reload(True)
 
             if not IsMenuMode:
-                print("Taiyou.GameExecution.ReceiveCommand.SwitchSaveFolder : Enabling System Menu")
                 # -- Force Collect on GC -- #
                 utils.GarbageCollector_Collect()
 
@@ -277,7 +267,6 @@ def ReceiveCommand(Command, Arguments=None):
                 GameUpdateEnabled = False
                 SystemUI.saveFolderSelectScreen.CopyOfTheScreen = DISPLAY.copy()
                 sound.PauseGameChannel()
-                print("Taiyou.GameExecution.ReceiveCommand.SetMenuMode : All Sounds on Game Channel has been paused.")
                 FPS = 70  # -- Default TaiyouUI FPS
                 SystemUI.CurrentMenuScreen = 3
 
@@ -291,7 +280,7 @@ def ReceiveCommand(Command, Arguments=None):
             tge.devel.PrintToTerminalBuffer(Txt)
             print(Txt)
         elif IsSpecialEvent:
-            Txt = "TaiyouMessage: Command Processed:\n'{0}'".format(Command)
+            Txt = "TaiyouMessage: Command Processed:\n'{0}' with Argument: '{1}'".format(Command, Arguments)
             tge.devel.PrintToTerminalBuffer(Txt)
             print(Txt)
 
@@ -391,6 +380,7 @@ def EventUpdate():
     global StepByStep_Step
     global StepByStep_EnabledToggle
     global DISPLAY
+    global CeiraControle
 
     # -- Internaly Process Pygame Events -- #
     pygame.fastevent.pump()
@@ -448,6 +438,8 @@ def GameException(Exception, ErrorPart="Unknown"):
 def Engine_Draw():
     global DISPLAY
     global IsMenuMode
+    global CurrentRes_W
+    global CurrentRes_H
 
     if not IsMenuMode:  # -- Draw System Menu
         try:
