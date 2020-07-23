@@ -92,10 +92,6 @@ TaiyouPath_AppDataFolder = "Taiyou/HOME/AppsData"
 TaiyouPath_SystemPath = "Taiyou/SYSTEM/"
 TaiyouPath_TaiyouConfigFile = TaiyouPath_SystemPath + "Taiyou.config"
 
-# -- Debug -- #
-StepByStepDebug_Enabled = False
-StepByStepDebug_Step = True
-
 
 def InitUserData():
     global UserName
@@ -407,12 +403,6 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
 
-            # -- BitDepth Value -- #
-            elif SplitedParms[0] == "BitDepth":
-                BitDepth = int(SplitedParms[1].rstrip())
-
-                print("Taiyou.Runtime.InitEngine : BitDepth was set to:" + str(BitDepth))
-
             # -- Default TaiyouUI Screen Value -- #
             elif SplitedParms[0] == "DefaultSystemUIScreen":
                 TaiyouUI.CurrentMenuScreen = int(SplitedParms[1])
@@ -431,19 +421,6 @@ def InitEngine():
                 TaiyouUI.loadingScreen.GameFolderToOpen = SplitedParms[1].rstrip()
 
                 print("Taiyou.Runtime.InitEngine : AutoBoot Game Folder was set to:" + str(TaiyouUI.loadingScreen.GameFolderToOpen))
-
-            # -- Step by Step Debug -- #
-            elif SplitedParms[0] == "DEBUG_Step":
-                if SplitedParms[1].rstrip() == "True":
-                    StepByStepDebug_Enabled = True
-                elif SplitedParms[1].rstrip() == "False":
-                    StepByStepDebug_Enabled = False
-                else:
-                    StepByStepDebug_Enabled = False
-
-                print("Taiyou.Runtime.InitEngine : StepByStepDebug was set to:" + str(StepByStepDebug_Enabled))
-
-
 
     if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #

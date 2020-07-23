@@ -151,11 +151,8 @@ def ReceiveCommand(Command, Arguments=None):
 
             CurrentRes_W = int(splitedArg[0])
             CurrentRes_H = int(splitedArg[1])
-            if not tge.RunInFullScreen:
-                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
 
-            else:
-                DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
+            SetDisplay()
 
         elif Command == 2:
             CommandWasValid = True
@@ -213,12 +210,12 @@ def ReceiveCommand(Command, Arguments=None):
             CommandWasValid = True
             IsSpecialEvent = True
 
-            # -- Reload System Reg -- #
-            reg.Reload(True)
-
-            print("Taiyou.GameExecution.ReceiveCommand : Set Menu Mode")
-
             if not IsMenuMode:
+                # -- Reload System Reg -- #
+                reg.Reload(True)
+
+                print("Taiyou.GameExecution.ReceiveCommand : Set Menu Mode")
+
                 SystemUI.CurrentMenuScreen = 0
                 IsMenuMode = True
                 GameUpdateEnabled = False
@@ -303,6 +300,18 @@ def ReceiveCommand(Command, Arguments=None):
         tge.devel.PrintToTerminalBuffer(Txt)
         print(Txt)
 
+def SetDisplay():
+    global DISPLAY
+    global CurrentRes_W
+    global CurrentRes_H
+
+    if not tge.RunInFullScreen:
+        DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE)
+
+    else:
+        DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
+
+
 def RemoveGame(UnloadGameAssts=True, CloseGameFolder=True):
     global GameObject
     global IsMenuMode
@@ -371,7 +380,6 @@ def SetGameObject(GameFolder):
         GameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
         utils.GarbageCollector_Collect()
 
-
     except Exception as ex:
         SystemException(ex, "SetGameObject")
 
@@ -396,17 +404,6 @@ def EventUpdate():
         elif event.type == pygame.KEYUP and event.key == pygame.K_F12:
             ReceiveCommand(6)
 
-        if tge.StepByStepDebug_Enabled or StepByStep_EnabledToggle:
-            if event.type == pygame.KEYUP and event.key == pygame.K_F8:
-                StepByStep_Step = True
-
-            if event.type == pygame.KEYUP and event.key == pygame.K_F7:
-                StepByStep_EnabledToggle = True
-                if tge.StepByStepDebug_Enabled:
-                    tge.StepByStepDebug_Enabled = False
-                else:
-                    tge.StepByStepDebug_Enabled = True
-
         # -- Do Game Events -- #
         try:
             if not IsMenuMode:
@@ -416,8 +413,7 @@ def EventUpdate():
             GameException(ex, "Game Events")
 
         # -- Do SystemMenu Events -- #
-        if IsMenuMode:
-            SystemUI.EventUpdate(event)
+        SystemUI.EventUpdate(event)
 
         # -- Do OverlayManager Events -- #
         ovelMng.EventUpdate(event)
@@ -461,8 +457,8 @@ def Engine_Draw():
         except Exception as ex:
             GameException(ex, "Game Draw")
 
-    else:  # -- Draw System Menu
-        SystemUI.Draw(DISPLAY)
+    # -- Draw SystemUI -- #
+    SystemUI.Draw(DISPLAY)
 
     # -- Draw the Overlay -- #
     ovelMng.Render(DISPLAY)
@@ -478,8 +474,8 @@ def Engine_Update():
         except Exception as ex:
             GameException(ex, "Game Update")
 
-    else:  # -- Else, Update the System Menu -- #
-        SystemUI.Update()
+    # -- Update TaiyouUI -- #
+    SystemUI.Update()
 
     # -- Update Overlay -- #
     ovelMng.Update()
@@ -494,31 +490,10 @@ def Run():
     global IsMenuMode
     global StepByStep_Step
 
+    # -- Disable Engine Update when Minimized -- #
     # -- Run Events -- #
     EventUpdate()
 
-    if not tge.StepByStepDebug_Enabled:
-        CodeUpdate()
-
-    else:
-        if StepByStep_Step:
-            CodeUpdate()
-
-            StepByStep_Step = False
-
-        Text = "##### Step by Step Debbuging #####\n" \
-               "--Press F8 to step\n" \
-               "--Press F7 to toggle-disable\n\n" \
-
-        sprite.FontRender(DISPLAY, "/UbuntuMono_Bold.ttf", 12, Text, (255, 255, 255), 10, 10, backgroundColor=(0, 0, 0))
-        # -- Flip the Screen -- #
-        pygame.display.flip()
-
-    # -- Flip the Screen -- #
-    pygame.display.flip()
-
-
-def CodeUpdate():
     # -- Run the Update Code -- #
     Engine_Update()
 
@@ -528,6 +503,8 @@ def CodeUpdate():
     # -- Run the Draw Code -- #
     Engine_Draw()
 
+    # -- Flip the Screen -- #
+    pygame.display.flip()
 
 def Destroy():
     print("Taiyou.GameExecution.Destroy : Save TaiyouUI Settings")

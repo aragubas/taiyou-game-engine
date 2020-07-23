@@ -323,6 +323,7 @@ def UpdateOpacityAnim():
     global UIOpacityAnim_InGameErrorSoundPlayed
     global CopyOfScreen_Last
     global ControlsEnabled
+    global ExitTOMainMenuSurfaceCreated
 
     if UIOpacityAnimEnabled:
         if UIOpacityAnimState == 0:  # <- When Opening the Menu;
@@ -351,6 +352,7 @@ def UpdateOpacityAnim():
                 UIOpacityAnim_OutSoundPlayed = True
                 print("Taiyou.SystemUI.AnimationTrigger : Animation Start.")
                 ControlsEnabled = True
+                ExitTOMainMenuSurfaceCreated = False
 
         if UIOpacityAnimState == 1:  # <- When Backing to the Game
             UIOpacity -= UIOpacityAnimSpeed
@@ -365,33 +367,13 @@ def UpdateOpacityAnim():
                 UIOpacityAnim_OutSoundPlayed = True
 
             if UIOpacity <= 0:
-                # -- Restart Variables -- #
-                UIOpacity = 0
-                UIOpacityAnimEnabled = False
-                UIOpacityAnimState = 0
-                CopyOfTheScreen.fill((0, 0, 0))
-                DarkerBackgroundSurface.fill((0, 0, 0))
-                UIObjectsSurface.fill((0, 0, 0))
-                CopyOfTheScreen.fill((0, 0, 0))
-                CopyOfScreen_Result.fill((0, 0, 0))
-                UIOpacityPauseGame = False
-                UIObjectsSurfaceUpdated = False
-                ConsoleWindowEnabled = False
-                CopyOfScreen_Last = False
-                UIOpacityAnim_InSoundPlayed = False
-                UIOpacityAnim_OutSoundPlayed = False
-                OpenedInGameError = False
-                UIOpacityAnim_InGameErrorSoundPlayed = False
-                UiHandler.SystemMenuEnabled = False
-                ControlsEnabled = False
+                UnloadVars()
 
                 # -- Enable GameLoop -- #
                 taiyouMain.ReceiveCommand(5)
 
-
-
-# -- Update the ExitToMainMenu Animation -- #
-def ExitToMainMenu_UpdateAnim():
+# -- Set all Variable to Default Value -- #
+def UnloadVars():
     global ExitToMainMenuAnim
     global ExitToMainMenuAnimOpacity
     global UIObjectsSurfaceUpdated
@@ -413,42 +395,53 @@ def ExitToMainMenu_UpdateAnim():
     global UIOpacityPauseGame
     global ControlsEnabled
 
+    # -- Restart Variables -- #
+    UIOpacity = 0
+    UIOpacityAnimEnabled = False
+    UIOpacityAnimState = 0
+    CopyOfTheScreen.fill((0, 0, 0))
+    DarkerBackgroundSurface.fill((0, 0, 0))
+    UIObjectsSurface.fill((0, 0, 0))
+    CopyOfTheScreen.fill((0, 0, 0))
+    CopyOfScreen_Result.fill((0, 0, 0))
+    UIOpacityPauseGame = False
+    UIObjectsSurfaceUpdated = False
+    ConsoleWindowEnabled = False
+    CopyOfScreen_Last = False
+    UIOpacityAnim_InSoundPlayed = False
+    UIOpacityAnim_OutSoundPlayed = False
+    OpenedInGameError = False
+    UIOpacityAnim_InGameErrorSoundPlayed = False
+    UiHandler.SystemMenuEnabled = False
+    ControlsEnabled = False
+    ExitTOMainMenuSurfaceCreated = False
+
+
+# -- Update the ExitToMainMenu Animation -- #
+def ExitToMainMenu_UpdateAnim():
+    global ExitToMainMenuAnim
+    global ControlsEnabled
+    global ExitToMainMenuAnimOpacity
+    global UIOpacityAnimSpeed
+    global UIOpacity
+
     if ExitToMainMenuAnim:
         ControlsEnabled = False
         ExitToMainMenuAnimOpacity += UIOpacityAnimSpeed
         UIOpacity -= UIOpacityAnimSpeed
 
         if ExitToMainMenuAnimOpacity >= 255:
-            # -- Restart Variables -- #
-            ExitToMainMenuAnim = False
-            ExitToMainMenuAnimOpacity = 0
-            UIObjectsSurfaceUpdated = False
-            UIOpacity = 0
-            UIOpacityAnimEnabled = False
-            UIOpacityAnimState = 0
-            CopyOfTheScreen.fill((0, 0, 0))
-            DarkerBackgroundSurface.fill((0, 0, 0))
-            UIObjectsSurface.fill((0, 0, 0))
-            CopyOfTheScreen.fill((0, 0, 0))
-            CopyOfScreen_Result.fill((0, 0, 0))
-            UIOpacityPauseGame = False
-            UIObjectsSurfaceUpdated = False
-            ConsoleWindowEnabled = False
-            CopyOfScreen_Last = False
-            UIOpacityAnim_InSoundPlayed = False
-            UIOpacityAnim_OutSoundPlayed = False
-            OpenedInGameError = False
-            UIOpacityAnim_InGameErrorSoundPlayed = False
-            UiHandler.SystemMenuEnabled = True
-
-            # -- Update the Main Menu Scenarios -- #
-            taiyouMain.ReceiveCommand(6)
-            taiyouMain.ReceiveCommand(8)
+            UnloadVars()
 
             UiHandler.SetMenuMode_Changes()
 
             UiHandler.CurrentMenuScreen = 2
             UiHandler.Cursor_CurrentLevel = 0
+            UiHandler.SystemMenuEnabled = True
+
+            # -- Go To the Main Menu  -- #
+            taiyouMain.ReceiveCommand(8)
+            taiyouMain.ReceiveCommand(6)
 
 
 def EventUpdate(event):

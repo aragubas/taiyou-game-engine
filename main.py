@@ -15,10 +15,11 @@
 #
 #
 from ENGINE import TaiyouMain as Taiyou
-from ENGINE import *
+import ENGINE as tge
 
 Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 
-# -- Run GameLoop -- #
 while True:
     Taiyou.Run()
+
+

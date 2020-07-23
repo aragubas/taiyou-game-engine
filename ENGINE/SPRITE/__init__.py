@@ -128,6 +128,7 @@ def LoadSprite(SpritePath, Transparency=False):
 
         if Transparency:
             Sprites_Data += (pygame.image.load(SpritePath).convert_alpha(),)
+
         else:
             Sprites_Data += (pygame.image.load(SpritePath).convert(), )
 
@@ -478,15 +479,15 @@ def BlurredRectangle(DISPLAY, Rectangle,BlurAmmount=100, BlackContrast=50):
     :return:
     """
     # -- the Result Surface -- #
-    ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]))
+    ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
 
     if not BlackContrast == 0:
-        DarkerBG = pygame.Surface((Rectangle[2], Rectangle[3]))
+        DarkerBG = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
         DarkerBG.set_alpha(BlackContrast)
         DISPLAY.blit(DarkerBG, Rectangle)
 
     # -- Only Blur the Necessary Area -- #
-    AreaToBlur = pygame.Surface((Rectangle[2], Rectangle[3]))
+    AreaToBlur = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
     AreaToBlur.blit(DISPLAY, (0, 0), Rectangle)
 
     # -- Then Finnaly, blit the Blurred Result -- #

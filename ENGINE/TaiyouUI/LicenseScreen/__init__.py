@@ -94,8 +94,6 @@ def Update():
                 IntroSoundPlayed = False
 
 
-
-
 def Draw(DISPLAY):
     global CenterLogoRectangle
     global GlobalOpacity

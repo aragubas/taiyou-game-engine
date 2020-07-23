@@ -18,7 +18,6 @@
 from ENGINE.TaiyouUI.OverlayManager import Screenshot as screenshotOverlay
 from ENGINE.TaiyouUI.OverlayManager import Frametime as frametimeOverlay
 from ENGINE.TaiyouUI.OverlayManager import Debug as debugOverlay
-from ENGINE.TaiyouUI.OverlayManager import Notification as notificationOverlay
 
 import pygame
 CurrentOverlayID = -1
@@ -34,9 +33,6 @@ def Update():
     elif CurrentOverlayID == 2:  # -- Update Debug Profile
         debugOverlay.Update()
 
-    elif CurrentOverlayID == 3:
-        notificationOverlay.Update()
-
 def Render(DISPLAY):
     global CommonDisplay
     CommonDisplay = DISPLAY
@@ -49,9 +45,6 @@ def Render(DISPLAY):
 
     elif CurrentOverlayID == 2:
         debugOverlay.Draw(DISPLAY)
-
-    elif CurrentOverlayID == 3:
-        notificationOverlay.Draw(DISPLAY)
 
 def Set_OverlayLevel(ID):
     global CurrentOverlayID
@@ -70,9 +63,6 @@ def EventUpdate(event):
 
     elif CurrentOverlayID == 2:
         debugOverlay.EventUpdate(event)
-
-    elif CurrentOverlayID == 3:
-        notificationOverlay.EventUpdate(event)
 
     # -- Toggle Keys -- #
     if event.type == pygame.KEYUP and event.key == pygame.K_F11:  # -- Screenshot Overlay -- #

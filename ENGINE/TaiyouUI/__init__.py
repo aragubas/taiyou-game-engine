@@ -30,6 +30,7 @@ from ENGINE.TaiyouUI import DeveloperConsole as devel
 from ENGINE import utils
 from ENGINE import SOUND as sound
 import ENGINE as tge
+from ENGINE.TaiyouUI import NotificationPopup as popupNotification
 
 CurrentMenuScreen = 2  # 0 = Game Overlay, 1 = License Screen, 2 = Main Menu, 3 = Save Folder Select, 4 = Loading Screen
 SystemMenuEnabled = True
@@ -41,6 +42,7 @@ OverlayDialogEnabled = False
 ScreenLastFrame = pygame.Surface
 
 DataPath = "Taiyou/SYSTEM/"
+NotificationPopupEnabled = False
 
 def Initialize():
     global DataPath
@@ -72,6 +74,7 @@ def Draw(Display):
     global CurrentMenuScreen
     global OverlayDialogEnabled
     global ScreenLastFrame
+    global NotificationPopupEnabled
 
     if SystemMenuEnabled:
         if not OverlayDialogEnabled:
@@ -97,8 +100,12 @@ def Draw(Display):
         else:
             ovelDiag.Draw(Display)
 
-    # -- Render the Cursor -- #
-    sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
+    if NotificationPopupEnabled:
+        popupNotification.Draw(Display)
+
+    if SystemMenuEnabled:
+        # -- Render the Cursor -- #
+        sprite.ImageRender(Display, "/TAIYOU_UI/Cursor/{0}.png".format(str(Cursor_CurrentLevel)), Cursor_Position[0], Cursor_Position[1])
 
 
 def Update():
@@ -106,28 +113,35 @@ def Update():
     global Cursor_Position
     global CurrentMenuScreen
     global OverlayDialogEnabled
+    global NotificationPopupEnabled
 
-    if SystemMenuEnabled:
-        if not OverlayDialogEnabled:
-            if CurrentMenuScreen == 4:
-                loadingScreen.Update()
+    if NotificationPopupEnabled:
+        popupNotification.Update()
 
-            elif CurrentMenuScreen == 3:
-                saveFolderSelectScreen.Update()
+    # -- if SystemUI Update is not Enabled, return -- #
+    if not SystemMenuEnabled:
+        return
 
-            elif CurrentMenuScreen == 2:
-                seletorScreen.Update()
+    if not OverlayDialogEnabled:
+        if CurrentMenuScreen == 4:
+            loadingScreen.Update()
 
-            elif CurrentMenuScreen == 1:
-                licenseScreen.Update()
+        elif CurrentMenuScreen == 3:
+            saveFolderSelectScreen.Update()
 
-            elif CurrentMenuScreen == 0:
-                gameOverlay.Update()
-        else:
-            ovelDiag.Update()
+        elif CurrentMenuScreen == 2:
+            seletorScreen.Update()
 
-        # -- Set Cursor Position -- #
-        Cursor_Position = pygame.mouse.get_pos()
+        elif CurrentMenuScreen == 1:
+            licenseScreen.Update()
+
+        elif CurrentMenuScreen == 0:
+            gameOverlay.Update()
+    else:
+        ovelDiag.Update()
+
+    # -- Set Cursor Position -- #
+    Cursor_Position = pygame.mouse.get_pos()
 
 
 def EventUpdate(event):
@@ -135,24 +149,27 @@ def EventUpdate(event):
     global CurrentMenuScreen
     global OverlayDialogEnabled
 
-    if SystemMenuEnabled:
-        if not OverlayDialogEnabled:
-            if CurrentMenuScreen == 4:
-                loadingScreen.EventUpdate(event)
+    # -- if SystemUI Update is not Enabled, return -- #
+    if not SystemMenuEnabled:
+        return
 
-            elif CurrentMenuScreen == 3:
-                saveFolderSelectScreen.EventUpdate(event)
+    if not OverlayDialogEnabled:
+        if CurrentMenuScreen == 4:
+            loadingScreen.EventUpdate(event)
 
-            elif CurrentMenuScreen == 2:
-                seletorScreen.EventUpdate(event)
+        elif CurrentMenuScreen == 3:
+            saveFolderSelectScreen.EventUpdate(event)
 
-            elif CurrentMenuScreen == 1:
-                licenseScreen.EventUpdate(event)
+        elif CurrentMenuScreen == 2:
+            seletorScreen.EventUpdate(event)
 
-            elif CurrentMenuScreen == 0:
-                gameOverlay.EventUpdate(event)
-        else:
-            ovelDiag.EventUpdate(event)
+        elif CurrentMenuScreen == 1:
+            licenseScreen.EventUpdate(event)
+
+        elif CurrentMenuScreen == 0:
+            gameOverlay.EventUpdate(event)
+    else:
+        ovelDiag.EventUpdate(event)
 
 def SetMenuMode_Changes():
     print("TaiyouUI.SetMenuModeChanges")
@@ -160,10 +177,10 @@ def SetMenuMode_Changes():
     # -- Set the Window Title -- #
     taiyouMain.ReceiveCommand(9, "Taiyou Game Engine v" + utils.FormatNumber(tge.TaiyouGeneralVersion))
 
-    # -- Set the Default Icon -- #
+    # -- Set the Taiyou Icon -- #
     taiyouMain.ReceiveCommand(4, "/TAIYOU_UI/icon.png")
 
-    # -- Set to 60FPS -- #
+    # -- Set to 70FPS -- #
     taiyouMain.ReceiveCommand(0, 70)
 
     CurrentRes = pygame.display.get_window_size()

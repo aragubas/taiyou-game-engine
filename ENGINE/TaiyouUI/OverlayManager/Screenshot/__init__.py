@@ -24,6 +24,7 @@ from ENGINE import TaiyouMain as taiyouMain
 from ENGINE import REGISTRY as reg
 from ENGINE import UTILS as utils
 from ENGINE.TaiyouUI import OverlayManager as handler
+from ENGINE import TaiyouUI as taiyouUI
 
 ScreenshotBordersRect = pygame.Rect(0, 0, 2, 2)
 ScreenshotTaken = False
@@ -117,7 +118,7 @@ def UpdateAnimation():
             handler.Set_OverlayLevel(-1)
 
             if not taiyouMain.IsMenuMode: reg.Reload(True)
-            handler.notificationOverlay.SetNotification(gtk.GetLangText("dialog_title", "screenshot_ui"), gtk.GetLangText("dialog_text", "screenshot_ui"), sprite.GetSprite("/TAIYOU_UI/ICONS/taiyou_icon.png"))
+            taiyouUI.popupNotification.SetNotification(gtk.GetLangText("dialog_title", "screenshot_ui"), gtk.GetLangText("dialog_text", "screenshot_ui"), sprite.GetSprite("/TAIYOU_UI/ICONS/taiyou_icon.png"))
 
             if not taiyouMain.IsMenuMode: reg.Unload(True)
 
