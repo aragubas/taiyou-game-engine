@@ -133,7 +133,7 @@ def Unload(UnloadSystemReg=False):
 # -- Read Keys -- #
 def CorrectKeyName(keyEntred):
     if not keyEntred.startswith("/"):
-        return "/" + keyEntred
+        return "/{0}".format(keyEntred)
     else:
         return keyEntred
 

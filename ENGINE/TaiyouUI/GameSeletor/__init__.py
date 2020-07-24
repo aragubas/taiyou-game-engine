@@ -44,7 +44,7 @@ TopPanel_Rect = pygame.Rect(0,0,30,30)
 SeletorLoadingSquare = gtk.LoadingSquare
 
 # -- Animation Controllers -- #
-GlobalAnimation_Controller = gtk.AnimationController
+GlobalAnimation_Controller = utils.AnimationController
 
 # -- UI Animation -- #
 UIOpacity = 0
@@ -110,7 +110,7 @@ def Initialize():
     SeletorLoadingSquare = gtk.LoadingSquare(5,5)
     DownloaderObj = utils.Downloader()
 
-    UIOpacity_StartDelay = reg.ReadKey_int("TaiyouSystem/CONF/start_delay", True)
+    UIOpacity_StartDelay = reg.ReadKey_int("/TaiyouSystem/CONF/start_delay", True)
 
     ovelDiag.Initialize()
     GameInfos.Initialize()
@@ -119,7 +119,7 @@ def Initialize():
     volumeSlider.Initialize()
 
     # -- Set Animation Controllers -- #
-    GlobalAnimation_Controller = gtk.AnimationController()
+    GlobalAnimation_Controller = utils.AnimationController()
 
 
 def LoadGameList():

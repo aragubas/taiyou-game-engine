@@ -19,13 +19,13 @@
 def Get_Version():
     return "2.9"
 def Get_SpriteVersion():
-    return "2.3"
+    return "2.4"
 def Get_SoundVersion():
     return "2.0"
 def Get_RegistryVersion():
-    return "2.2"
+    return "2.3"
 def Get_UtilsVersion():
-    return "1.7"
+    return "1.8"
 def Get_TaiyouMainVersion():
     return "3.3"
 def Get_DeveloperConsoleVersion():

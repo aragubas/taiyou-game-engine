@@ -57,7 +57,7 @@ RenameFolderButton = gtk.Button
 
 # -- etc -- #
 PendingOperation = "null" """Pending Operation on Save Folder\n0 - Delete\n1 - Create\n2 - Rename"""
-GlobalAnimationController = gtk.AnimationController
+GlobalAnimationController = utils.AnimationController
 
 def Initialize():
     global SelectFolderButton
@@ -73,7 +73,7 @@ def Initialize():
     DeleteFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_delete_folder", "save_fs"), 18)
     RenameFolderButton = gtk.Button((3, 1, 5, 5), gtk.GetLangText("button_rename_folder", "save_fs"), 18)
 
-    GlobalAnimationController = gtk.AnimationController()
+    GlobalAnimationController = utils.AnimationController()
 
 def ReloadSaveList():
     global VerticalList

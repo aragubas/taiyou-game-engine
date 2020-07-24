@@ -46,7 +46,7 @@ UIOpacityAnim_InGameErrorSoundPlayed = False
 AnimationNumb = 0
 
 # -- Global Animation Controller -- #
-GlobalAnimationController = gtk.AnimationController
+GlobalAnimationController = utils.AnimationController
 
 # -- Console Window -- #
 ConsoleWindowEnabled = False
@@ -87,7 +87,7 @@ def Initialize():
     volumeSlider.Initialize()
     developWindow.Initialize()
 
-    GlobalAnimationController = gtk.AnimationController(multiplierRestart=True)
+    GlobalAnimationController = utils.AnimationController(multiplierRestart=True)
     GlobalAnimationController.ValueMultiplierSpeed = gtk.AnimationSpeed + 0.9
 
 def Draw(Display):
@@ -159,7 +159,7 @@ def Draw_ScreenshotOfGameScreen(Display):
 
     # -- Blur Amount Value -- #
     if not CopyOfScreen_Last:
-        CopyOfScreen_BlurAmount = max(1.0, UIOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True)) * 32
+        CopyOfScreen_BlurAmount = max(1.0, UIOpacity / reg.ReadKey_int("/TaiyouSystem/CONF/blur_amount", True)) * 14
 
     if GlobalAnimationController.Enabled:  # -- Draw the Animation -- #
         CopyOfScreen_Last = False
@@ -186,6 +186,7 @@ def Draw_ScreenshotOfGameScreen(Display):
 
         if ExitToMainMenuAnim and ExitTOMainMenuSurfaceCreated:
             ExitToMainMenuOpacityAnimBG.set_alpha(ExitToMainMenuAnimOpacity)
+            ExitToMainMenuOpacityAnimBG.fill((0, 0, 0, min(0, ExitToMainMenuAnimOpacity)))
             Display.blit(ExitToMainMenuOpacityAnimBG, (0, 0))
 
 
@@ -390,6 +391,7 @@ def UnloadVars():
     global ControlsEnabled
     global GlobalAnimationController
     global ExitToMainMenuAnim
+    global ExitToMainMenuAnimOpacity
 
     # -- Restart Variables -- #
     UIOpacity = 0
@@ -415,6 +417,7 @@ def UnloadVars():
     GlobalAnimationController.ValueMultiplier = 1
     GlobalAnimationController.Value = 0
     ExitToMainMenuAnim = False
+    ExitToMainMenuAnimOpacity = 0
 
 # -- Update the ExitToMainMenu Animation -- #
 def ExitToMainMenu_UpdateAnim():

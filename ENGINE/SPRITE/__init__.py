@@ -239,8 +239,6 @@ def ImageRender(DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, O
                         Image.set_colorkey(ColorKey)
 
                         DISPLAY.blit(pygame.transform.smoothscale(Image, (Width, Height)), (X, Y))
-            else:
-                print("Not in screen")
 
         except Exception as ex:
             print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
