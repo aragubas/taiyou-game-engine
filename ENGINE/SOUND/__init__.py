@@ -23,14 +23,9 @@ import time
 
 print("Taiyou Sound System version " + tge.Get_SoundVersion())
 
-AllLoadedSounds = {}
-
 DisableSoundSystem = False
-
-GameSoundChannels = ()
-SystemSoundChannels = ()
-
-GlobalVolume = 1.0
+SoundChannels = ()
+AllLoadedSounds = {}
 
 
 def LoadAllSounds(FolderName):
@@ -40,26 +35,19 @@ def LoadAllSounds(FolderName):
     :return:
     """
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
 
     if DisableSoundSystem:
         return
 
-    GameSoundChannels = ()
-    SystemSoundChannels = ()
+    SoundChannels = ()
 
     pygame.mixer.set_num_channels(255)
 
-    for i in range(0, 249):
-        GameSoundChannels += (pygame.mixer.Channel(i),)
+    for i in range(0, 255):
+        SoundChannels += (pygame.mixer.Channel(i),)
 
-    for i in range(250, 255):
-        SystemSoundChannels += (pygame.mixer.Channel(i),)
-
-    if DisableSoundSystem:
-        return
     FolderName = FolderName + "Data/SOUND"
     temp_sound_files = utils.Directory_FilesList(FolderName)
     index = -1
@@ -85,16 +73,13 @@ def Unload():
     :return:
     """
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
 
     if DisableSoundSystem:
         return
 
     AllLoadedSounds = {}
-
-    LoadAllSounds("Taiyou/SYSTEM/")
 
 def Reload():
     """
@@ -102,134 +87,88 @@ def Reload():
     :return:
     """
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
 
     if not DisableSoundSystem:
         # -- Stop all Sounds -- #
-        for i, Channel in enumerate(GameSoundChannels):
+        for i, Channel in enumerate(SoundChannels):
             Channel.stop()
 
         Unload()
         LoadAllSounds(tge.Get_GameSourceFolder())
 
-        LoadAllSounds("Taiyou/SYSTEM/SOURCE")
-
-def PauseGameChannel():
+def PauseAllChannels():
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
 
-    for i, Channel in enumerate(GameSoundChannels):
+    for i, Channel in enumerate(SoundChannels):
         Channel.pause()
 
-    print("Taiyou.SoundSystem : Game Sound Channels has been paused.")
-
-def UnpauseGameChannel():
+def UnpauseAllChannels():
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
-    global GlobalVolume
 
-    for i, Channel in enumerate(GameSoundChannels):
-        Channel.set_volume((Channel.get_volume() / (GlobalVolume+0.1)) * (GlobalVolume+0.1))
+    for i, Channel in enumerate(SoundChannels):
         Channel.unpause()
 
-    print("Taiyou.SoundSystem : Game Sound Channels has been unpaused.")
-
-def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, PlayOnSystemChannel=False, ForcePlay=False, PlayOnSpecificID=None):
+def PlaySound(SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None):
     """
     Play a Sound loaded into Sound System
     :param SourceName:Audio Source Name [starting with /]
     :param Volume:Audio Volume [range 0.0 to 1.0]
     :param LeftPan:Left Speaker Balance
     :param RightPan:Right Speaker Balance
-    :param PlayOnSystemChannel:Play sound on System Sound Channel
-    :param ForcePlay:Force the audio to be played, Can be usefull if you really need to the sound to be played
+    :param ForcePlay:Force the audio to be played, Can be useful if you really need to the sound to be played
     :param PlayOnSpecificID:Play the sound on a Specific ID
     :return:
     """
     global AllLoadedSounds
-    global GameSoundChannels
+    global SoundChannels
     global DisableSoundSystem
-    global SystemSoundChannels
 
     if DisableSoundSystem:
         return
 
     # -- Get Sound -- #
     sound = AllLoadedSounds.get(SourceName)
-    sound.set_volume(Volume * GlobalVolume)
+    sound.set_volume(Volume)
 
+    for i, GameChannel in enumerate(SoundChannels):
+        if not PlayOnSpecificID is None:
+            if i == PlayOnSpecificID:
+                GameChannel.stop()
+                GameChannel.set_volume(LeftPan, RightPan)
+                GameChannel.play(sound)
+                return i
+        else:
+            if not GameChannel.get_busy():
+                GameChannel.set_volume(LeftPan, RightPan)
+                GameChannel.play(sound)
+                return i
 
-    if not PlayOnSystemChannel:
-        for i, GameChannel in enumerate(GameSoundChannels):
-            if not PlayOnSpecificID == None:
-                if i == PlayOnSpecificID:
+            else:
+                if ForcePlay:
                     GameChannel.stop()
                     GameChannel.set_volume(LeftPan, RightPan)
                     GameChannel.play(sound)
                     return i
-            else:
-                if not GameChannel.get_busy():
-                    GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound)
-                    return i
-
-                else:
-                    if ForcePlay:
-                        GameChannel.stop()
-                        GameChannel.set_volume(LeftPan, RightPan)
-                        GameChannel.play(sound)
-                        return i
-
-    else:
-        for i, SystemChannel in enumerate(SystemSoundChannels):
-            if not PlayOnSpecificID == None:
-                if i == PlayOnSpecificID:
-                    if SystemChannel.get_busy():
-                        SystemChannel.stop()
-                    SystemChannel.set_volume(LeftPan, RightPan)
-                    SystemChannel.play(sound)
-                    return i
-            else:
-                if not SystemChannel.get_busy():
-                    SystemChannel.set_volume(LeftPan, RightPan)
-                    SystemChannel.play(sound)
-                    return i
-                else:
-                    if ForcePlay:
-                        SystemChannel.stop()
-                        SystemChannel.set_volume(LeftPan, RightPan)
-                        SystemChannel.play(sound)
-                        return i
 
 
-def StopSound(ChannelID, StopSystemSound=False):
+def StopSound(ChannelID):
     if DisableSoundSystem:
         return
 
-    if not StopSystemSound:
-        for i, GameChannel in enumerate(GameSoundChannels):
-            if i == ChannelID:
-                GameChannel.stop()
-    else:
-        for i, GameChannel in enumerate(SystemSoundChannels):
-            if i == ChannelID:
-                SystemChannel.stop()
+    for i, GameChannel in enumerate(SoundChannels):
+        if i == ChannelID:
+            GameChannel.stop()
 
-def FadeoutSound(ChannelID, FadeoutTime, FadeoutSystemSound=False):
+def FadeoutSound(ChannelID, FadeoutTime):
     if DisableSoundSystem:
         return
 
-    if not FadeoutSystemSound:
-        for i, GameChannel in enumerate(GameSoundChannels):
-            if i == ChannelID:
-                GameChannel.fadeout(FadeoutTime)
-    else:
-        for i, GameChannel in enumerate(SystemSoundChannels):
-            if i == ChannelID:
-                SystemChannel.fadeout(FadeoutTime)
+    for i, GameChannel in enumerate(SoundChannels):
+        if i == ChannelID:
+            GameChannel.fadeout(FadeoutTime)

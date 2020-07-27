@@ -36,7 +36,7 @@ Sprites_Data = ()
 Fonts_Name = ()
 Fonts_Data = ()
 
-DefaultSprite = pygame.image.load("Taiyou/SYSTEM/Data/SPRITE/default.png")
+DefaultSprite = pygame.image.load("Taiyou/default.png")
 
 FontRenderingDisabled = False
 SpriteRenderingDisabled = False
@@ -87,17 +87,17 @@ def LoadSpritesInFolder(FolderName):
                 print("Sprite.LoadFolder : MetadataFileError!, Value[" + line + "] is invalid.")
 
     # -- Install Font Files to the Shared Resources Path -- #
-    if utils.Directory_Exists(FolderName + "/FONT_PACKS"):
+    if utils.Directory_Exists(FolderName + "Data{0}FONTS".format(tge.TaiyouPath_CorrectSlash)):
         print("Sprite.LoadFolder : Directory have Font Packs to be installed.")
-        fontInstall_metadata = open(FolderName + "/FONT_PACKS/meta.data", "r")
+        fontInstall_metadata = open(FolderName + "Data{0}FONTS{0}meta.data".format(tge.TaiyouPath_CorrectSlash), "r")
         fontInstall_meta_lines = fontInstall_metadata.readlines()
 
         for font in fontInstall_meta_lines:
             font = font.rstrip()
 
             if not font.startswith("#"):
-                CurrentFileName = FolderName + "/FONT_PACKS" + font
-                DestinationDir = "Taiyou/SYSTEM/SOURCE/FONT" + font
+                CurrentFileName = FolderName + "Data{0}FONTS{1}".format(tge.TaiyouPath_CorrectSlash, font)
+                DestinationDir = "Taiyou{0}SharedFonts{1}".format(tge.TaiyouPath_CorrectSlash, font)
 
                 # -- Check if Destination Dir exist -- #
                 if utils.File_Exists(DestinationDir):
@@ -109,12 +109,6 @@ def LoadSpritesInFolder(FolderName):
                     # -- Copy the Font File -- #
                     utils.FileCopy(CurrentFileName, DestinationDir)
 
-                    # -- Check if Font File was copied -- #
-                    if not utils.File_Exists(DestinationDir):
-                        raise FileNotFoundError("An error occoured while copying the \n[" + CurrentFileName + "] font file.")
-
-                    else:
-                        print("Sprite.LoadFolder.CopyFontFile : \nFont[" + CurrentFileName + "] copied sucefully.")
 
     else:
         print("Sprite.LoadFolder : Directory does not have Font Packs to be installed.")
@@ -326,7 +320,8 @@ def GetFont_object(FontFileLocation, Size):
             print("Sprite.GetFontObject ; Creating Font Cache Object")
 
             CurrentLoadedFonts_Name += (FontCacheName,)
-            CurrentLoadedFonts_Contents += (pygame.font.Font("Taiyou/SYSTEM/Data/FONT" + FontFileLocation, Size),)
+            FontPath = "Taiyou{0}SharedFonts".format(tge.TaiyouPath_CorrectSlash)
+            CurrentLoadedFonts_Contents += (pygame.font.Font(FontPath + FontFileLocation, Size),)
 
             print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 
@@ -377,6 +372,23 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
                              Border_TopRight_Radius, Border_BottomLeft_Radius, Border_BottomRight_Radius)
         else:
             gfxdraw.rectangle(DISPLAY, Rectangle, Color)
+
+def Shape_Line(DISPLAY, Color, startX, startY, endX, endY, LineWidth, FoldLine=True):
+    # -- Fix the Color Range -- #
+    Color = FixColorRange(Color)
+
+    if FoldLine:
+        if endX > DISPLAY.get_width():
+            endX = DISPLAY.get_width()
+        if endY > DISPLAY.get_height():
+            endY = DISPLAY.get_height()
+
+        if startX < 0:
+            startX = 0
+        if startY < 0:
+            startY = 0
+
+    pygame.draw.line(DISPLAY, Color, (startX, startY), (endX, endY), LineWidth)
 
 def Shape_Pie(DISPLAY, X, Y, Radius, StartAngle, StopAngle, Color):
     if X + Radius >= DISPLAY.get_width() or X < Radius:

@@ -26,11 +26,8 @@ print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
 # Variables
 reg_keys = ()
 reg_contents = ()
-SystemReg_keys = ()
-SystemReg_contents = ()
 
-
-def Initialize(reg_dir, LoadOnSystemReg=False):
+def Initialize(reg_dir):
     """
     Load all keys on Specified Folder
     :param reg_dir:Specified Folder
@@ -38,19 +35,14 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
     """
     global reg_keys
     global reg_contents
-    global SystemReg_keys
-    global SystemReg_contents
 
     start_time = time.time()
     # -- Unload the Registry -- #
-    Unload(LoadOnSystemReg)
+    Unload()
 
-    if not LoadOnSystemReg:
-        print("Taiyou.RegistryManager.Initialize : Loading Application Registry")
-    else:
-        print("Taiyou.RegistryManager.Initialize : Loading System Registry")
+    print("Taiyou.RegistryManager.Initialize : Loading Application Registry")
 
-    reg_dir = reg_dir + "Data/REG"
+    reg_dir = reg_dir + "Data{0}REG".format(tge.TaiyouPath_CorrectSlash)
     temp_reg_keys = utils.Directory_FilesList(reg_dir)
     index = -1
 
@@ -69,64 +61,41 @@ def Initialize(reg_dir, LoadOnSystemReg=False):
         # -- Format the Text -- #
         AllData = AllData.rstrip().replace("%n", "\n").replace("%t","\t").replace("%s"," ")
 
-        if not LoadOnSystemReg:
-            reg_keys += (CorrectKeyName,)
-            reg_contents += (AllData,)
-
-        else:
-            SystemReg_keys += (CorrectKeyName,)
-            SystemReg_contents += (AllData,)
+        reg_keys += (CorrectKeyName,)
+        reg_contents += (AllData,)
 
         print("Taiyou.RegistryManager.Initialize : KeyLoaded[" + CorrectKeyName + "]")
 
-    if not LoadOnSystemReg:
-        print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded. In {1} seconds.".format(str(len(reg_keys)), utils.FormatNumber(time.time() - start_time, 4)))
-    else:
-        print("Taiyou.RegistryManager.Initialize : Total of {0} System Registry keys loaded. In {1} seconds".format(str(len(SystemReg_keys)), utils.FormatNumber(time.time() - start_time, 4)))
+    print("Taiyou.RegistryManager.Initialize : Total of {0} registry keys loaded. In {1} seconds.".format(str(len(reg_keys)), utils.FormatNumber(time.time() - start_time, 4)))
 
     utils.GarbageCollector_Collect()
 
 
-
-def Reload(ReloadSystemReg=False):
+def Reload():
     """
     Reload all Registry Keys
     :return:
     """
     CurrentGameFolder = tge.Get_GameFolder() + "/"
 
-    if not ReloadSystemReg:
-        print("Taiyou.RegistryManager.ReloadRegistry : Reloading Application Registry...")
-        Unload()
-        Initialize(CurrentGameFolder)
-
-    else:
-        print("Taiyou.RegistryManager.ReloadRegistry : Reloading System Registry...")
-        Unload(True)
-        Initialize("Taiyou/SYSTEM/", True)
+    print("Taiyou.RegistryManager.ReloadRegistry : Reloading Registry...")
+    Unload()
+    Initialize(CurrentGameFolder)
 
     utils.GarbageCollector_Collect()
 
-def Unload(UnloadSystemReg=False):
+def Unload():
     """
     Unload all registry keys
     :return:
     """
     global reg_keys
     global reg_contents
-    global SystemReg_keys
-    global SystemReg_contents
 
     # -- Clear the Registry -- #
-    if not UnloadSystemReg:
-        print("Taiyou.RegistryManager.UnloadRegistry : Unloading Application Registry")
-        reg_keys = ()
-        reg_contents = ()
-
-    else:
-        print("Taiyou.RegistryManager.UnloadRegistry : Unloading System Registry")
-        SystemReg_keys = ()
-        SystemReg_contents = ()
+    print("Taiyou.RegistryManager.UnloadRegistry : Unloading Application Registry")
+    reg_keys = ()
+    reg_contents = ()
 
     utils.GarbageCollector_Collect()
 
@@ -137,102 +106,65 @@ def CorrectKeyName(keyEntred):
     else:
         return keyEntred
 
-def ReadKey(keyName, SystemReg=False):
+def ReadKey(keyName):
     """
     Returns a String Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
-        if not SystemReg:
-            return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
-        else:
-            return SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))]
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     except ValueError:
-        if SystemReg:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
-        else:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
+        raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
-def ReadKey_int(keyName, SystemReg=False):
+def ReadKey_int(keyName):
     """
     Returns a Integer Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
     try:
-        if not SystemReg:
-            return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-        else:
-            return int(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+        return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except ValueError:
-        if SystemReg:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
-        else:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
+        raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
-def ReadKey_float(keyName, SystemReg=False):
+def ReadKey_float(keyName):
     """
     Returns a Float Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
-        if not SystemReg:
-            return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
-        else:
-            return float(SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))])
+        return float(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except ValueError:
-        if SystemReg:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
-        else:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
+        raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
-def ReadKey_bool(keyName, SystemReg=False):
+def ReadKey_bool(keyName):
     """
     Returns a Boolean Key
     :param keyName:Name of Key [starting with /]
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
-        if not SystemReg:
-            if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-                return True
-            else:
-                return False
+        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
+            return True
         else:
-            if SystemReg_contents[SystemReg_keys.index(CorrectKeyName(keyName))] == "True":
-                return True
-            else:
-                return False
+            return False
     except ValueError:
-        if SystemReg:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}] in System Registry.".format(str(keyName)))
-        else:
-            raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
+        raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
-
-
-def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
+def WriteKey(keyName, keyValue):
     """
     Write data to a Key
     :param keyName:Name of Key [starting with /]
@@ -240,15 +172,10 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     :return:
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     keyName = CorrectKeyName(keyName)
-    if not WriteOnSystemReg:
-        FileLocation = tge.Get_GameSourceFolder() + "/REG" + keyName + ".data"
-    else:
-        FileLocation = "Taiyou/SYSTEM/Data/REG" + keyName + ".data"
+    FileLocation = CorrectFileName(FileName)
 
     # -- Create the directory -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
@@ -260,7 +187,7 @@ def WriteKey(keyName, keyValue, WriteOnSystemReg=False):
     f.write(keyValue)
     f.close()
 
-    Reload(WriteOnSystemReg)
+    Reload()
 
     print("Taiyou.RegistryManager.WriteKey : Registry File Writed.")
 
@@ -272,8 +199,6 @@ def KeyExists(keyName):
     :return: Value to Return
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
@@ -284,7 +209,7 @@ def KeyExists(keyName):
 
 
 # -- Read key with Try -- #
-def ReadKeyWithTry(keyName,defaultValue):
+def ReadKeyWithTry(keyName, defaultValue):
     """
     Tries to Read a Key, if there is a error, Return Default Value [String]
     :param keyName:Name of Key [starting with /]
@@ -292,17 +217,15 @@ def ReadKeyWithTry(keyName,defaultValue):
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
         return reg_contents[reg_keys.index(CorrectKeyName(keyName))]
     except ValueError:
-        WriteKey(CorrectKeyName(keyName),defaultValue)
+        WriteKey(CorrectKeyName(keyName), defaultValue)
         return defaultValue
 
-def ReadKeyWithTry_int(keyName,defaultValue):
+def ReadKeyWithTry_int(keyName, defaultValue):
     """
     Tries to Read a Key, if there is a error, Return Default Value [Integer]
     :param keyName:Name of Key [starting with /]
@@ -310,17 +233,15 @@ def ReadKeyWithTry_int(keyName,defaultValue):
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
         return int(reg_contents[reg_keys.index(CorrectKeyName(keyName))])
     except ValueError:
-        WriteKey(CorrectKeyName(keyName),str(defaultValue))
+        WriteKey(CorrectKeyName(keyName), str(defaultValue))
         return int(defaultValue)
 
-def ReadKeyWithTry_float(keyName,defaultValue):
+def ReadKeyWithTry_float(keyName, defaultValue):
     """
     Tries to Read a Key, if there is a error, Return Default Value [Float]
     :param keyName:Name of Key [starting with /]
@@ -328,8 +249,6 @@ def ReadKeyWithTry_float(keyName,defaultValue):
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
@@ -338,7 +257,7 @@ def ReadKeyWithTry_float(keyName,defaultValue):
         WriteKey(CorrectKeyName(keyName),str(defaultValue))
         return float(defaultValue)
 
-def ReadKeyWithTry_bool(keyName,defaultValue):
+def ReadKeyWithTry_bool(keyName, defaultValue):
     """
     Tries to Read a Key, if there is a error, Return Default Value [Boolean]
     :param keyName:Name of Key [starting with /]
@@ -346,8 +265,6 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
     :return:KeyData
     """
     global reg_contents
-    global SystemReg_contents
-    global SystemReg_keys
     global reg_keys
 
     try:
@@ -365,6 +282,16 @@ def ReadKeyWithTry_bool(keyName,defaultValue):
 
 # -- Read App Data Functions -- #
 
+def CorrectFileName(Input):
+    if not Input.startswith("/"):
+        Input = "/" + Input
+    Input = tge.TaiyouPath_AppDataFolder + Input + ".sav"
+
+    if not tge.TaiyouPath_CorrectSlash == "/":
+        Input.replace("/", tge.TaiyouPath_CorrectSlash)
+
+    return Input
+
 def ReadAppData(FileName, DataType=str):
     """
     Read a file on the App Data Folder, raises ValueError if Save Folder was not initialized
@@ -372,27 +299,25 @@ def ReadAppData(FileName, DataType=str):
     :param DataType:Data Type
     :return:Data
     """
-    if tge.Get_SaveFolderInitialized():
-        FileLocation = tge.Get_GlobalAppDataFolder() + tge.Get_SaveFolder() + FileName + ".data"
-        file = open(FileLocation, "r")
+    FileLocation = CorrectFileName(FileName)
 
-        ReadData = file.read().rstrip()
+    file = open(FileLocation, "r")
 
-        if DataType == str:
-            return ReadData
-        if DataType == float:
-            return float(ReadData)
-        if DataType == int:
-            return int(ReadData)
-        if DataType == bool:
-            if ReadData == "True":
-                return True
-            else:
-                return False
+    ReadData = file.read().rstrip()
 
-        print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
-    else:
-        raise ValueError("Taiyou.Registry.ReadAppData.Exception! : Save Folder was not initialized.")
+    if DataType == str:
+        return ReadData
+    if DataType == float:
+        return float(ReadData)
+    if DataType == int:
+        return int(ReadData)
+    if DataType == bool:
+        if ReadData == "True":
+            return True
+        else:
+            return False
+
+    print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
 
 def ReadAppData_WithTry(FileName, DataType, DefaultValue):
     """
@@ -416,14 +341,13 @@ def WriteAppData(FileName, Data):
     :param DefaultValue:Default Value to be written
     :return:Data
     """
-    if tge.Get_SaveFolderInitialized():
-        FileLocation = tge.Get_GlobalAppDataFolder() + tge.Get_SaveFolder() + FileName + ".data"
-        os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
+    if not FileName.startswith("/"):
+        FileName = "/" + FileName
+    FileLocation = tge.TaiyouPath_AppDataFolder + FileName + ".sav"
+    os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
-        f = open(FileLocation, "w+")
-        f.write(str(Data))
-        f.close()
+    f = open(FileLocation, "w+")
+    f.write(str(Data))
+    f.close()
 
-        print("Taiyou.Registry.WriteAppData : File[{0}] has been written.".format(FileLocation))
-    else:
-        raise ValueError("Taiyou.Registry.WriteAppData.Exception! : Save Folder was not initialized.")
+    print("Taiyou.Registry.WriteAppData : File[{0}] has been written.".format(FileLocation))
