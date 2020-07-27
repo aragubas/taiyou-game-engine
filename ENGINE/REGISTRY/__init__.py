@@ -76,7 +76,7 @@ def Reload():
     Reload all Registry Keys
     :return:
     """
-    CurrentGameFolder = tge.Get_GameFolder() + "/"
+    CurrentGameFolder = "{0}{1}".format(tge.CurrentGame_Folder, tge.TaiyouPath_CorrectSlash)
 
     print("Taiyou.RegistryManager.ReloadRegistry : Reloading Registry...")
     Unload()
@@ -102,9 +102,9 @@ def Unload():
 # -- Read Keys -- #
 def CorrectKeyName(keyEntred):
     if not keyEntred.startswith("/"):
-        return "/{0}".format(keyEntred)
+        return "{0}{1}".format(tge.TaiyouPath_CorrectSlash, keyEntred)
     else:
-        return keyEntred
+        return keyEntred.replace("/", tge.TaiyouPath_CorrectSlash)
 
 def ReadKey(keyName):
     """
@@ -174,9 +174,8 @@ def WriteKey(keyName, keyValue):
     global reg_contents
     global reg_keys
 
-    keyName = CorrectKeyName(keyName)
-    FileLocation = CorrectFileName(FileName)
-
+    FileLocation = "{0}{1}Data{1}REG{1}{2}".format(tge.CurrentGame_Folder, tge.TaiyouPath_CorrectSlash, keyName.replace("/", tge.TaiyouPath_CorrectSlash))
+    
     # -- Create the directory -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 

@@ -1,0 +1,601 @@
+TaiyouGameEngineRuntime version 2.9
+TaiyouGameEngineUtils version 1.8
+pygame 2.0.0.dev10 (SDL 2.0.12, python 3.8.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+TaiyouGameEngine Sprite Utilitary version 2.4
+Taiyou Sound System version 2.0
+TaiyouRegistryManager version 2.3
+TaiyouGameEngineMainScript version 3.3
+Taiyou.GameExecution.Initialize : Initializing Game Engine...
+
+
+
+# -- General Taiyou Runtime Version -- #
+
+This version is the sum of all modules version, so it is 'The Taiyou Version'.
+General Version is [10.60/10.599999999999998].
+
+
+
+Taiyou.Runtime.InitEngine : Disable font rendering set to:False
+Taiyou.Runtime.InitEngine : Disable sprite rendering set to:False
+Taiyou.Runtime.InitEngine : Disable rectangle rendering set to:False
+Taiyou.Runtime.InitEngine : Disable sound system set to:False
+Taiyou.Runtime.InitEngine : Disable sound system set to:True
+Taiyou.Runtime.InitEngine : Video Driver was set to:x11
+Taiyou.Runtime.InitEngine : VideoX11CenterWindow was set to:True
+Taiyou.Runtime.InitEngine : VideoX11DGAMouse was set to:True
+Taiyou.Runtime.InitEngine : VideoX11YUV_HWACCEL was set to:True
+Taiyou.Runtime.InitEngine : InputMouseDriver was set to:fbcon
+Taiyou.Runtime.InitEngine : InputDisableMouse was set to:False
+Taiyou.Runtime.InitEngine : Audio Driver was set to:alsa
+Taiyou.Runtime.InitEngine : Audio Frequency was set to:96000
+Taiyou.Runtime.InitEngine : Audio Size was set to:-16
+Taiyou.Runtime.InitEngine : Audio Channels was set to:2
+Taiyou.Runtime.InitEngine : Audio Buffer Size was set to:1500
+Taiyou.Runtime.InitEngine : Run in Fullscreen was set to:False
+Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:Taiyou/HOME/AppsData/
+Taiyou.Runtime.InitEngine : SmoothScaleBackend was set to:MMX
+Taiyou.Runtime.InitEngine : FastEvent was set to:True
+Taiyou.Runtime.InitEngine : SDL2 Parameters has been disabled
+Taiyou.Initialize : Application Splash Detected
+Taiyou.GameExecution.Initialize : Initialization complete.
+Ceira
+Ceira
+LoadSpritesInFolder : Loading all Sprites...
+[Fogoso\Data/SPRITE/icon.png]
+Sprite.LoadFolder : ItemAdded[/icon.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/icon2.png]
+Sprite.LoadFolder : ItemAdded[/icon2.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/window/resize.png]
+Sprite.LoadFolder : ItemAdded[/window/resize.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/window/minimize_0.png]
+Sprite.LoadFolder : ItemAdded[/window/minimize_0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/window/minimize_1.png]
+Sprite.LoadFolder : ItemAdded[/window/minimize_1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/0.png]
+Sprite.LoadFolder : ItemAdded[/cursors/0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/1.png]
+Sprite.LoadFolder : ItemAdded[/cursors/1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/2.png]
+Sprite.LoadFolder : ItemAdded[/cursors/2.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/3.png]
+Sprite.LoadFolder : ItemAdded[/cursors/3.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/4.png]
+Sprite.LoadFolder : ItemAdded[/cursors/4.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/cursors/5.png]
+Sprite.LoadFolder : ItemAdded[/cursors/5.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/map/0/0.png]
+Sprite.LoadFolder : ItemAdded[/map/0/0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/map/0/1.png]
+Sprite.LoadFolder : ItemAdded[/map/0/1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/map/0/2.png]
+Sprite.LoadFolder : ItemAdded[/map/0/2.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/map/0/3.png]
+Sprite.LoadFolder : ItemAdded[/map/0/3.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/-2/0.png]
+Sprite.LoadFolder : ItemAdded[/Item/-2/0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/-2/1.png]
+Sprite.LoadFolder : ItemAdded[/Item/-2/1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/-1/0.png]
+Sprite.LoadFolder : ItemAdded[/Item/-1/0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/-1/1.png]
+Sprite.LoadFolder : ItemAdded[/Item/-1/1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/0/0.png]
+Sprite.LoadFolder : ItemAdded[/Item/0/0.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/0/1.png]
+Sprite.LoadFolder : ItemAdded[/Item/0/1.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/0/2.png]
+Sprite.LoadFolder : ItemAdded[/Item/0/2.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/0/3.png]
+Sprite.LoadFolder : ItemAdded[/Item/0/3.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/Item/0/4.png]
+Sprite.LoadFolder : ItemAdded[/Item/0/4.png]; Index[-1] Transparent: True
+
+[Fogoso\Data/SPRITE/anim/loadingloading/1.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/1.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/2.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/2.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/3.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/3.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/4.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/4.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/5.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/5.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/6.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/6.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/7.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/7.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/8.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/8.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/9.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/9.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/10.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/10.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/11.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/11.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/12.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/12.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/13.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/13.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/14.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/14.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/15.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/15.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/16.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/16.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/17.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/17.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/18.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/18.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/19.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/19.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/20.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/20.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/21.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/21.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/22.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/22.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/23.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/23.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/24.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/24.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/25.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/25.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/26.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/26.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/27.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/27.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/28.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/28.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/29.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/29.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/30.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/30.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/31.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/31.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/32.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/32.png]
+[Fogoso\Data/SPRITE/anim/loadingloading/33.png]
+Sprite.LoadFolder : ERROR!
+Cannot find the image[Fogoso\Data/SPRITE/anim/loadingloading/33.png]
+Sprite.LoadFolder : Directory have Font Packs to be installed.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/PressStart2P.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/Ubuntu_Thin.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/UbuntuMono_Bold.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/UbuntuMono.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/Ubuntu_Lite.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/Ubuntu_Bold.ttf] already exists.
+Sprite.LoadFolder.CopyFontFile : FontFile 
+[Fogoso\Data\FONTS/Ubuntu.ttf] already exists.
+Sprite.LoadFolder : Operation Completed.
+Taiyou.RegistryManager.UnloadRegistry : Unloading Application Registry
+Taiyou.Utils.GC_COLLECT : Function Called
+Taiyou.RegistryManager.Initialize : Loading Application Registry
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\0\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\0\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\1\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\1\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\2\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\2\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\3\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\3\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\4\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\4\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\5\h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\CursorSize\5\w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\gameTitle]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\IsFirstInitialization]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\is_buyable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\is_unlocker]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\is_upgradeable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\is_visible]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_0_activation_sec]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_0_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_0_exp_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_0_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_0_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_1_activation_sec]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_1_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_1_exp_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_1_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-1\lv_1_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\is_buyable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\is_unlocker]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\is_upgradeable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_0_activation_sec]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_0_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_0_exp_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_0_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_0_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_1_activation_sec]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_1_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_1_exp_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_1_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\-2\lv_1_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\is_buyable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\is_unlocker]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\is_upgradeable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\is_visible]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_0_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_0_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_0_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_0_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_1_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_1_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_1_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_1_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_2_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_2_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_2_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_2_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_3_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_3_cost_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_3_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\0\lv_3_upgrade_price]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\all]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\minimum]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\name\-1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\name\-2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\name\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\-1_level_0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\-1_level_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\-1_level_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\-2_level_0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\-2_level_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\0_level_0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\0_level_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\0_level_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\0_level_3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\sprite\0_level_4]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\store\-1_description]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\store\-1_name]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\store\0_description]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\store\0_name]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\store\buyAmount]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-1_description_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-1_description_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-1_name_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-1_name_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-2_description_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\-2_name_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_description_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_description_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_description_3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_description_4]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_name_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_name_2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_name_3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\ItemData\upgrade\0_name_4]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Initialize)_0.0.0. 0,0,0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Update)]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Update)]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Update)_2020.0.04. 15,34,38]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Update)_2020.0.04. 15,35,17]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\LOG\crash_func(Update)_2020.0.04. 15,38,55]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\debug_enabled]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\debug_enabled]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\desc\fade_flash\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\desc\fade_flash\1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\desc\fade_flash\2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\desc\fade_flash\3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\fade_flash_speed]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\fade_flash_speed]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\fade_flash_style]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\fade_flash_style]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\font_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\font_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\format_numbers]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\maxFPS]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\props\fade_flash_speed_max]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\props\fade_flash_style_max]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\random_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\scanline_effect]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\scanline_effect]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\sprite_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\sprite_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_blur_ammount]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_blur_ammount_max]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_blur_enabled]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_blur_enabled]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_contrast]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_Pixelate]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_Pixelate]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\UI_WindowIndicator]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\OPTIONS\Windows_transitions]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\CurrentScreen]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\default_resH]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\default_resW]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\error_message_delay_max]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\error_message_text_size]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\intro_adder]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\intro_delay]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\intro_end_delay]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\MainMenu\next_screen_delay]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\settings_max_category]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\expecience_store\last_h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\expecience_store\last_w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\infos\last_h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\infos\last_w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\store\last_h]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\props\window\store\last_w]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\down_arrow]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\experience_store]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\infos]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\main_menu]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\options]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\save]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\store]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\button\game\up_arrow]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\dialog\no_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\dialog\ok_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\dialog\yes_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_0_text]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_0_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_1_text]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_1_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_2_text]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\bankrupt_2_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\calendar]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\clock]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\experience]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\game_items_view]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\GeneralMaintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\items_info]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\money]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\money_per_secound]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\receiving_log]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\save_reset]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\save_screen\message]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\game\save_screen\title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\10]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\11]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\12]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\13]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\14]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\15]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\16]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\17]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\18]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\19]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\20]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\21]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\22]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\23]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\24]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\25]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\26]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\27]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\28]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\29]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\30]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\4]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\5]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\6]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\7]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\8]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\9]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\gme_wt\all]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\intro\license_text]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\intro\text]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\about]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\0_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\10]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\10_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\1_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\2_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\3_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\4]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\4_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\5]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\5_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\6]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\6_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\7]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\7_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\8]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\8_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\9]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\9_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\first]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\first_message]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\first_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\EMW\total_messages]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\game_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\message_window\next_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\message_window\window_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\play_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\main_menu\settings_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\back_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\category\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\category\1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\category\2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\debug_mode]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\desc\fade_flash\0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\desc\fade_flash\1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\desc\fade_flash\2]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\desc\fade_flash\3]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\flash_anim_speed]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\flash_anim_style]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\font_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\max_fps]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\number_formatting]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\random_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\sprite_aa]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\toggle_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\ui_blur]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\ui_blur_enabled]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\ui_pixelate]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\settings\windows_transitions]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\clicking_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\expstore_window_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\infos_window_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\store]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\store_window_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\tutorial\title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\expecience_store\buy_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\expecience_store\item_not_upgradable]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\expecience_store\item_upgrade]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\expecience_store\window_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\category_0]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\category_1]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\category_max]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_items_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_maintenance]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_maintenance_base]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_maintenance_delay]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_money_per_click]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_previuos_best]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\txt_total_of_items]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\infos\window_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\store\buy_button]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\store\cant_buy_item]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\store\item_bought]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\store\item_not_bought]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\strings\window\store\window_title]
+Taiyou.RegistryManager.Initialize : KeyLoaded[\VersionStatus]
+Taiyou.RegistryManager.Initialize : Total of 291 registry keys loaded. In 0.1003 seconds.
+Taiyou.Utils.GC_COLLECT : Function Called
+Taiyou.GameExecution.SetGameObject : Loading Module is: [Fogoso.MAIN]
+Game : Classes Utils v1.1
+Fogoso Screens Transtion, version 1.0
+Fogoso Maintenance , version 1.2
+Fogoso Experience Store Window, Version 1.0
+Fogoso Variables Management, version 1.6
+Fogoso Store Window, Version 1.2
+Fogoso Infos Window, Version 1.2
+Fogoso : Game Initialization Called
+LoadOptions : Init
+LoadOptions : Data loading complete
+Taiyou.GameExecution.ReceiveCommand : Set Resolution to: 1024x480
+TaiyouMessage: Command Processed:
+'1' with Argument: '1024x480'
+Taiyou.GameExecution.ReceiveCommand : MaxFPS Set to:70
+TaiyouMessage: Command Processed:
+'0' with Argument: '70'
+ScreenLogos : Initialize.
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:18
+GameMenu : Initialize
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:12
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:14
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:16
+LoadGame : Init
+Fogoso.SaveManager : Loading Save Data...
+Tutorial triggered:
+infos_window_button
+Tutorial triggered:
+clicking_button
+LoadItems ; Loading ItemID: -2
+LoadItems ; Loading ItemID: -2
+LoadItems ; AllItemsLoaded: 0
+Fogoso.SaveManager : Loading Store Items...
+ReloadItemsList : Add Store Items
+ReloadItemsList : CurrentItem[/ItemData/upgrade/-2_]
+ReloadItemsList : CurrentItem[/ItemData/upgrade/-1_]
+ReloadItemsList : CurrentItem[/ItemData/upgrade/0_]
+ReloadItemsList : Add Store Items
+Fogoso.SaveManager : Operation Completed!
+LoadGame : Game Loaded Sucefully
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+ObjectCreation : UpDownButton created.
+Error while loading map-data:
+[Errno 2] No such file or directory: 'Fogoso/SOURCE/MAP/intro_001.map'
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:10
+Sprite.GetFontObject ; Creating Font Cache Object
+Sprite.GetFontObject ; FontCacheObjName: /PressStart2P.ttf:9
+Taiyou.GameExecution.Destroy : Save TaiyouUI Settings
+Taiyou.GameExecution.Destroy : Unloading all loaded assets
+Taiyou.RegistryManager.UnloadRegistry : Unloading Application Registry
+Taiyou.Utils.GC_COLLECT : Function Called
+Sprite.Unload : Unloading Sprites...
+Taiyou.Utils.GC_COLLECT : Function Called
+Taiyou.Utils.GC_COLLECT : Function Called
+Sprite.Unload : Reloading TaiyouUi Sprites...

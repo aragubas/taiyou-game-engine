@@ -47,7 +47,6 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import REGISTRY as reg
-from ENGINE import DEBUGGING as debug
 from ENGINE import TaiyouMain
 import os, pygame
 import platform
