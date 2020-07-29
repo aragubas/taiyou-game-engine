@@ -14,7 +14,7 @@
 #   limitations under the License.
 #
 #
-from ENGINE import TaiyouMain as Taiyou
+from ENGINE import taiyouMain as Taiyou
 import ENGINE as tge
 
 Taiyou.Initialize()  # -- Initialize Taiyou Game Engine

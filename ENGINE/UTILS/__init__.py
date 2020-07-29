@@ -23,7 +23,6 @@ from urllib.error import HTTPError
 
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
-
 def Directory_FilesList(dirName):
     # -- Create a list with all files in Directory -- #
     listOfFile = os.listdir(dirName)

@@ -157,10 +157,8 @@ def ReadKey_bool(keyName):
     global reg_keys
 
     try:
-        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-            return True
-        else:
-            return False
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
+
     except ValueError:
         raise FileNotFoundError("Taiyou.Registry Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
@@ -174,8 +172,8 @@ def WriteKey(keyName, keyValue):
     global reg_contents
     global reg_keys
 
-    FileLocation = "{0}{1}Data{1}REG{1}{2}".format(tge.CurrentGame_Folder, tge.TaiyouPath_CorrectSlash, keyName.replace("/", tge.TaiyouPath_CorrectSlash))
-    
+    FileLocation = "{0}{1}Data{1}REG{1}{2}.data".format(tge.CurrentGame_Folder, tge.TaiyouPath_CorrectSlash, keyName.replace("/", tge.TaiyouPath_CorrectSlash))
+
     # -- Create the directory -- #
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
@@ -267,20 +265,13 @@ def ReadKeyWithTry_bool(keyName, defaultValue):
     global reg_keys
 
     try:
-        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-            return True
-        else:
-            return False
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
 
     except ValueError:
         WriteKey(keyName,str(defaultValue))
-        if reg_contents[reg_keys.index(CorrectKeyName(keyName))] == "True":
-            return True
-        else:
-            return False
+        return reg_contents[reg_keys.index(CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
 
 # -- Read App Data Functions -- #
-
 def CorrectFileName(Input):
     if not Input.startswith("/"):
         Input = "/" + Input
@@ -311,10 +302,7 @@ def ReadAppData(FileName, DataType=str):
     if DataType == int:
         return int(ReadData)
     if DataType == bool:
-        if ReadData == "True":
-            return True
-        else:
-            return False
+        return ReadData.lower() in ("true", "yes", "t", "1")
 
     print("Taiyou.Registry.ReadAppData : File[{0}] has been read.".format(FileName))
 
@@ -340,9 +328,10 @@ def WriteAppData(FileName, Data):
     :param DefaultValue:Default Value to be written
     :return:Data
     """
+
     if not FileName.startswith("/"):
-        FileName = "/" + FileName
-    FileLocation = tge.TaiyouPath_AppDataFolder + FileName + ".sav"
+        FileName = "/{0}".format(FileName)
+    FileLocation = "{0}{1}.sav".format(tge.TaiyouPath_AppDataFolder, FileName)
     os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
     f = open(FileLocation, "w+")

@@ -23,7 +23,7 @@ def Get_SpriteVersion():
 def Get_SoundVersion():
     return "2.0"
 def Get_RegistryVersion():
-    return "2.3"
+    return "2.4"
 def Get_UtilsVersion():
     return "1.8"
 def Get_TaiyouMainVersion():
@@ -47,7 +47,7 @@ from ENGINE import SPRITE as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 from ENGINE import REGISTRY as reg
-from ENGINE import TaiyouMain
+from ENGINE import taiyouMain
 import os, pygame
 import platform
 from os.path import expanduser
@@ -82,59 +82,6 @@ TaiyouPath_AppDataFolder = ""
 
 # -- Splash -- #
 ApplicationSplash = None
-
-def LoadFolderMetaData(GameFolderDir):
-    global CurrentGame_Title
-    global CurrentGame_ID
-    global CurrentGame_Version
-    global CurrentGame_Folder
-    global TaiyouPath_AppDataFolder
-    global TaiyouGeneralVersion
-
-    print("Taiyou.Runtime.LoadFolderMetaData : Loading Game Metadata file...")
-
-    MetaFile = GameFolderDir + "/meta.data"
-    FolderName = ""
-    LineNumber = -1
-    with open(MetaFile) as file_in:
-        for line in file_in:
-            line = line.rstrip()
-
-            if not line == "" and not line.startswith('#'):
-                LineNumber += 1
-
-                if LineNumber == 0:  # -- Application Name
-                    CurrentGame_Title = str(line)
-
-                if LineNumber == 1:  # -- Application ID
-                    CurrentGame_ID = str(line)
-
-                if LineNumber == 2:  # -- Application Version
-                    CurrentGame_Version = str(line)
-
-                if LineNumber == 3:  # -- Application Folder Name
-                    CurrentGame_Folder = str(line)
-
-    # -- Create Temporary File -- #
-    print("Taiyou.Runtime.LoadFolderMetaData : Creating Temporary Files...")
-
-    f = open(TaiyouPath_SystemPath + ".LastOpenedGame", "w")
-    f.write(str(CurrentGame_ID))
-    f.write(str(CurrentGame_Folder))
-    f.write(str(CurrentGame_Title))
-    f.write(str(CurrentGame_Version))
-    f.close()
-
-    print("Taiyou.Runtime.LoadFolderMetaData : Done!")
-
-    # -- Make Directories -- #
-    print("Taiyou.Runtime.LoadFolderMetaData : Creating AppData Folder...")
-
-    utils.Directory_MakeDir(Get_GlobalAppDataFolder())
-
-    print("Taiyou.Runtime.LoadFolderMetaData : Done!")
-
-    print("Taiyou.Runtime.LoadFolderMetaData : Metadata Loading complete.")
 
 def InitEngine():
     global VideoDriver
@@ -414,10 +361,10 @@ def InitEngine():
 
     # -- Set the AppData Folder -- #
     if platform.system() == "Linux":
-        TaiyouPath_AppDataFolder = expanduser("~") + "/.local/share/" + GameFolder
+        TaiyouPath_AppDataFolder = "AppData/" + GameFolder
 
     elif platform.system() == "Windows":
-        TaiyouPath_AppDataFolder = expanduser("~") + "\\.appdata\\" + GameFolder
+        TaiyouPath_AppDataFolder = "AppData\\" + GameFolder
 
     try:
         ApplicationSplash = pygame.image.load(GameFolder + "{0}splash.png".format(TaiyouPath_CorrectSlash))
@@ -440,7 +387,7 @@ def InitializeGame():
     sound.LoadAllSounds(AssetsFolders)
     reg.Initialize(AssetsFolders)
 
-    TaiyouMain.SetGameObject(GameFolder)
+    taiyouMain.SetGameObject(GameFolder)
 
 
 #region return Game Infos Functions
