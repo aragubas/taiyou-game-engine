@@ -324,9 +324,7 @@ def WriteAppData(FileName, Data):
     """
     Write Data to the AppData Folder, raises ValueError if Save Folder was not initialized.
     :param FileName:File Name
-    :param DataType:Data Type
-    :param DefaultValue:Default Value to be written
-    :return:Data
+    :return:Data to be written
     """
 
     if not FileName.startswith("/"):

@@ -182,9 +182,12 @@ def Run():
         # -- Disable Engine Update when Minimized -- #
         pygame.fastevent.pump()
 
+
+        # -- Update Event -- #
         for event in pygame.fastevent.get():
             # -- Closes the Game when clicking on the X button
             if event.type == pygame.QUIT:
+                GameObject.Exit()
                 Destroy()
 
             # -- Do Game Events -- #

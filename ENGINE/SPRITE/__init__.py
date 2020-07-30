@@ -154,23 +154,12 @@ def Unload():
     CurrentLoadedFonts_Contents = ()
     CurrentLoadedFonts_Name = ()
 
-    print("Sprite.Unload : Reloading TaiyouUi Sprites...")
-
-    # -- Reload Menu Sprites -- #
-    LoadSpritesInFolder("Taiyou/SYSTEM/")
-
-    print("Sprite.Unload : Operation Completed")
-
-
 def Reload():
     print("Sprite.Reload : Reloading Sprites...")
 
     Unload()
 
     LoadSpritesInFolder(tge.Get_GameSourceFolder())
-
-    # -- Reload Menu Sprites -- #
-    LoadSpritesInFolder("Taiyou/SYSTEM/SOURCE")
 
     print("Sprite.Reload : Operation Completed")
 
