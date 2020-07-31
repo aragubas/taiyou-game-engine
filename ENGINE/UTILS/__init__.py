@@ -20,6 +20,14 @@ import ENGINE as tge
 import os, shutil, requests, string, random, threading, zipfile, urllib.request, gc, psutil
 from pathlib import Path
 from urllib.error import HTTPError
+import binascii
+import struct
+from PIL import Image
+import numpy as np
+import scipy
+import scipy.misc
+import scipy.cluster
+import glob
 
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
@@ -40,6 +48,59 @@ def Directory_FilesList(dirName):
 def FormatNumber(num, precision=2, suffixes=['', 'K', 'M', 'G', 'T', 'P']):
     m = sum([abs(num/1000.0**x) >= 1 for x in range(1, len(suffixes))])
     return f'{num/1000.0**m:.{precision}f}{suffixes[m]}'
+
+def GetImage_DominantColor(Surface, Number_Clusters=5):
+    strFormat = 'RGBA'
+    raw_str = pygame.image.tostring(Surface, strFormat)
+    ConvertedImage = Image.frombytes(strFormat, Surface.get_size(), raw_str)
+
+    ConvertedImage = ConvertedImage.resize((100, 100))  # optional, to reduce time
+    ar = np.asarray(ConvertedImage)
+    shape = ar.shape
+    ar = ar.reshape(scipy.product(shape[:2]), shape[2]).astype(float)
+
+    codes, dist = scipy.cluster.vq.kmeans(ar, Number_Clusters)
+
+    vecs, dist = scipy.cluster.vq.vq(ar, codes)  # assign codes
+    counts, bins = scipy.histogram(vecs, len(codes))  # count occurrences
+
+    index_max = scipy.argmax(counts)  # find most frequent
+    peak = codes[index_max]
+    return peak
+
+
+def FixColorRange(ColorArguments):
+    """
+    Fix the Color Range (0 - 255)
+    :param ColorArguments: Input
+    :return: Output
+    """
+    ColorArguments = list(ColorArguments)
+
+    if len(ColorArguments) < 4:  # -- Add the Alpha Argument
+        ColorArguments.append(255)
+
+    # -- Limit the Color Range -- #
+    if int(ColorArguments[0]) < 0:  # -- R
+        ColorArguments[0] = 0
+    if int(ColorArguments[1]) < 0:  # -- G
+        ColorArguments[1] = 0
+    if int(ColorArguments[2]) < 0:  # -- B
+        ColorArguments[2] = 0
+    if int(ColorArguments[3]) < 0:  # -- A
+        ColorArguments[3] = 0
+
+    if int(ColorArguments[0]) > 255:  # -- R
+        ColorArguments[0] = 255
+    if int(ColorArguments[1]) > 255:  # -- G
+        ColorArguments[1] = 255
+    if int(ColorArguments[2]) > 255:  # -- B
+        ColorArguments[2] = 255
+    if int(ColorArguments[3]) > 255:  # -- A
+        ColorArguments[3] = 255
+
+    return ColorArguments
+
 
 def File_Exists(path):
     return os.path.isfile(path)

@@ -18,8 +18,8 @@
 # Import some stuff
 import os
 import ENGINE as tge
-from ENGINE import REGISTRY as reg
-from ENGINE import SPRITE as sprite
+from ENGINE import APPDATA as reg
+from ENGINE import CONTENT_MANAGER as sprite
 from ENGINE import SOUND as sound
 from ENGINE import UTILS as utils
 import pygame, sys, importlib, marshal
@@ -50,14 +50,8 @@ def Initialize():
 
     print("Taiyou.GameExecution.Initialize : Initializing Game Engine...")
 
-    # -- Load Engine Options -- #
+    # -- Load Engine -- #
     tge.InitEngine()
-
-    # -- Set the Default Resolution -- #
-    CurrentRes_W = 800
-    CurrentRes_H = 600
-
-    SetDisplay()
 
     print("Taiyou.GameExecution.Initialize : Initialization complete.")
 
@@ -128,7 +122,7 @@ def ReceiveCommand(Command, Arguments=None):
             CommandWasValid = True
             IsSpecialEvent = True
 
-            pygame.display.set_icon(sprite.GetSprite(Arguments))
+            pygame.display.set_icon(CONTENT_MANAGER.GetSprite(Arguments))
 
             print("Taiyou.GameExecution.ReceiveCommand : Set Icon to " + str(Arguments))
 
@@ -175,41 +169,28 @@ def Run():
     global GameObject
     global FPS
     global DISPLAY
-    global InitDelay_Enabled
-    global InitDelay_Delta
 
-    if not InitDelay_Enabled:
-        # -- Disable Engine Update when Minimized -- #
-        pygame.fastevent.pump()
+    # -- Disable Engine Update when Minimized -- #
+    pygame.fastevent.pump()
 
+    # -- Update Event -- #
+    for event in pygame.fastevent.get():
+        # -- Closes the Game when clicking on the X button
+        if event.type == pygame.QUIT:
+            GameObject.Exit()
+            Destroy()
 
-        # -- Update Event -- #
-        for event in pygame.fastevent.get():
-            # -- Closes the Game when clicking on the X button
-            if event.type == pygame.QUIT:
-                GameObject.Exit()
-                Destroy()
+        # -- Do Game Events -- #
+        GameObject.EventUpdate(event)
 
-            # -- Do Game Events -- #
-            GameObject.EventUpdate(event)
+    # -- Run the Update Code -- #
+    GameObject.Update()
 
-        # -- Run the Update Code -- #
-        GameObject.Update()
+    # -- Limit the FPS -- #
+    clock.tick(FPS)
 
-        # -- Limit the FPS -- #
-        clock.tick(FPS)
-
-        # -- Run the Draw Code -- #
-        GameObject.GameDraw(DISPLAY)
-    else:
-        sprite.ImageRender(DISPLAY, tge.ApplicationSplash, 0, 0, ImageNotLoaded=True)
-        InitDelay_Delta += 1
-
-        print("Ceira")
-
-        if InitDelay_Delta > 1:
-            InitDelay_Enabled = False
-            tge.InitializeGame()
+    # -- Run the Draw Code -- #
+    GameObject.GameDraw(DISPLAY)
 
 
     # -- Flip the Screen -- #
@@ -221,7 +202,7 @@ def Destroy():
     print("Taiyou.GameExecution.Destroy : Unloading all loaded assets")
     # -- Unload Things -- #
     reg.Unload()
-    sprite.Unload()
+    CONTENT_MANAGER.Unload()
     sound.Unload()
     pygame.quit()
 

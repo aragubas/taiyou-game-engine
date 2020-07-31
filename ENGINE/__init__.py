@@ -43,10 +43,13 @@ TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(
 print("TaiyouGameEngineRuntime version " + Get_Version())
 
 # -- Imports --
-from ENGINE import SPRITE as sprite
+from ENGINE import CONTENT_MANAGER as cntMng
 from ENGINE import SOUND as sound
+from ENGINE import APPDATA as appData
+from ENGINE import FX as fx
+from ENGINE import SHAPES as shape
 from ENGINE import UTILS as utils
-from ENGINE import REGISTRY as reg
+from ENGINE import APPDATA as reg
 from ENGINE import taiyouMain
 import os, pygame
 import platform
@@ -79,6 +82,7 @@ TaiyouPath_SystemPath = "Taiyou"
 TaiyouPath_TaiyouConfigFile = TaiyouPath_SystemPath + "Taiyou.config"
 TaiyouPath_CorrectSlash = "/"
 TaiyouPath_AppDataFolder = ""
+TaiyouPath_CorrectAssetsFolder = ""
 
 # -- Splash -- #
 ApplicationSplash = None
@@ -130,38 +134,38 @@ def InitEngine():
             # -- Disable Font Rendering -- #
             if SplitedParms[0] == "DisableFontRendering":
                 if SplitedParms[1] == "True":
-                    sprite.FontRenderingDisabled = True
+                    CONTENT_MANAGER.FontRenderingDisabled = True
                 else:
-                    sprite.FontRenderingDisabled = False
+                    CONTENT_MANAGER.FontRenderingDisabled = False
 
-                print("Taiyou.Runtime.InitEngine : Disable font rendering set to:" + str(sprite.FontRenderingDisabled))
+                print("Taiyou.Runtime.InitEngine : Disable font rendering set to:" + str(CONTENT_MANAGER.FontRenderingDisabled))
 
             # -- Disable Sprite Rendering -- #
             elif SplitedParms[0] == "DisableSpriteRendering":
                 if SplitedParms[1] == "True":
-                    sprite.SpriteRenderingDisabled = True
+                    CONTENT_MANAGER.SpriteRenderingDisabled = True
                 else:
-                    sprite.SpriteRenderingDisabled = False
+                    CONTENT_MANAGER.SpriteRenderingDisabled = False
 
-                print("Taiyou.Runtime.InitEngine : Disable sprite rendering set to:" + str(sprite.SpriteRenderingDisabled))
+                print("Taiyou.Runtime.InitEngine : Disable sprite rendering set to:" + str(CONTENT_MANAGER.SpriteRenderingDisabled))
 
             # -- Disable Rectangle Rendering -- #
             elif SplitedParms[0] == "DisableRectangleRendering":
                 if SplitedParms[1] == "True":
-                    sprite.RectangleRenderingDisabled = True
+                    CONTENT_MANAGER.RectangleRenderingDisabled = True
                 else:
-                    sprite.RectangleRenderingDisabled = False
+                    CONTENT_MANAGER.RectangleRenderingDisabled = False
 
-                print("Taiyou.Runtime.InitEngine : Disable rectangle rendering set to:" + str(sprite.RectangleRenderingDisabled))
+                print("Taiyou.Runtime.InitEngine : Disable rectangle rendering set to:" + str(CONTENT_MANAGER.RectangleRenderingDisabled))
 
             # -- Disable Sprite Transparency -- #
             elif SplitedParms[0] == "DisableSpriteTransparency":
                 if SplitedParms[1] == "True":
-                    sprite.SpriteTransparency = True
+                    CONTENT_MANAGER.SpriteTransparency = True
                 else:
-                    sprite.SpriteTransparency = False
+                    CONTENT_MANAGER.SpriteTransparency = False
 
-                print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(sprite.SpriteTransparency))
+                print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(CONTENT_MANAGER.SpriteTransparency))
 
             # -- Disable Sound System -- #
             elif SplitedParms[0] == "DisableSoundSystem":
@@ -366,26 +370,23 @@ def InitEngine():
     elif platform.system() == "Windows":
         TaiyouPath_AppDataFolder = "AppData\\" + GameFolder
 
-    try:
-        ApplicationSplash = pygame.image.load(GameFolder + "{0}splash.png".format(TaiyouPath_CorrectSlash))
-        print("Taiyou.Initialize : Application Splash Detected")
+    taiyouMain.CurrentRes_W = 800
+    taiyouMain.CurrentRes_H = 600
 
-    except FileNotFoundError:
-        ApplicationSplash = None
-        print("Taiyou.Initialize : Application Splash was set to null.")
+    taiyouMain.SetDisplay()
+
+    InitializeGame()
 
 def InitializeGame():
     global TaiyouPath_CorrectSlash
     global CurrentGame_Folder
     global TaiyouPath_AppDataFolder
+    global TaiyouPath_CorrectAssetsFolder
 
     # -- Load Game Assets -- #
     GameFolder = open(".current_game", "r").read().rstrip()
 
-    AssetsFolders = "{0}{1}".format(GameFolder, TaiyouPath_CorrectSlash)
-    sprite.LoadSpritesInFolder(AssetsFolders)
-    sound.LoadAllSounds(AssetsFolders)
-    reg.Initialize(AssetsFolders)
+    TaiyouPath_CorrectAssetsFolder = "{0}{1}".format(GameFolder, TaiyouPath_CorrectSlash)
 
     taiyouMain.SetGameObject(GameFolder)
 
@@ -408,6 +409,6 @@ def Get_IsSoundEnabled():
     return not sound.DisableSoundSystem
 
 def Get_IsFontRenderingEnabled():
-    return sprite.FontRenderingDisabled
+    return CONTENT_MANAGER.FontRenderingDisabled
 
 #endregion
