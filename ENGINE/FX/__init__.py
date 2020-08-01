@@ -15,6 +15,10 @@
 #
 #
 import pygame
+import ENGINE as tge
+
+print("Taiyou FX version " + tge.Get_FXVersion())
+
 
 def BlurredRectangle(DISPLAY, Rectangle,BlurAmmount=100, BlackContrast=50):
     """

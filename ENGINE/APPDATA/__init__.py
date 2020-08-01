@@ -20,7 +20,7 @@ import glob
 from ENGINE import UTILS as utils
 import ENGINE as tge
 import os, time
-print("TaiyouRegistryManager version " + tge.Get_RegistryVersion())
+print("Taiyou AppData version " + tge.Get_AppDataVersion())
 
 # -- Read App Data Functions -- #
 def CorrectFileName(Input):

@@ -17,6 +17,10 @@
 import pygame
 from ENGINE import UTILS as utils
 from ENGINE import CONTENT_MANAGER as cntMng
+import ENGINE as tge
+
+print("Taiyou SHAPE version: " + tge.Get_ShapeVersion())
+
 
 def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0, DrawLines=False):
     if cntMng.RectangleRenderingDisabled:

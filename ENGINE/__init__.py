@@ -18,43 +18,45 @@
 # -- Modules Versions -- #
 def Get_Version():
     return "2.9"
-def Get_SpriteVersion():
-    return "2.4"
-def Get_SoundVersion():
-    return "2.0"
-def Get_RegistryVersion():
-    return "2.4"
+
+def Get_ShapeVersion():
+    return "1.0"
+
+def Get_AppDataVersion():
+    return "1.0"
+
 def Get_UtilsVersion():
     return "1.8"
+
 def Get_TaiyouMainVersion():
     return "3.3"
-def Get_DeveloperConsoleVersion():
-    return "2.0"
-def Get_DebuggingVersion():
-    return "1.4"
+
+def Get_ContentManagerVersion():
+    return "1.0"
+
+def Get_FXVersion():
+    return "1.0"
+
 def Get_BootloaderVersion():
     return "1.5"
 
-# -- Calculate the Version of Taiyou Game Engine -- #
-TaiyouGeneralVersion = float(Get_Version()) + float(Get_UtilsVersion()) + float(Get_RegistryVersion()) + float(Get_SpriteVersion()) + float(Get_SoundVersion()) + float(Get_TaiyouMainVersion()) + float(Get_DeveloperConsoleVersion()) + float(Get_DebuggingVersion()) + float(Get_BootloaderVersion()) - 9.0
 
+# -- Calculate the Version of Taiyou Game Engine -- #
+TaiyouGeneralVersion = (float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion())) - 8.0
 
 # -- Print Runtime Version -- #
 print("TaiyouGameEngineRuntime version " + Get_Version())
 
 # -- Imports --
 from ENGINE import CONTENT_MANAGER as cntMng
-from ENGINE import SOUND as sound
 from ENGINE import APPDATA as appData
 from ENGINE import FX as fx
 from ENGINE import SHAPES as shape
 from ENGINE import UTILS as utils
-from ENGINE import APPDATA as reg
-from ENGINE import taiyouMain
+from ENGINE import MAIN
 import os, pygame
 import platform
 from os.path import expanduser
-
 
 # -- Current Game Variables -- #
 CurrentGame_Folder = "null"
@@ -83,9 +85,11 @@ TaiyouPath_TaiyouConfigFile = TaiyouPath_SystemPath + "Taiyou.config"
 TaiyouPath_CorrectSlash = "/"
 TaiyouPath_AppDataFolder = ""
 TaiyouPath_CorrectAssetsFolder = ""
+LastException = "null"
 
 # -- Splash -- #
 ApplicationSplash = None
+
 
 def InitEngine():
     global VideoDriver
@@ -170,11 +174,11 @@ def InitEngine():
             # -- Disable Sound System -- #
             elif SplitedParms[0] == "DisableSoundSystem":
                 if SplitedParms[1] == "True":
-                    sound.DisableSoundSystem = True
+                    cntMng.DisableSoundSystem = True
                 else:
-                    sound.DisableSoundSystem = False
+                    cntMng.DisableSoundSystem = False
 
-                print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(sound.DisableSoundSystem))
+                print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(cntMng.DisableSoundSystem))
 
             # -- AppData Folder Path -- #
             elif SplitedParms[0] == "AppDataFolder":
@@ -313,7 +317,7 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : TaiyouUI Default Screen was set to:" + str(TaiyouUI.CurrentMenuScreen))
 
-    if not IgnoreSDL2Parameters:   # -- Set SDL2 Parameters (if enabled) -- #
+    if not IgnoreSDL2Parameters:  # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #
         os.environ['SDL_VIDEODRIVER'] = str(VideoDriver)  # -- Set the Video Driver
         os.environ['SDL_AUDIODRIVER'] = str(AudioDriver)  # -- Set the Audio Driver
@@ -325,13 +329,13 @@ def InitEngine():
         # -- Set X11 Environment Keys -- #
         if VideoDriver == "x11":
             if VideoX11CenterWindow:
-                os.environ['SDL_VIDEO_CENTERED'] = "True"  # -- Set the Centered Window
+                os.environ['SDL_VIDEO_CENTERED'] = "1"  # -- Set the Centered Window
 
             if VideoX11DGAMouse:
-                os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "True"  # -- Set the DGA Mouse Parameter
+                os.environ['SDL_VIDEO_X11_DGAMOUSE'] = "1"  # -- Set the DGA Mouse Parameter
 
             if VideoX11YUV_HWACCEL:
-                os.environ['SDL_VIDEO_YUV_HWACCEL'] = "True"  # -- Set the YUV HWACCEL Parameter
+                os.environ['SDL_VIDEO_YUV_HWACCEL'] = "1"  # -- Set the YUV HWACCEL Parameter
 
     else:
         print("Taiyou.Runtime.InitEngine : SDL2 Parameters has been disabled")
@@ -340,7 +344,7 @@ def InitEngine():
     pygame.transform.set_smoothscale_backend(SmoothScaleTransform)
 
     # -- Initialize Pygame and Sound System -- #
-    if Get_IsSoundEnabled():
+    if cntMng.SoundEnabled:
         # -- Set some Variables -- #
         Frequency = int(AudioFrequency)
         Size = int(AudioSize)
@@ -370,12 +374,13 @@ def InitEngine():
     elif platform.system() == "Windows":
         TaiyouPath_AppDataFolder = "AppData\\" + GameFolder
 
-    taiyouMain.CurrentRes_W = 800
-    taiyouMain.CurrentRes_H = 600
+    MAIN.CurrentRes_W = 800
+    MAIN.CurrentRes_H = 600
 
-    taiyouMain.SetDisplay()
+    MAIN.SetDisplay()
 
     InitializeGame()
+
 
 def InitializeGame():
     global TaiyouPath_CorrectSlash
@@ -386,29 +391,22 @@ def InitializeGame():
     # -- Load Game Assets -- #
     GameFolder = open(".current_game", "r").read().rstrip()
 
+    CurrentGame_Folder = GameFolder
+
     TaiyouPath_CorrectAssetsFolder = "{0}{1}".format(GameFolder, TaiyouPath_CorrectSlash)
 
-    taiyouMain.SetGameObject(GameFolder)
+    MAIN.SetGameObject(GameFolder)
 
 
-#region return Game Infos Functions
+# region Game Infos Functions
 def Get_GameSourceFolder():
     global CurrentGame_Folder
     if CurrentGame_Folder == "null":
         return ""
     return CurrentGame_Folder + "/Data"
 
+
 def Get_MainGameModuleName(GameFolder):
     return "{0}{1}".format(GameFolder.replace("/", "."), ".MAIN")
 
-#endregion
-
-
-#region return IsEnabled Functions
-def Get_IsSoundEnabled():
-    return not sound.DisableSoundSystem
-
-def Get_IsFontRenderingEnabled():
-    return CONTENT_MANAGER.FontRenderingDisabled
-
-#endregion
+# endregion

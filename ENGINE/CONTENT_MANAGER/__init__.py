@@ -30,7 +30,7 @@ import scipy.cluster
 import glob
 import os, time
 
-print("TaiyouGameEngine Sprite Utilitary version " + tge.Get_SpriteVersion())
+print("Taiyou ContentManager version " + tge.Get_ContentManagerVersion())
 
 DefaultSprite = pygame.image.load("Taiyou/default.png")
 
@@ -38,6 +38,7 @@ FontRenderingDisabled = False
 SpriteRenderingDisabled = False
 RectangleRenderingDisabled = False
 SpriteTransparency = False
+SoundEnabled = False
 
 class ContentManager:
     def __init__(self):
@@ -51,6 +52,11 @@ class ContentManager:
         self.CurrentLoadedFonts_Contents = ()
         self.Reg_LastInit = ""
         self.Sprite_LastInit = ""
+        self.Sound_LastInit = ""
+        self.Font_Path = ""
+        self.SoundChannels = ()
+        self.AllLoadedSounds = {}
+
 
     #region Sprite I/O Functions
     def LoadSpritesInFolder(self, FolderName):
@@ -116,9 +122,6 @@ class ContentManager:
 
     def UnloadSprite(self):
         print("Sprite.Unload : Unloading Sprites...")
-        global CurrentLoadedFonts_Contents
-        global CurrentLoadedFonts_Name
-
         utils.GarbageCollector_Collect()
         del self.Sprites_Data
         del self.Sprites_Name
@@ -224,28 +227,7 @@ class ContentManager:
             return keyEntred.replace("/", tge.TaiyouPath_CorrectSlash)
 
     def LoadFonts(self, FolderName):
-        # -- Load Fonts -- #
-        if utils.Directory_Exists(FolderName + "Data{0}FONTS".format(tge.TaiyouPath_CorrectSlash)):
-            print("Sprite.LoadFonts : Directory have Font Packs to be installed.")
-            fontInstall_metadata = open(FolderName + "Data{0}FONTS{0}meta.data".format(tge.TaiyouPath_CorrectSlash), "r")
-            fontInstall_meta_lines = fontInstall_metadata.readlines()
-
-            for font in fontInstall_meta_lines:
-                font = font.rstrip()
-
-                if not font.startswith("#"):
-                    CurrentFileName = FolderName + "Data{0}FONTS{1}".format(tge.TaiyouPath_CorrectSlash, font)
-                    DestinationDir = "Taiyou{0}SharedFonts{1}".format(tge.TaiyouPath_CorrectSlash, font)
-
-                    # -- Check if Destination Dir exist -- #
-                    if utils.File_Exists(DestinationDir):
-                        print("Sprite.LoadFonts.CopyFontFile : FontFile \n[" + CurrentFileName + "] already exists.")
-                    else:
-                        if not utils.File_Exists(CurrentFileName):
-                            raise FileNotFoundError("The listed Font-Pack \n[" + CurrentFileName + "] does not exist.")
-
-                        # -- Copy the Font File -- #
-                        utils.FileCopy(CurrentFileName, DestinationDir)
+        self.Font_Path = FolderName + "Data{0}FONT".format(tge.TaiyouPath_CorrectSlash)
 
     def Get_RegKey(self, keyName, valueType=str):
         """
@@ -265,6 +247,9 @@ class ContentManager:
 
             elif valueType is bool:
                 return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
+
+            else:
+                return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
 
         except ValueError:
             raise FileNotFoundError("Taiyou.ContentManager.Get_RegKey Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
@@ -297,7 +282,9 @@ class ContentManager:
             return True
         except ValueError:
             return False
+    #endregion
 
+    #region Sprite Rendering Functions
     def ImageRender(self, DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None, ImageNotLoaded=False):
         """
         Render a Image loaded to the Sprite System
@@ -351,7 +338,9 @@ class ContentManager:
 
     def IsOnScreen(self, DISPLAY, X, Y, Width, Height):
         return X <= DISPLAY.get_width() and X >= (0 - Width) and Y <= DISPLAY.get_height() and Y >= (0 - Height)
+    #endregion
 
+    #region Font Rendering
     def FontRender(self, DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=None, Opacity=255):
         """
         Render a Text using a font loaded into Taiyou Font Cache
@@ -429,8 +418,10 @@ class ContentManager:
                 print("Sprite.GetFontObject ; Creating Font Cache Object")
 
                 self.CurrentLoadedFonts_Name += (FontCacheName,)
-                FontPath = "Taiyou{0}SharedFonts".format(tge.TaiyouPath_CorrectSlash)
-                self.CurrentLoadedFonts_Contents += (pygame.font.Font(FontPath + FontFileLocation, Size),)
+                FontPath = self.Font_Path + FontFileLocation.replace("/", tge.TaiyouPath_CorrectSlash)
+                print(FontPath)
+
+                self.CurrentLoadedFonts_Contents += (pygame.font.Font(FontPath, Size),)
 
                 print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
 
@@ -466,3 +457,114 @@ class ContentManager:
 
         return self.GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(
             Text.splitlines())
+
+    #endregion
+
+    # Sound I/O Functions
+    def LoadSoundsInFolder(self, FolderName):
+        if SoundEnabled: return
+        self.Sound_LastInit = FolderName
+        self.SoundChannels = ()
+
+        pygame.mixer.set_num_channels(255)
+
+        for i in range(0, 255):
+            self.SoundChannels += (pygame.mixer.Channel(i),)
+
+        FolderName = FolderName + "Data/SOUND"
+        temp_sound_files = utils.Directory_FilesList(FolderName)
+        index = -1
+
+        print("ContentManager.LoadSoundsInFolder : Loading Sounds")
+        for x in temp_sound_files:
+            try:
+                index += 1
+                print("\nContentManager.LoadSoundsInFolder : File[" + x + "] detected; Index[" + str(index) + "]")
+
+                CorrectKeyName = x.replace(FolderName, "")
+                self.AllLoadedSounds[CorrectKeyName] = (pygame.mixer.Sound(x))
+            except pygame.error:
+                break
+
+            print("ContentManager.LoadSoundsInFolder : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
+        print("ContentManager.LoadSoundsInFolder : Operation Completed")
+
+    def UnloadSounds(self):
+        if SoundEnabled: return
+
+        self.AllLoadedSounds = ()
+        self.SoundChannels = ()
+
+    def ReloadSounds(self):
+        if SoundEnabled: return
+
+        self.UnloadSounds()
+
+        self.LoadSoundsInFolder(self.Sound_LastInit)
+    #endregion
+
+    #region Sound Functions
+    def PauseAllChannels(self):
+        if SoundEnabled: return
+
+        for i, Channel in enumerate(self.SoundChannels):
+            Channel.pause()
+
+    def UnpauseAllChannels(self):
+        if SoundEnabled: return
+
+        for i, Channel in enumerate(self.SoundChannels):
+            Channel.unpause()
+
+    def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None):
+        """
+        Play a Sound loaded into Sound System
+        :param SourceName:Audio Source Name [starting with /]
+        :param Volume:Audio Volume [range 0.0 to 1.0]
+        :param LeftPan:Left Speaker Balance
+        :param RightPan:Right Speaker Balance
+        :param ForcePlay:Force the audio to be played, Can be useful if you really need to the sound to be played
+        :param PlayOnSpecificID:Play the sound on a Specific ID
+        :return:
+        """
+        if SoundEnabled: return
+
+        # -- Get Sound -- #
+        sound = self.AllLoadedSounds.get(SourceName)
+        sound.set_volume(Volume)
+
+        for i, GameChannel in enumerate(self.SoundChannels):
+            if not PlayOnSpecificID is None:
+                if i == PlayOnSpecificID:
+                    GameChannel.stop()
+                    GameChannel.set_volume(LeftPan, RightPan)
+                    GameChannel.play(sound)
+                    return i
+            else:
+                if not GameChannel.get_busy():
+                    GameChannel.set_volume(LeftPan, RightPan)
+                    GameChannel.play(sound)
+                    return i
+
+                else:
+                    if ForcePlay:
+                        GameChannel.stop()
+                        GameChannel.set_volume(LeftPan, RightPan)
+                        GameChannel.play(sound)
+                        return i
+
+    def StopSound(self, ChannelID):
+        if SoundEnabled: return
+
+        for i, GameChannel in enumerate(self.SoundChannels):
+            if i == ChannelID:
+                GameChannel.stop()
+
+    def FadeoutSound(self, ChannelID, FadeoutTime):
+        if SoundEnabled: return
+
+        for i, GameChannel in enumerate(self.SoundChannels):
+            if i == ChannelID:
+                GameChannel.fadeout(FadeoutTime)
+
+    #endregion

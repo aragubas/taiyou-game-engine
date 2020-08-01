@@ -14,11 +14,22 @@
 #   limitations under the License.
 #
 #
-from ENGINE import taiyouMain as Taiyou
+from ENGINE import MAIN as Taiyou
 import ENGINE as tge
 
 Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 
 while True:
-    Taiyou.Run()
+    # -- Check for Errors -- #
+    if Taiyou.EngineInitialized:
+        try:
+            Taiyou.Run()
+
+        except Exception as ex:
+            if not Taiyou.ErrorScreenInitialzed:
+                Taiyou.ErrorScreenInitialzed = True
+                print("Taiyou Game Engine has crashed! [{0}]\nInitializing Error Mode...".format(str(ex)))
+                tge.LastException = ex
+
+                Taiyou.SetGameObject("Taiyou{0}ERROR".format(tge.TaiyouPath_CorrectSlash))
 
