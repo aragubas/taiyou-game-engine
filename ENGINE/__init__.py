@@ -407,6 +407,6 @@ def Get_GameSourceFolder():
 
 
 def Get_MainGameModuleName(GameFolder):
-    return "{0}{1}".format(GameFolder.replace("/", "."), ".MAIN")
+    return "{0}{1}".format(GameFolder.replace(TaiyouPath_CorrectSlash, "."), ".MAIN")
 
 # endregion
