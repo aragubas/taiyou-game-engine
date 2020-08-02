@@ -68,6 +68,7 @@ def ReceiveCommand(Command, Arguments=None):
     3 - OverlayLevel:           Integer\n
     4 - Set Icon:               String [Sprite Name loaded on Sprite System]\n
     5 - Set Title:              String\n
+    6 - Cursor Visible:         Boolean\n
     :param Command:CommandCode
     :param Arguments:Argument of Specified Command
     :return:
@@ -132,12 +133,21 @@ def ReceiveCommand(Command, Arguments=None):
 
             pygame.display.set_caption(Arguments)
 
+        elif Command == 6:
+            CommandWasValid = True
+            IsSpecialEvent = True
+
+            pygame.mouse.set_visible(Arguments)
+
+            print("Taiyou.GameExecution.ReceiveCommand : Set CURSOR_VISIBLE to " + str(Arguments))
+
         if not CommandWasValid:
             Txt = "TaiyouMessage: Invalid Command:\n'{0}'".format(Command)
             print(Txt)
         elif IsSpecialEvent:
             Txt = "TaiyouMessage: Command Processed:\n'{0}' with Argument: '{1}'".format(Command, Arguments)
             print(Txt)
+
 
     except IndexError:
         Txt = "TaiyouMessage EXCEPTION\nThe Command {0}\ndoes not have the necessary number of arguments.".format(str(Command))
@@ -184,7 +194,11 @@ def Run():
     for event in pygame.fastevent.get():
         # -- Closes the Game when clicking on the X button
         if event.type == pygame.QUIT:
-            GameObject.Exit()
+            try:
+                GameObject.Exit()
+            except Exception:
+                pass
+
             Destroy()
 
         # -- Do Game Events -- #

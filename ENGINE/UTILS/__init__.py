@@ -227,7 +227,6 @@ class Downloader:
         self.DownloadThread.start()
 
 def GarbageCollector_Collect():
-    return
     gc.collect()
     print("Taiyou.Utils.GC_COLLECT : Function Called")
 

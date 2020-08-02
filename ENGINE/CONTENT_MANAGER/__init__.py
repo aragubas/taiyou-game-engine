@@ -42,14 +42,14 @@ SoundEnabled = False
 
 class ContentManager:
     def __init__(self):
-        self.Sprites_Name = ()
-        self.Sprites_Data = ()
-        self.reg_keys = ()
-        self.reg_contents = ()
-        self.Fonts_Name = ()
-        self.Fonts_Data = ()
-        self.CurrentLoadedFonts_Name = ()
-        self.CurrentLoadedFonts_Contents = ()
+        self.Sprites_Name = list()
+        self.Sprites_Data = list()
+        self.reg_keys = list()
+        self.reg_contents = list()
+        self.Fonts_Name = list()
+        self.Fonts_Data = list()
+        self.CurrentLoadedFonts_Name = list()
+        self.CurrentLoadedFonts_Contents = list()
         self.Reg_LastInit = ""
         self.Sprite_LastInit = ""
         self.Sound_LastInit = ""
@@ -82,17 +82,17 @@ class ContentManager:
                 if currentLine[1] == "True":
                     try:
                         if not SpriteTransparency:
-                            self.Sprites_Data += (pygame.image.load(spriteLocation).convert_alpha(),)
+                            self.Sprites_Data.append(pygame.image.load(spriteLocation).convert_alpha())
                         else:
-                            self.Sprites_Data += (pygame.image.load(spriteLocation).convert(),)
+                            self.Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                         print("ContentManager.LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
 
                     except FileNotFoundError:
                         print("ContentManager.LoadSpritesInFolder : ERROR!\nCannot find the image[" + spriteLocation + "]")
-                        self.Sprites_Data += (DefaultSprite,)
+                        self.Sprites_Data.append(DefaultSprite)
 
                 elif currentLine[1] == "False":
-                    self.Sprites_Data += (pygame.image.load(spriteLocation).convert(),)
+                    self.Sprites_Data.append(pygame.image.load(spriteLocation).convert())
                     print("ContentManager.LoadSpritesInFolder : ItemAdded[" + currentLine[0] + "]; Index[" + str(index) + "] Transparent: True\n")
 
                 else:
@@ -108,10 +108,10 @@ class ContentManager:
             self.Sprites_Name.append("/" + os.path.basename(SpritePath))
 
             if Transparency:
-                self.Sprites_Data += (pygame.image.load(SpritePath).convert_alpha(),)
+                self.Sprites_Data.append(pygame.image.load(SpritePath).convert_alpha())
 
             else:
-                self.Sprites_Data += (pygame.image.load(SpritePath).convert(), )
+                self.Sprites_Data.append(pygame.image.load(SpritePath).convert())
 
     def GetSprite(self, SpriteResourceName):
         try:
@@ -128,8 +128,8 @@ class ContentManager:
         del CurrentLoadedFonts_Name
         utils.GarbageCollector_Collect()
 
-        self.Sprites_Data = ()
-        self.Sprites_Name = ()
+        self.Sprites_Data = list()
+        self.Sprites_Name = list()
 
     def ReloadSprite(self):
         print("Sprite.Reload : Reloading Sprites...")
@@ -185,8 +185,8 @@ class ContentManager:
             # -- Format the Text -- #
             AllData = AllData.rstrip().replace("%n", "\n").replace("%t", "\t").replace("%s", " ")
 
-            self.reg_keys += (CorrectKeyName,)
-            self.reg_contents += (AllData,)
+            self.reg_keys.append(CorrectKeyName)
+            self.reg_contents.append(AllData)
 
             print("Taiyou.ContentManager.LoadRegistry : KeyLoaded[" + CorrectKeyName + "]")
 
@@ -215,8 +215,8 @@ class ContentManager:
 
         # -- Clear the Registry -- #
         print("Taiyou.ContentManager.UnloadRegistry : Unloading Registry")
-        self.reg_keys = ()
-        self.reg_contents = ()
+        self.reg_keys = list()
+        self.reg_contents = list()
 
         utils.GarbageCollector_Collect()
 
@@ -262,12 +262,14 @@ class ContentManager:
 
         print("Taiyou.ContentManager.Write_RegKey : Registry File Location;" + FileLocation)
 
+        # -- Modify the Loaded Value in Memory -- #
+        Index = self.reg_keys.index(keyName)
+        self.reg_contents[Index] = keyValue
+
         # -- Write the Actual Registry Key -- #
         f = open(FileLocation, "w+")
         f.write(keyValue)
         f.close()
-
-        self.ReloadRegistry()
 
         print("Taiyou.ContentManager.Write_RegKey : Registry File Written.")
 

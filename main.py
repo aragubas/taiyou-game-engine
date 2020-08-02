@@ -16,20 +16,21 @@
 #
 from ENGINE import MAIN as Taiyou
 import ENGINE as tge
+import traceback
 
 Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 
-while True:
-    # -- Check for Errors -- #
-    if Taiyou.EngineInitialized:
-        try:
-            Taiyou.Run()
+try:
+    while True:
+        # -- Check for Errors -- #
+        Taiyou.Run()
 
-        except Exception as ex:
-            if not Taiyou.ErrorScreenInitialzed:
-                Taiyou.ErrorScreenInitialzed = True
-                print("Taiyou Game Engine has crashed! [{0}]\nInitializing Error Mode...".format(str(ex)))
-                tge.LastException = ex
+except Exception as ex:
+    print("Taiyou Game Engine has crashed! [{0}]\nInitializing Error Mode...".format(str(ex)))
+    tge.LastException = ex
 
-                Taiyou.SetGameObject("Taiyou{0}ERROR".format(tge.TaiyouPath_CorrectSlash))
+    Taiyou.SetGameObject("Taiyou{0}ERROR".format(tge.TaiyouPath_CorrectSlash))
 
+    while True:
+        # -- Check for Errors -- #
+        Taiyou.Run()
