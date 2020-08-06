@@ -1,0 +1,28 @@
+-- Taiyou Crash File--
+This log file has been written on:
+2020-08-06 01:04:55.001401
+
+Application Name: Taiyou/ERROR/
+Traceback:
+Traceback (most recent call last):
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/main.py", line 26, in <module>
+    Taiyou.Run()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 213, in Run
+    GameObject.GameDraw(DISPLAY)
+AttributeError: module 'HelloWorld.MAIN' has no attribute 'GameDraw'
+
+
+Modules Version:
+Runtime: 2.9
+
+AppData: 1.0
+
+ContentManager: 1.0
+
+Fx: 1.0
+
+Main: 3.3
+
+Shape: 1.0
+
+Utils: 1.8

@@ -45,7 +45,7 @@ def Get_BootloaderVersion():
 TaiyouGeneralVersion = (float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion())) - 8.0
 
 # -- Print Runtime Version -- #
-print("TaiyouGameEngineRuntime version " + Get_Version())
+print("Taiyou General version " + Get_Version())
 
 # -- Imports --
 from ENGINE import CONTENT_MANAGER as cntMng
@@ -115,9 +115,7 @@ def InitEngine():
     global TaiyouPath_AppDataFolder
     global ApplicationSplash
 
-    print("\n\n\n# -- General Taiyou Runtime Version -- #\n\nThis version is the sum of all modules version, so it is 'The Taiyou Version'.\nGeneral Version is [" + str(utils.FormatNumber(TaiyouGeneralVersion)) + "/{0}].\n\n\n".format(str(TaiyouGeneralVersion)))
-
-    # -- Set the Home Directory -- #
+    # -- Set the Correct Slash Directory -- #
     if platform.system() == "Linux":
         TaiyouPath_CorrectSlash = "/"
         TaiyouPath_SystemPath = "Taiyou/"
@@ -179,12 +177,6 @@ def InitEngine():
                     cntMng.DisableSoundSystem = False
 
                 print("Taiyou.Runtime.InitEngine : Disable sound system set to:" + str(cntMng.DisableSoundSystem))
-
-            # -- AppData Folder Path -- #
-            elif SplitedParms[0] == "AppDataFolder":
-                TaiyouPath_AppDataFolder = SplitedParms[1].rstrip()
-
-                print("Taiyou.Runtime.InitEngine : TaiyouAppDataFolder set to:" + str(TaiyouPath_AppDataFolder))
 
             # -- SDL Option: Video Driver -- #
             elif SplitedParms[0] == "VideoDriver":
@@ -311,12 +303,6 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
 
-            # -- Default TaiyouUI Screen Value -- #
-            elif SplitedParms[0] == "DefaultSystemUIScreen":
-                TaiyouUI.CurrentMenuScreen = int(SplitedParms[1])
-
-                print("Taiyou.Runtime.InitEngine : TaiyouUI Default Screen was set to:" + str(TaiyouUI.CurrentMenuScreen))
-
     if not IgnoreSDL2Parameters:  # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #
         os.environ['SDL_VIDEODRIVER'] = str(VideoDriver)  # -- Set the Video Driver
@@ -401,9 +387,9 @@ def InitializeGame():
 # region Game Infos Functions
 def Get_GameSourceFolder():
     global CurrentGame_Folder
-    if CurrentGame_Folder == "null":
-        return ""
-    return CurrentGame_Folder + "/Data"
+    global TaiyouPath_CorrectSlash
+
+    return CurrentGame_Folder + TaiyouPath_CorrectSlash
 
 
 def Get_MainGameModuleName(GameFolder):

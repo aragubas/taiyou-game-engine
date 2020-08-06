@@ -46,7 +46,8 @@ def Initialize(DISPLAY):
     MAIN.ReceiveCommand(6, True)
 
     DefaultContents = cntMng.ContentManager()
-    DefaultContents.LoadFonts("Taiyou{0}ERROR{0}".format(tge.TaiyouPath_CorrectSlash))
+    tge.CurrentGame_Folder = "Taiyou{0}ERROR{0}".format(tge.TaiyouPath_CorrectSlash)
+    DefaultContents.SetFontPath("Data{0}FONT".format(tge.TaiyouPath_CorrectSlash))
 
     print("Taiyou.CrashScreen : Initialized")
     WriteLog()

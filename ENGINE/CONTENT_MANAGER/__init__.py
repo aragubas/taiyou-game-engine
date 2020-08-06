@@ -61,12 +61,12 @@ class ContentManager:
     #region Sprite I/O Functions
     def LoadSpritesInFolder(self, FolderName):
         pygame.font.init()
-        folder_name = FolderName + "Data/SPRITE"
+        FolderName = tge.Get_GameSourceFolder() + FolderName
         index = -1
 
         self.Sprite_LastInit = FolderName
 
-        sprite_metadata = open(folder_name + "/meta.data", "r")
+        sprite_metadata = open(FolderName + "/meta.data", "r")
         sprite_meta_lines = sprite_metadata.readlines()
 
         print("ContentManager.LoadSpritesInFolder : Loading all Sprites...")
@@ -75,7 +75,7 @@ class ContentManager:
             line = line.rstrip()
             if not line.startswith('#') and not line == "":
                 currentLine = line.split(':')
-                spriteLocation = folder_name + currentLine[0]
+                spriteLocation = FolderName + currentLine[0]
                 print("[{0}]".format(spriteLocation))
                 self.Sprites_Name += (currentLine[0],)
 
@@ -158,15 +158,15 @@ class ContentManager:
         :param reg_dir:Specified Folder
         :return:
         """
+        reg_dir = tge.Get_GameSourceFolder() + reg_dir
+        self.Reg_LastInit = tge.Get_GameSourceFolder() + reg_dir
 
-        self.Reg_LastInit = reg_dir
         start_time = time.time()
         # -- Unload the Registry -- #
         self.UnloadRegistry()
 
         print("Taiyou.ContentManager.LoadRegistry : Loading Application Registry")
 
-        reg_dir = reg_dir + "Data{0}REG".format(tge.TaiyouPath_CorrectSlash)
         temp_reg_keys = utils.Directory_FilesList(reg_dir)
         index = -1
 
@@ -226,8 +226,8 @@ class ContentManager:
         else:
             return keyEntred.replace("/", tge.TaiyouPath_CorrectSlash)
 
-    def LoadFonts(self, FolderName):
-        self.Font_Path = FolderName + "Data{0}FONT".format(tge.TaiyouPath_CorrectSlash)
+    def SetFontPath(self, FolderName):
+        self.Font_Path = tge.Get_GameSourceFolder() + FolderName
 
     def Get_RegKey(self, keyName, valueType=str):
         """
@@ -465,6 +465,7 @@ class ContentManager:
     # Sound I/O Functions
     def LoadSoundsInFolder(self, FolderName):
         if SoundEnabled: return
+        FolderName = tge.Get_GameSourceFolder() + FolderName
         self.Sound_LastInit = FolderName
         self.SoundChannels = ()
 
@@ -473,7 +474,6 @@ class ContentManager:
         for i in range(0, 255):
             self.SoundChannels += (pygame.mixer.Channel(i),)
 
-        FolderName = FolderName + "Data/SOUND"
         temp_sound_files = utils.Directory_FilesList(FolderName)
         index = -1
 

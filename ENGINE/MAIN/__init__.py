@@ -148,7 +148,6 @@ def ReceiveCommand(Command, Arguments=None):
             Txt = "TaiyouMessage: Command Processed:\n'{0}' with Argument: '{1}'".format(Command, Arguments)
             print(Txt)
 
-
     except IndexError:
         Txt = "TaiyouMessage EXCEPTION\nThe Command {0}\ndoes not have the necessary number of arguments.".format(str(Command))
         print(Txt)
@@ -212,7 +211,6 @@ def Run():
 
     # -- Run the Draw Code -- #
     GameObject.GameDraw(DISPLAY)
-
 
     # -- Flip the Screen -- #
     pygame.display.flip()
