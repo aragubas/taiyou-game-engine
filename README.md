@@ -16,6 +16,23 @@ It loades the games importing the python script in: ``/game_name/MAIN/__init__.p
 ## What type of games this Game Engine can create?
 *Everthing in 2D Base, but it can do everthing that Pygames does, it is not limited to it's Rendering functions.*
 
+# How to open Game Engine
+*If you are using Windows, you can use the Taiyou Game Engine Launcher*
+![Taiyou Launcher for Windows](https://github.com/aragubas/taiyou-launcher-windows)
+
+* If you are using Linux
+
+ - *Set the Right Permisions*
+``
+chmod +x StartTaiyouGameEngine.sh
+``
+
+ - *If the permisions were set, then just run it with*
+``
+./StartTaiyouGameEngine.sh
+``
+
+
 ## Official Discord Servers
 ![Fogoso Discord Server](https://discord.gg/Ek5QmBs)
 ![Fogoso Project](https://github.com/aragubas/fogoso/)
