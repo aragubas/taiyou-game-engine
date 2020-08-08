@@ -15,6 +15,7 @@
 #
 #
 import pygame
+from pygame import gfxdraw
 from ENGINE import UTILS as utils
 from ENGINE import CONTENT_MANAGER as cntMng
 import ENGINE as tge
@@ -25,6 +26,7 @@ print("Taiyou SHAPE version: " + tge.Get_ShapeVersion())
 def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0, DrawLines=False):
     if cntMng.RectangleRenderingDisabled:
         return
+
     if Rectangle[0] <= DISPLAY.get_width() and Rectangle[0] >= 0 - Rectangle[2] and Rectangle[1] <= DISPLAY.get_height() and Rectangle[1] >= 0 - Rectangle[3]:
         # -- Fix the Color Range -- #
         Color = utils.FixColorRange(Color)
@@ -60,8 +62,9 @@ def Shape_Line(DISPLAY, Color, startX, startY, endX, endY, LineWidth, FoldLine=T
 
     pygame.draw.line(DISPLAY, Color, (startX, startY), (endX, endY), LineWidth)
 
-def Shape_Pie(DISPLAY, X, Y, Radius, StartAngle, StopAngle, Color):
-    if X + Radius >= DISPLAY.get_width() or X < Radius:
+
+def Shape_Circle(DISPLAY, X, Y, Radius, Color, Width=0, draw_top_right=False, draw_top_left=False, draw_bottom_left=False, draw_bottom_right=False):
+    if X - Radius < DISPLAY.get_width() and Y - Radius < DISPLAY.get_height() and X > -Radius and Y > -Radius and Radius > 1:
         Color = utils.FixColorRange(Color)
 
-        gfxdraw.pie(DISPLAY, X, Y, Radius, StartAngle, StopAngle, Color)
+        pygame.draw.circle(DISPLAY, Color, (X, Y), Radius, Width, draw_top_right, draw_top_left, draw_bottom_left, draw_bottom_right)

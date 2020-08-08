@@ -56,6 +56,9 @@ def Initialize(DISPLAY):
     # -- Set the Key Repeat -- #
     pygame.key.set_repeat(1, 10)
 
+    # -- Print the Exception -- #
+    print(traceback.format_exc())
+
 def UpdateErrorTexts():
     global SysTxt
     global ModulesTxt

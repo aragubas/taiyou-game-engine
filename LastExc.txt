@@ -1,6 +1,6 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-06 01:04:55.001401
+2020-08-08 02:11:10.794263
 
 Application Name: Taiyou/ERROR/
 Traceback:
@@ -9,7 +9,11 @@ Traceback (most recent call last):
     Taiyou.Run()
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 213, in Run
     GameObject.GameDraw(DISPLAY)
-AttributeError: module 'HelloWorld.MAIN' has no attribute 'GameDraw'
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/UltraSnake/MAIN/__init__.py", line 45, in GameDraw
+    GameScreen.GameDraw(DISPLAY)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/UltraSnake/MAIN/Screens/GameScreen/__init__.py", line 53, in GameDraw
+    if not GameOver:
+NameError: name 'GameOver' is not defined
 
 
 Modules Version:
