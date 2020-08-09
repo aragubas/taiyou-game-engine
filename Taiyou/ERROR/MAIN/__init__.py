@@ -67,17 +67,15 @@ def UpdateErrorTexts():
              "If you are seeing this screen, the current application don't have an\n" \
              "Exception Handling System. Take a Screenshot of this screen and send\n" \
              "to the developer of the Application.\n\n" \
-             "#-- APPLICATION METADATA -- #\n" \
-             "Folder Name: {0}\n" \
              "\n\n#-- Exception 'Nickname' -- #\n" \
-             "Excp(\n\n{1}\n\n)\n" \
+             "Excp(\n\n{0}\n\n)\n" \
              "\n\n" \
              "All details of the Exception has been written on\n" \
-             "(.{2}LastExc.txt).\n" \
+             "(.{1}LastExc.txt).\n" \
              "Press (ESC) key to exit"
 
     try:
-        SysTxt = SysTxt.format(tge.CurrentGame_Folder, tge.LastException, tge.TaiyouPath_CorrectSlash)
+        SysTxt = SysTxt.format(tge.LastException, tge.TaiyouPath_CorrectSlash)
 
     except Exception as ex:
         print("Taiyou.CrashScreen : Error while parsing the string:\n" + str(ex))
@@ -97,7 +95,6 @@ def WriteLog():
     LogFile = open("LastExc.txt", "w")
     # -- Write the File Header -- #
     LogFile.write("-- Taiyou Crash File--\nThis log file has been written on:\n{0}\n\n".format(datetime.datetime.now()))
-    LogFile.write("Application Name: {0}\n".format(tge.CurrentGame_Folder))
     LogFile.write("Traceback:\n{0}\n".format(traceback.format_exc()))
     LogFile.write("\nModules Version:\n")
 

@@ -20,7 +20,7 @@ def Get_Version():
     return "2.9"
 
 def Get_ShapeVersion():
-    return "1.0"
+    return "2.0"
 
 def Get_AppDataVersion():
     return "1.0"
@@ -32,7 +32,7 @@ def Get_TaiyouMainVersion():
     return "3.3"
 
 def Get_ContentManagerVersion():
-    return "1.0"
+    return "2.0"
 
 def Get_FXVersion():
     return "1.0"

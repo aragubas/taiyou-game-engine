@@ -143,7 +143,7 @@ def Get_DirectoryTotalOfFiles(path):
 
 def Random_String(length):
    letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
+   return ''.join(random.choice(letters) for _ in range(length))
 
 def Online_LinkExists(url):
     try:

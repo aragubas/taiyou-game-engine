@@ -457,8 +457,7 @@ class ContentManager:
         :return:Size (int)
         """
 
-        return self.GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(
-            Text.splitlines())
+        return self.GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(Text.splitlines())
 
     #endregion
 
