@@ -55,9 +55,10 @@ def Surface_Blur(surface, amt, fast_scale=False):
     :param fast_scale:If true, pixalizate the surface insted of blurring
     :return:Returns the Blurred Surface
     """
+
     if amt < 1.0:
-        print("Surface_Blue : Invalid Blur Amount.")
-        return surface
+        raise ZeroDivisionError("FX.Surface_Blur : Surface blur ammount is lower than 1.0")
+
     Scale = 1.0 / float(amt)
     surf_size = surface.get_size()
     scale_size = (int(surf_size[0] * Scale), int(surf_size[1] * Scale))
