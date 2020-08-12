@@ -28,7 +28,7 @@ import scipy
 import scipy.misc
 import scipy.cluster
 import glob
-import os, time
+import os, time, numpy, math
 
 print("Taiyou ContentManager version " + tge.Get_ContentManagerVersion())
 
@@ -466,12 +466,7 @@ class ContentManager:
         if SoundEnabled: return
         FolderName = tge.Get_GameSourceFolder() + FolderName
         self.Sound_LastInit = FolderName
-        self.SoundChannels = ()
-
-        pygame.mixer.set_num_channels(255)
-
-        for i in range(0, 255):
-            self.SoundChannels += (pygame.mixer.Channel(i),)
+        self.InitSoundSystem()
 
         temp_sound_files = utils.Directory_FilesList(FolderName)
         index = -1
@@ -490,6 +485,16 @@ class ContentManager:
             print("ContentManager.LoadSoundsInFolder : ItemAdded[" + CorrectKeyName + "]; Index[" + str(index) + "]\n")
         print("ContentManager.LoadSoundsInFolder : Operation Completed")
 
+    def InitSoundSystem(self):
+        self.SoundChannels = ()
+
+        pygame.mixer.set_num_channels(255)
+
+        for i in range(0, 255):
+            self.SoundChannels += (pygame.mixer.Channel(i),)
+
+
+
     def UnloadSounds(self):
         if SoundEnabled: return
 
@@ -502,9 +507,52 @@ class ContentManager:
         self.UnloadSounds()
 
         self.LoadSoundsInFolder(self.Sound_LastInit)
+
     #endregion
 
     #region Sound Functions
+    def PlayTune(self, Frequency, Duration, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0, SampleRate=44000):
+        if Frequency == 0 or Duration == 0:
+            return
+
+        n_samples = int(round(Duration * SampleRate))
+
+        # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
+        buf = numpy.zeros((n_samples, 2), dtype=numpy.int16)
+        max_sample = 2 ** (16 - 1) - 1
+
+        for s in range(n_samples):
+            t = float(s) / SampleRate  # time in seconds
+
+            # grab the x-coordinate of the sine wave at a given time, while constraining the sample to what our mixer is set to with "bits"
+            buf[s][0] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))  # left
+            buf[s][1] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))  # left
+
+        sound = pygame.sndarray.make_sound(buf)
+        sound.set_volume(Volume)
+
+        for i, GameChannel in enumerate(self.SoundChannels):
+            if not PlayOnSpecificID is None:
+                if i == PlayOnSpecificID:
+                    GameChannel.stop()
+                    GameChannel.set_volume(LeftPan, RightPan)
+                    GameChannel.play(sound, fade_ms=Fadeout)
+                    return i
+            else:
+                if not GameChannel.get_busy():
+                    GameChannel.set_volume(LeftPan, RightPan)
+                    GameChannel.play(sound, fade_ms=Fadeout)
+                    return i
+
+                else:
+                    if ForcePlay:
+                        GameChannel.stop()
+                        GameChannel.set_volume(LeftPan, RightPan)
+                        GameChannel.play(sound, fade_ms=Fadeout)
+                        return i
+
+
+
     def PauseAllChannels(self):
         if SoundEnabled: return
 
@@ -517,7 +565,7 @@ class ContentManager:
         for i, Channel in enumerate(self.SoundChannels):
             Channel.unpause()
 
-    def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None):
+    def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0):
         """
         Play a Sound loaded into Sound System
         :param SourceName:Audio Source Name [starting with /]
@@ -539,19 +587,19 @@ class ContentManager:
                 if i == PlayOnSpecificID:
                     GameChannel.stop()
                     GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound)
+                    GameChannel.play(sound, fade_ms=Fadeout)
                     return i
             else:
                 if not GameChannel.get_busy():
                     GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound)
+                    GameChannel.play(sound, fade_ms=Fadeout)
                     return i
 
                 else:
                     if ForcePlay:
                         GameChannel.stop()
                         GameChannel.set_volume(LeftPan, RightPan)
-                        GameChannel.play(sound)
+                        GameChannel.play(sound, fade_ms=Fadeout)
                         return i
 
     def StopSound(self, ChannelID):
@@ -560,6 +608,12 @@ class ContentManager:
         for i, GameChannel in enumerate(self.SoundChannels):
             if i == ChannelID:
                 GameChannel.stop()
+
+    def StopAllChannels(self):
+        if SoundEnabled: return
+
+        for i, GameChannel in enumerate(self.SoundChannels):
+            GameChannel.stop()
 
     def FadeoutSound(self, ChannelID, FadeoutTime):
         if SoundEnabled: return

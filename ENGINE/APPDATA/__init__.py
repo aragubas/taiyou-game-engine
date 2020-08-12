@@ -33,6 +33,7 @@ def CorrectFileName(Input):
 
     return Input
 
+
 def ReadAppData(FileName, DataType=str):
     """
     Read a file on the App Data Folder, raises ValueError if Save Folder was not initialized

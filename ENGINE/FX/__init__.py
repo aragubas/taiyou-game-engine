@@ -20,7 +20,7 @@ import ENGINE as tge
 print("Taiyou FX version " + tge.Get_FXVersion())
 
 
-def BlurredRectangle(DISPLAY, Rectangle,BlurAmmount=100, BlackContrast=50):
+def BlurredRectangle(DISPLAY, Rectangle,BlurAmmount=100, BlackContrast_Alpha=50, BlackBackgroundColor=(0, 0, 0)):
     """
     Render a blurred Rectangle, usefull for UI.
     :param DISPLAY:The surface to be blitted
@@ -32,9 +32,10 @@ def BlurredRectangle(DISPLAY, Rectangle,BlurAmmount=100, BlackContrast=50):
     # -- the Result Surface -- #
     ResultPanel = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
 
-    if not BlackContrast == 0:
+    if not BlackContrast_Alpha == 0:
         DarkerBG = pygame.Surface((Rectangle[2], Rectangle[3]), pygame.HWSURFACE | pygame.HWACCEL)
-        DarkerBG.set_alpha(BlackContrast)
+        DarkerBG.fill((BlackBackgroundColor[0], BlackBackgroundColor[1], BlackBackgroundColor[2], BlackContrast_Alpha))
+        DarkerBG.set_alpha(BlackContrast_Alpha)
         DISPLAY.blit(DarkerBG, Rectangle)
 
     # -- Only Blur the Necessary Area -- #

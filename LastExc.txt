@@ -1,6 +1,6 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-09 12:22:58.405328
+2020-08-12 12:33:57.057020
 
 Traceback:
 Traceback (most recent call last):
@@ -8,11 +8,11 @@ Traceback (most recent call last):
     Taiyou.Run()
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 207, in Run
     GameObject.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/UltraSnake/MAIN/__init__.py", line 40, in Update
-    SelectedScreen.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/UltraSnake/MAIN/Screens/GameScreen/__init__.py", line 375, in Update
-    if jogador.VarList[2][0] - jogador.Speed < jogador.PlayerPos[0]:
-TypeError: 'Food' object is not subscriptable
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 124, in Update
+    SaveMusicData()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 75, in SaveMusicData
+    pickle.dump(track_list.PatternList, open(appData.CorrectFileName("/default"), "w"))
+TypeError: write() argument must be str, not bytes
 
 
 Modules Version:
