@@ -92,6 +92,10 @@ ApplicationSplash = None
 
 
 def InitEngine():
+    """
+    Initialize all engine
+    :return:
+    """
     global VideoDriver
     global AudioDriver
     global VideoX11CenterWindow
@@ -369,6 +373,10 @@ def InitEngine():
 
 
 def InitializeGame():
+    """
+    Initialize the Game
+    :return:
+    """
     global TaiyouPath_CorrectSlash
     global CurrentGame_Folder
     global TaiyouPath_AppDataFolder
@@ -386,6 +394,10 @@ def InitializeGame():
 
 # region Game Infos Functions
 def Get_GameSourceFolder():
+    """
+    Returns the Source Folder of Current Game
+    :return:
+    """
     global CurrentGame_Folder
     global TaiyouPath_CorrectSlash
 
@@ -393,6 +405,11 @@ def Get_GameSourceFolder():
 
 
 def Get_MainGameModuleName(GameFolder):
+    """
+    Returns the Main Game Module Name.
+    :param GameFolder:
+    :return:
+    """
     return "{0}{1}".format(GameFolder.replace(TaiyouPath_CorrectSlash, "."), ".MAIN")
 
 # endregion

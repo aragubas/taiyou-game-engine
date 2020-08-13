@@ -24,6 +24,11 @@ print("Taiyou AppData version " + tge.Get_AppDataVersion())
 
 # -- Read App Data Functions -- #
 def CorrectFileName(Input):
+    """
+    Returns the Path to the correct AppData Folder
+    :param Input: File Name
+    :return:Returns the Path
+    """
     if not Input.startswith("/"):
         Input = "/" + Input
     Input = tge.TaiyouPath_AppDataFolder + Input + ".sav"

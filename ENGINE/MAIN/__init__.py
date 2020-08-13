@@ -164,6 +164,12 @@ def SetDisplay():
         DISPLAY = pygame.display.set_mode((CurrentRes_W, CurrentRes_H), pygame.DOUBLEBUF | pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN)
 
 def SetGameObject(GameFolder):
+    """
+     Set the Game Object
+    :param GameFolder:Folder Path
+    :return:
+    """
+
     global GameObject
     global DISPLAY
 

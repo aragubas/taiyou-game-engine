@@ -42,6 +42,9 @@ SoundEnabled = False
 
 class ContentManager:
     def __init__(self):
+        """
+        Manages Loaded Sounds, Sprites and Registry Keys.
+        """
         self.Sprites_Name = list()
         self.Sprites_Data = list()
         self.reg_keys = list()
@@ -60,6 +63,12 @@ class ContentManager:
 
     #region Sprite I/O Functions
     def LoadSpritesInFolder(self, FolderName):
+        """
+        Load all sprites on the specified folder\n
+        Alert: Folder must contain meta.data file.
+        :param FolderName:Folder Path
+        :return:
+        """
         pygame.font.init()
         FolderName = tge.Get_GameSourceFolder() + FolderName
         index = -1
@@ -104,6 +113,12 @@ class ContentManager:
         print("ContentManager.LoadSpritesInFolder : Operation Completed.")
 
     def LoadSprite(self, SpritePath, Transparency=False):
+        """
+        Load the Specified Sprite
+        :param SpritePath:Path to the Specified Sprite
+        :param Transparency:Bool Value to import with transparency or not
+        :return:
+        """
         if utils.Directory_Exists(SpritePath):
             self.Sprites_Name.append("/" + os.path.basename(SpritePath))
 
@@ -114,6 +129,11 @@ class ContentManager:
                 self.Sprites_Data.append(pygame.image.load(SpritePath).convert())
 
     def GetSprite(self, SpriteResourceName):
+        """
+        Get the specified sprite resource on the Sprite Cache
+        :param SpriteResourceName:
+        :return:
+        """
         try:
             return self.Sprites_Data[self.Sprites_Name.index(SpriteResourceName)]
         except:
@@ -121,6 +141,10 @@ class ContentManager:
             return DefaultSprite
 
     def UnloadSprite(self):
+        """
+        Unload all loaded sprites
+        :return:
+        """
         print("Sprite.Unload : Unloading Sprites...")
         utils.GarbageCollector_Collect()
         del self.Sprites_Data
@@ -132,6 +156,10 @@ class ContentManager:
         self.Sprites_Name = list()
 
     def ReloadSprite(self):
+        """
+        Reload all loaded sprites
+        :return:
+        """
         print("Sprite.Reload : Reloading Sprites...")
 
         Unload()
@@ -141,6 +169,11 @@ class ContentManager:
         print("Sprite.Reload : Operation Completed")
 
     def UnloadSprite(self, SpriteResourceName):
+        """
+        Unload the Specified Sprite Resource
+        :param SpriteResourceName: Sprite Resource Name
+        :return:
+        """
         try:
             sprite_index = self.Sprites_Name.index(SpriteResourceName)
 
@@ -149,6 +182,71 @@ class ContentManager:
             del self.Sprites_Data[sprite_index]
         except:
             print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
+    #endregion
+
+    #region Sprite Rendering Functions
+    def ImageRender(self, DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None, ImageNotLoaded=False):
+        """
+        Render a Image loaded to the Sprite System
+        :param DISPLAY:Surface to be rendered
+        :param sprite:Sprite Resource Name [starting with /]
+        :param X:X Location
+        :param Y:Y Location
+        :param Width:Scale Width
+        :param Height:Scale Height
+        :param SmoothScaling:Smooth Pixels [This option can decrease peformace]
+        :param Opacity: Alpha value of sprite's surface
+        :param ColorKey: ColorKey of sprite
+        :param ImageNotLoaded:Set True if sprite parameter is a path
+        :return:
+        """
+        if not SpriteRenderingDisabled:
+            # -- Workaround to make Opacity Value not raise exception -- #
+            if Opacity <= 0:
+                Opacity = 0
+            if Opacity >= 255:
+                Opacity = 255
+
+            try:
+                if self.IsOnScreen(DISPLAY, X, Y, Width, Height):
+                    # -- Set the Image Variable -- #
+                    if not ImageNotLoaded:
+                        Image = self.GetSprite(sprite)
+                    else:
+                        Image = sprite
+
+                    if Width == 0 and Height == 0:  # -- Render Image With no Transformation -- #
+                        Image.set_alpha(Opacity)
+                        Image.set_colorkey(ColorKey)
+
+                        DISPLAY.blit(Image, (X, Y))
+
+                    else:
+                        if not SmoothScaling:  # -- Render Images with Fast Scaling -- #
+                            Image.set_alpha(Opacity)
+                            Image.set_colorkey(ColorKey)
+
+                            DISPLAY.blit(pygame.transform.scale(Image, (Width, Height)), (X, Y))
+                        else:  # -- Render Image with Smooth Scaling -- #
+                            Image.set_alpha(Opacity)
+                            Image.set_colorkey(ColorKey)
+
+                            DISPLAY.blit(pygame.transform.smoothscale(Image, (Width, Height)), (X, Y))
+
+            except Exception as ex:
+                print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
+
+    def IsOnScreen(self, DISPLAY, X, Y, Width, Height):
+        """
+        Check if Object is on Screen
+        :param DISPLAY:Source Surface
+        :param X:X position
+        :param Y:Y position
+        :param Width:Width
+        :param Height:Height
+        :return:Boolean Value
+        """
+        return X <= DISPLAY.get_width() and X >= (0 - Width) and Y <= DISPLAY.get_height() and Y >= (0 - Height)
     #endregion
 
     #region Registry I/O functions
@@ -221,12 +319,22 @@ class ContentManager:
         utils.GarbageCollector_Collect()
 
     def CorrectKeyName(self, keyEntred):
+        """
+        Returns the correct name of a key
+        :param keyEntred:KeyTag
+        :return:
+        """
         if not keyEntred.startswith("/"):
             return "{0}{1}".format(tge.TaiyouPath_CorrectSlash, keyEntred)
         else:
             return keyEntred.replace("/", tge.TaiyouPath_CorrectSlash)
 
     def SetFontPath(self, FolderName):
+        """
+        Set the path to the JIT Font Cache
+        :param FolderName:
+        :return:
+        """
         self.Font_Path = tge.Get_GameSourceFolder() + FolderName
 
     def Get_RegKey(self, keyName, valueType=str):
@@ -255,6 +363,12 @@ class ContentManager:
             raise FileNotFoundError("Taiyou.ContentManager.Get_RegKey Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
 
     def Write_RegKey(self, keyName, keyValue):
+        """
+        Write an Registry Key
+        :param keyName:KeyTag
+        :param keyValue:New Value
+        :return:
+        """
         FileLocation = "{0}{1}Data{1}REG{1}{2}.data".format(tge.CurrentGame_Folder, tge.TaiyouPath_CorrectSlash, keyName.replace("/", tge.TaiyouPath_CorrectSlash))
 
         # -- Create the directory -- #
@@ -284,62 +398,6 @@ class ContentManager:
             return True
         except ValueError:
             return False
-    #endregion
-
-    #region Sprite Rendering Functions
-    def ImageRender(self, DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None, ImageNotLoaded=False):
-        """
-        Render a Image loaded to the Sprite System
-        :param DISPLAY:Surface to be rendered
-        :param sprite:Sprite Resource Name [starting with /]
-        :param X:X Location
-        :param Y:Y Location
-        :param Width:Scale Width
-        :param Height:Scale Height
-        :param SmoothScaling:Smooth Pixels [This option can decrease peformace]
-        :param Opacity: Alpha value of sprite's surface
-        :param ColorKey: ColorKey of sprite
-        :param ImageNotLoaded:Set True if sprite parameter is not a string
-        :return:
-        """
-        if not SpriteRenderingDisabled:
-            # -- Workaround to make Opacity Value not raise exception -- #
-            if Opacity <= 0:
-                Opacity = 0
-            if Opacity >= 255:
-                Opacity = 255
-
-            try:
-                if self.IsOnScreen(DISPLAY, X, Y, Width, Height):
-                    # -- Set the Image Variable -- #
-                    if not ImageNotLoaded:
-                        Image = self.GetSprite(sprite)
-                    else:
-                        Image = sprite
-
-                    if Width == 0 and Height == 0:  # -- Render Image With no Transformation -- #
-                        Image.set_alpha(Opacity)
-                        Image.set_colorkey(ColorKey)
-
-                        DISPLAY.blit(Image, (X, Y))
-
-                    else:
-                        if not SmoothScaling:  # -- Render Images with Fast Scaling -- #
-                            Image.set_alpha(Opacity)
-                            Image.set_colorkey(ColorKey)
-
-                            DISPLAY.blit(pygame.transform.scale(Image, (Width, Height)), (X, Y))
-                        else:  # -- Render Image with Smooth Scaling -- #
-                            Image.set_alpha(Opacity)
-                            Image.set_colorkey(ColorKey)
-
-                            DISPLAY.blit(pygame.transform.smoothscale(Image, (Width, Height)), (X, Y))
-
-            except Exception as ex:
-                print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
-
-    def IsOnScreen(self, DISPLAY, X, Y, Width, Height):
-        return X <= DISPLAY.get_width() and X >= (0 - Width) and Y <= DISPLAY.get_height() and Y >= (0 - Height)
     #endregion
 
     #region Font Rendering
@@ -461,8 +519,13 @@ class ContentManager:
 
     #endregion
 
-    # Sound I/O Functions
+    #region Sound I/O Functions
     def LoadSoundsInFolder(self, FolderName):
+        """
+        Load all sounds on the specified folder\n
+        :param FolderName:Folder Path Name
+        :return:
+        """
         if SoundEnabled: return
         FolderName = tge.Get_GameSourceFolder() + FolderName
         self.Sound_LastInit = FolderName
@@ -486,6 +549,10 @@ class ContentManager:
         print("ContentManager.LoadSoundsInFolder : Operation Completed")
 
     def InitSoundSystem(self):
+        """
+        Initialize the Sound System
+        :return:
+        """
         self.SoundChannels = ()
 
         pygame.mixer.set_num_channels(255)
@@ -493,15 +560,21 @@ class ContentManager:
         for i in range(0, 255):
             self.SoundChannels += (pygame.mixer.Channel(i),)
 
-
-
     def UnloadSounds(self):
+        """
+        Unload all loaded sounds
+        :return:
+        """
         if SoundEnabled: return
 
         self.AllLoadedSounds = ()
         self.SoundChannels = ()
 
     def ReloadSounds(self):
+        """
+        Reload all loaded sounds
+        :return:
+        """
         if SoundEnabled: return
 
         self.UnloadSounds()
@@ -512,6 +585,19 @@ class ContentManager:
 
     #region Sound Functions
     def PlayTune(self, Frequency, Duration, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0, SampleRate=44000):
+        """
+        Play a tune on the Specified Frequency
+        :param Frequency:Frequency
+        :param Duration:Duration of Tune
+        :param Volume:Volume
+        :param LeftPan:LeftSpeaker Volume
+        :param RightPan:RightSpeaker Volume
+        :param ForcePlay:If channel is busy, stop and play the current sound
+        :param PlayOnSpecificID:Play sound on a specified ChannelID
+        :param Fadeout:Fadeout audio when stop playing
+        :param SampleRate:Sample Rate of the Tone
+        :return:
+        """
         if Frequency == 0 or Duration == 0:
             return
 
@@ -551,15 +637,31 @@ class ContentManager:
                         GameChannel.play(sound, fade_ms=Fadeout)
                         return i
 
+    def StopAllChannels(self):
+        """
+        Stop all sound channels
+        :return:
+        """
+        if SoundEnabled: return
 
+        for i, GameChannel in enumerate(self.SoundChannels):
+            GameChannel.stop()
 
     def PauseAllChannels(self):
+        """
+        Pause all sounds on all channels
+        :return:
+        """
         if SoundEnabled: return
 
         for i, Channel in enumerate(self.SoundChannels):
             Channel.pause()
 
     def UnpauseAllChannels(self):
+        """
+        Unpause all sounds on all channels
+        :return:
+        """
         if SoundEnabled: return
 
         for i, Channel in enumerate(self.SoundChannels):
@@ -574,7 +676,7 @@ class ContentManager:
         :param RightPan:Right Speaker Balance
         :param ForcePlay:Force the audio to be played, Can be useful if you really need to the sound to be played
         :param PlayOnSpecificID:Play the sound on a Specific ID
-        :return:
+        :return:ChannelID
         """
         if SoundEnabled: return
 
@@ -603,19 +705,24 @@ class ContentManager:
                         return i
 
     def StopSound(self, ChannelID):
+        """
+        Stop a sound playing on a specified ChannelID
+        :param ChannelID:ChannelID
+        :return:
+        """
         if SoundEnabled: return
 
         for i, GameChannel in enumerate(self.SoundChannels):
             if i == ChannelID:
                 GameChannel.stop()
 
-    def StopAllChannels(self):
-        if SoundEnabled: return
-
-        for i, GameChannel in enumerate(self.SoundChannels):
-            GameChannel.stop()
-
     def FadeoutSound(self, ChannelID, FadeoutTime):
+        """
+        Fade out a sound on a Specified Channel
+        :param ChannelID:Specified ChannelID
+        :param FadeoutTime:Fadeout time in Milisecounds
+        :return:
+        """
         if SoundEnabled: return
 
         for i, GameChannel in enumerate(self.SoundChannels):

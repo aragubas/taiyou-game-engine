@@ -24,6 +24,20 @@ print("Taiyou SHAPE version: " + tge.Get_ShapeVersion())
 
 
 def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Border_TopLeft_Radius=0, Border_TopRight_Radius=0, Border_BottomLeft_Radius=0, Border_BottomRight_Radius=0, DrawLines=False):
+    """
+    Draw a Rectangle
+    :param DISPLAY:Surface to be drawn
+    :param Color:Color (RGB)
+    :param Rectangle:Rectangle Rectangle
+    :param BorderWidth:Border Width
+    :param BorderRadius:Border Radius
+    :param Border_TopLeft_Radius:Only apply border to TopLeft
+    :param Border_TopRight_Radius:Only apply border to TopRight
+    :param Border_BottomLeft_Radius:Only apply border to BottomLeft
+    :param Border_BottomRight_Radius:Only apply border to BottomRight
+    :param DrawLines:Draw only rectangle line
+    :return:
+    """
     if cntMng.RectangleRenderingDisabled:
         return
 
@@ -46,6 +60,18 @@ def Shape_Rectangle(DISPLAY, Color, Rectangle, BorderWidth=0, BorderRadius=0, Bo
             gfxdraw.rectangle(DISPLAY, Rectangle, Color)
 
 def Shape_Line(DISPLAY, Color, startX, startY, endX, endY, LineWidth, FoldLine=True):
+    """
+    Draw a Line
+    :param DISPLAY:Surface to be drawn
+    :param Color:Color (RGB)
+    :param startX:Line StartX
+    :param startY:Line StartY
+    :param endX:Line EndX
+    :param endY:Line EndY
+    :param LineWidth:Line Width
+    :param FoldLine:Fold the line when getting offscreen
+    :return:
+    """
     # -- Fix the Color Range -- #
     Color = utils.FixColorRange(Color)
 
@@ -64,6 +90,20 @@ def Shape_Line(DISPLAY, Color, startX, startY, endX, endY, LineWidth, FoldLine=T
 
 
 def Shape_Circle(DISPLAY, X, Y, Radius, Color, Width=0, draw_top_right=False, draw_top_left=False, draw_bottom_left=False, draw_bottom_right=False):
+    """
+    Draw a Circle
+    :param DISPLAY:Surface to draw
+    :param X:Circle X
+    :param Y:Circle Y
+    :param Radius:Circle Radius
+    :param Color:Color (RGB)
+    :param Width:Circle Width
+    :param draw_top_right:Draw top right
+    :param draw_top_left:Draw top left
+    :param draw_bottom_left:Draw bottom left
+    :param draw_bottom_right:Draw bottom right
+    :return:
+    """
     if X - Radius < DISPLAY.get_width() and Y - Radius < DISPLAY.get_height() and X > -Radius and Y > -Radius and Radius > 1:
         Color = utils.FixColorRange(Color)
 

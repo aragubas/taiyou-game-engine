@@ -32,6 +32,11 @@ import glob
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 
 def Directory_FilesList(dirName):
+    """
+    Get a list of files in a Directory
+    :param dirName:Directory Path
+    :return:
+    """
     # -- Create a list with all files in Directory -- #
     listOfFile = os.listdir(dirName)
     allFiles = list()
@@ -46,10 +51,23 @@ def Directory_FilesList(dirName):
     return allFiles
 
 def FormatNumber(num, precision=2, suffixes=['', 'K', 'M', 'G', 'T', 'P']):
+    """
+    Format a Float Number (0.0000000000 to 0.00)
+    :param num:Number
+    :param precision:Prescision
+    :param suffixes:List of Suffixes
+    :return:
+    """
     m = sum([abs(num/1000.0**x) >= 1 for x in range(1, len(suffixes))])
     return f'{num/1000.0**m:.{precision}f}{suffixes[m]}'
 
 def GetImage_DominantColor(Surface, Number_Clusters=5):
+    """
+    Get the Dominant Color of a Image
+    :param Surface:
+    :param Number_Clusters:
+    :return:
+    """
     strFormat = 'RGBA'
     raw_str = pygame.image.tostring(Surface, strFormat)
     ConvertedImage = Image.frombytes(strFormat, Surface.get_size(), raw_str)
@@ -103,23 +121,55 @@ def FixColorRange(ColorArguments):
 
 
 def File_Exists(path):
+    """
+    Returns true if file exist
+    :param path:Directory
+    :return:
+    """
     return os.path.isfile(path)
 
 def Directory_Exists(path):
+    """
+    Returns true if directory exists
+    :param path:Directory to Check
+    :return:
+    """
     return os.path.exists(path)
 
 def Directory_MakeDir(path):
+    """
+    Make a Directory
+    :param path:Directory to make
+    :return:
+    """
     if not os.path.exists(path):
         os.makedirs(path)
 
 def Unzip_File(path, destination):
+    """
+    Unzip a Zip File
+    :param path:
+    :param destination:
+    :return:
+    """
     with zipfile.ZipFile(path, 'r') as zip_ref:
         zip_ref.extractall(destination)
 
 def FileCopy(path, destinationPath):
+    """
+    Copy a File
+    :param path:Source File
+    :param destinationPath:Destination Path
+    :return:
+    """
     shutil.copy(path, destinationPath)
 
 def Calculate_FolderSize(path):
+    """
+    Get the size of a folder
+    :param path:Directory
+    :return:Folder Size
+    """
     total_size = 0
     start_path = path  # To get size of current directory
     for path, dirs, files in os.walk(start_path):
@@ -129,11 +179,21 @@ def Calculate_FolderSize(path):
     return total_size
 
 def Get_DirectoryOfFilePath(file_path):
+    """
+    Get source directory from file path
+    :param file_path:File Path
+    :return:Directory
+    """
     p = Path(file_path)
     return p.parent
 
 
 def Get_DirectoryTotalOfFiles(path):
+    """
+    Get the total of files in a Directory
+    :param path:Directory
+    :return:Total of Files
+    """
     try:
         list = Directory_FilesList(path)  # dir is your directory path
         number_files = len(list)
@@ -142,10 +202,20 @@ def Get_DirectoryTotalOfFiles(path):
         return 0
 
 def Random_String(length):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for _ in range(length))
+    """
+    Returns a Random String
+    :param length:Length of String
+    :return:Return the String
+    """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(length))
 
 def Online_LinkExists(url):
+    """
+    Check if URL Exists
+    :param url:URL
+    :return:Return True if URL Exists
+    """
     try:
         conn = urllib.request.urlopen(url)
         return conn.getcode()
@@ -155,15 +225,38 @@ def Online_LinkExists(url):
         return 404
 
 def Get_Percentage(Percentage, Max, MaxPercentage):
+    """
+    Get Percentage of 2 Values
+    :param Percentage:Current Value
+    :param Max:Max Value
+    :param MaxPercentage:Max Percentage (default 100)
+    :return:
+    """
     return (Percentage * Max) / MaxPercentage
 
 def File_Delete(filePath):
+    """
+    Delete a File
+    :param filePath:File Path
+    :return:
+    """
     os.remove(filePath)
 
 def Directory_Remove(path):
+    """
+    Delete a Directory
+    :param path:Directory Path
+    :return:
+    """
     shutil.rmtree(path, True)
 
 def Directory_Rename(sourcePath, newName):
+    """
+    Rename Directory
+    :param sourcePath:Source Directory
+    :param newName:New Directory Name
+    :return:
+    """
     os.rename(sourcePath, newName)
 
 # -- Class Downloader -- #
@@ -227,16 +320,28 @@ class Downloader:
         self.DownloadThread.start()
 
 def GarbageCollector_Collect():
+    """
+    Tells the Garbage Collector to Collect
+    :return:
+    """
     gc.collect()
     print("Taiyou.Utils.GC_COLLECT : Function Called")
 
 def GarbageCollector_GetInfos():
-
+    """
+    Get Information of Garbage Collector
+    :return:
+    """
     InfosString = "Count: {0}".format(gc.get_count())
 
     return InfosString
 
 def Get_MemoryUsage():
+    """
+    Get the current Memory Use\n
+    Warning: This function decrease peformace (causes dead spikes of lag)
+    :return:
+    """
     return psutil.Process(os.getpid()).memory_full_info()[0]
 
 class AnimationController:
