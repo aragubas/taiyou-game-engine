@@ -47,16 +47,14 @@ TaiyouGeneralVersion = (float(Get_Version()) + float(Get_ShapeVersion()) + float
 # -- Print Runtime Version -- #
 print("Taiyou General version " + Get_Version())
 
-# -- Imports --
+# -- Imports All Modules -- #
 from ENGINE import CONTENT_MANAGER as cntMng
 from ENGINE import APPDATA as appData
 from ENGINE import FX as fx
 from ENGINE import SHAPES as shape
 from ENGINE import UTILS as utils
 from ENGINE import MAIN
-import os, pygame
-import platform
-from os.path import expanduser
+import os, pygame, platform
 
 # -- Current Game Variables -- #
 CurrentGame_Folder = "null"
