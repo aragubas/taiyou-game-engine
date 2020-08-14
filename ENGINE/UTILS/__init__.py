@@ -346,6 +346,13 @@ def Get_MemoryUsage():
 
 class AnimationController:
     def __init__(self, multiplierSpeed=1.0, maxValue=255, minValue=0, multiplierRestart=False):
+        """
+        Usefull for making UI Animations
+        :param multiplierSpeed:
+        :param maxValue:
+        :param minValue:
+        :param multiplierRestart:
+        """
         self.Enabled = True
         self.CurrentMode = True
         self.Value = 0

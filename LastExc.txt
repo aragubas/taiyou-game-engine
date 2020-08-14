@@ -1,18 +1,20 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-12 12:33:57.057020
+2020-08-14 12:58:37.112057
 
 Traceback:
 Traceback (most recent call last):
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/main.py", line 26, in <module>
     Taiyou.Run()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 207, in Run
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 213, in Run
     GameObject.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 124, in Update
-    SaveMusicData()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 75, in SaveMusicData
-    pickle.dump(track_list.PatternList, open(appData.CorrectFileName("/default"), "w"))
-TypeError: write() argument must be str, not bytes
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 49, in Update
+    CurrentScreenToUpdate.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 106, in Update
+    SaveFileDialog.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/SaveFileDialog/__init__.py", line 130, in Update
+    Main.SaveMusicData(tge.TaiyouPath_AppDataFolder + SelectedFile)
+NameError: name 'Main' is not defined
 
 
 Modules Version:
