@@ -729,4 +729,13 @@ class ContentManager:
             if i == ChannelID:
                 GameChannel.fadeout(FadeoutTime)
 
+    def Get_ChannelIsBusy(self, ChannelID):
+        for i, GameChannel in enumerate(self.SoundChannels):
+            if i == ChannelID:
+                return GameChannel.get_busy()
+
+
+        return False
+
+
     #endregion
