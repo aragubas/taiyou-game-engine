@@ -17,7 +17,6 @@
 from ENGINE import MAIN as Taiyou
 import ENGINE as tge
 import traceback
-import cProfile
 
 Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
 

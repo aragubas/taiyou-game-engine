@@ -42,13 +42,14 @@ InitDelay_Delta = 0
 InitDelay_Enabled = True
 EngineInitialized = False
 ErrorScreenInitialzed = False
+ThrowException = True
 
 def Initialize():
     global DISPLAY
     global CurrentRes_W
     global CurrentRes_H
     global EngineInitialized
-    print("Taiyou.GameExecution.Initialize : Initializing Game Engine...")
+    print("Taiyou.GameExecution.Initialize : Initializing Taiyou...")
 
     # -- Load Engine -- #
     tge.InitEngine()

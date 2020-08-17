@@ -76,6 +76,7 @@ InputDisableMouse = False
 IgnoreSDL2Parameters = True
 PygameFastEvent = True
 SmoothScaleTransform = "MMX"
+ThrowException = False
 
 # -- Taiyou Paths -- #
 TaiyouPath_SystemPath = "Taiyou"
@@ -116,6 +117,7 @@ def InitEngine():
     global CurrentGame_Folder
     global TaiyouPath_AppDataFolder
     global ApplicationSplash
+    global ThrowException
 
     # -- Set the Correct Slash Directory -- #
     if platform.system() == "Linux":
@@ -305,6 +307,18 @@ def InitEngine():
 
                 print("Taiyou.Runtime.InitEngine : FastEvent was set to:" + str(PygameFastEvent))
 
+            elif SplitedParms[0] == "ThrowException":
+                if SplitedParms[1].rstrip() == "True":
+                    ThrowException = True
+
+                elif SplitedParms[1].rstrip() == "False":
+                    ThrowException = False
+
+                else:
+                    ThrowException = False
+
+                print("Taiyou.Runtime.InitEngine : ThrowException was set to:" + str(ThrowException))
+
     if not IgnoreSDL2Parameters:  # -- Set SDL2 Parameters (if enabled) -- #
         # -- Set the Enviroments Variables -- #
         os.environ['SDL_VIDEODRIVER'] = str(VideoDriver)  # -- Set the Video Driver
@@ -389,6 +403,12 @@ def InitializeGame():
 
     MAIN.SetGameObject(GameFolder)
 
+    FileExistPath = GameFolder + "{0}splash.png".format(TaiyouPath_CorrectSlash)
+
+    if utils.Directory_Exists(FileExistPath):
+        SplashLogo = pygame.image.load(FileExistPath).convert()
+        MAIN.DISPLAY.blit(SplashLogo, (0, 0))
+        pygame.display.flip()
 
 # region Game Infos Functions
 def Get_GameSourceFolder():

@@ -1,20 +1,22 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-16 18:08:54.870861
+2020-08-17 00:23:20.049439
 
 Traceback:
 Traceback (most recent call last):
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/main.py", line 27, in <module>
-    cProfile.run(Taiyou.Run())
-  File "/usr/lib/python3.8/cProfile.py", line 16, in run
-    return _pyprofile._Utils(Profile).run(statement, filename, sort)
-  File "/usr/lib/python3.8/profile.py", line 53, in run
-    prof.run(statement)
-  File "/usr/lib/python3.8/cProfile.py", line 95, in run
-    return self.runctx(cmd, dict, dict)
-  File "/usr/lib/python3.8/cProfile.py", line 100, in runctx
-    exec(cmd, globals, locals)
-TypeError: exec() arg 1 must be a string, bytes or code object
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/main.py", line 26, in <module>
+    Taiyou.Run()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 214, in Run
+    GameObject.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 49, in Update
+    CurrentScreenToUpdate.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 116, in Update
+    OpenFileDialog.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/OpenFileDialog/__init__.py", line 156, in Update
+    Main.LoadMusicData(tge.TaiyouPath_AppDataFolder + "/" + SelectedFile)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 88, in LoadMusicData
+    patterns_list = pickle.load(open(FileName, "rb"))
+FileNotFoundError: [Errno 2] No such file or directory: 'AppData/OneTrack/null'
 
 
 Modules Version:
