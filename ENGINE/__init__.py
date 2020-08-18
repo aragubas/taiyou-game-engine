@@ -375,6 +375,8 @@ def InitEngine():
 
     elif platform.system() == "Windows":
         TaiyouPath_AppDataFolder = "AppData\\" + GameFolder
+    utils.Directory_MakeDir(TaiyouPath_AppDataFolder)
+
 
     MAIN.CurrentRes_W = 800
     MAIN.CurrentRes_H = 600
