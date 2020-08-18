@@ -38,7 +38,8 @@ FontRenderingDisabled = False
 SpriteRenderingDisabled = False
 RectangleRenderingDisabled = False
 SpriteTransparency = False
-SoundEnabled = False
+SoundDisabled = False
+
 
 class ContentManager:
     def __init__(self):
@@ -57,11 +58,12 @@ class ContentManager:
         self.Sprite_LastInit = ""
         self.Sound_LastInit = ""
         self.Font_Path = ""
-        self.SoundChannels = ()
+        self.SoundChannels = list()
         self.AllLoadedSounds = {}
+        self.SoundTuneCache_Names = list()
+        self.SoundTuneCache_Cache = list()
 
-
-    #region Sprite I/O Functions
+    # region Sprite I/O Functions
     def LoadSpritesInFolder(self, FolderName):
         """
         Load all sprites on the specified folder\n
@@ -182,9 +184,10 @@ class ContentManager:
             del self.Sprites_Data[sprite_index]
         except:
             print("UnloadSprite : Sprite[" + SpriteResourceName + "] does not exist.")
-    #endregion
 
-    #region Sprite Rendering Functions
+    # endregion
+
+    # region Sprite Rendering Functions
     def ImageRender(self, DISPLAY, sprite, X, Y, Width=0, Height=0, SmoothScaling=False, Opacity=255, ColorKey=None, ImageNotLoaded=False):
         """
         Render a Image loaded to the Sprite System
@@ -247,9 +250,10 @@ class ContentManager:
         :return:Boolean Value
         """
         return X <= DISPLAY.get_width() and X >= (0 - Width) and Y <= DISPLAY.get_height() and Y >= (0 - Height)
-    #endregion
 
-    #region Registry I/O functions
+    # endregion
+
+    # region Registry I/O functions
     def LoadRegKeysInFolder(self, reg_dir):
         """
         Load all keys on Specified Folder
@@ -398,9 +402,10 @@ class ContentManager:
             return True
         except ValueError:
             return False
-    #endregion
 
-    #region Font Rendering
+    # endregion
+
+    # region Font Rendering
     def FontRender(self, DISPLAY, FontFileLocation, Size, Text, ColorRGB, X, Y, antialias=True, backgroundColor=None, Opacity=255):
         """
         Render a Text using a font loaded into Taiyou Font Cache
@@ -426,40 +431,21 @@ class ContentManager:
                     Opacity = 255
 
                 # -- Render Multiple Lines -- #
-                if len(Text.splitlines()) > 1:
-                    for i, l in enumerate(Text.splitlines()):
-                        if not backgroundColor == None:  # -- If background was provided, render with Background
-                            FontSurface = FontFileObject.render(l, antialias, ColorRGB, backgroundColor)
-
-                            if not Opacity == 255:  # -- Set the Font Opacity, if needed
-                                FontSurface.set_alpha(Opacity)
-
-                            DISPLAY.blit(FontSurface, (X, Y + Size * i))
-
-                        else:  # -- Render Without Background -- #
-                            FontSurface = FontFileObject.render(l, antialias, ColorRGB)
-
-                            if not Opacity == 255:  # -- Set the Font Opacity, if needed
-                                FontSurface.set_alpha(Opacity)
-
-                            DISPLAY.blit(FontSurface, (X, Y + Size * i))
-
-                else:  # -- Render Single Line Text -- #
+                for i, l in enumerate(Text.splitlines()):
                     if not backgroundColor == None:  # -- If background was provided, render with Background
-                        FontSurface = FontFileObject.render(Text, antialias, ColorRGB, backgroundColor)
+                        FontSurface = FontFileObject.render(l, antialias, ColorRGB, backgroundColor)
+
+                        if not Opacity == 255:  FontSurface.set_alpha(Opacity)
+
+                        DISPLAY.blit(FontSurface, (X, Y + Size * i))
+
+                    else:  # -- Render Without Background -- #
+                        FontSurface = FontFileObject.render(l, antialias, ColorRGB)
 
                         if not Opacity == 255:  # -- Set the Font Opacity, if needed
                             FontSurface.set_alpha(Opacity)
 
-                        DISPLAY.blit(FontSurface, (X, Y))
-
-                    else:
-                        FontSurface = FontFileObject.render(Text, antialias, ColorRGB)
-
-                        if not Opacity == 255:  # -- Set the Font Opacity, if needed
-                            FontSurface.set_alpha(Opacity)
-
-                        DISPLAY.blit(FontSurface, (X, Y))
+                        DISPLAY.blit(FontSurface, (X, Y + Size * i))
 
     def GetFont_object(self, FontFileLocation, Size):
         """
@@ -470,20 +456,16 @@ class ContentManager:
         """
 
         if not FontRenderingDisabled:
-            FontCacheName = FontFileLocation + ":" + str(Size)
+            FontCacheName = ''.join((FontFileLocation, str(Size)))
             try:
                 return self.CurrentLoadedFonts_Contents[self.CurrentLoadedFonts_Name.index(FontCacheName)]
 
             except ValueError:  # -- Add font to the FontCache if was not found -- #
-                print("Sprite.GetFontObject ; Creating Font Cache Object")
-
-                self.CurrentLoadedFonts_Name += (FontCacheName,)
+                self.CurrentLoadedFonts_Name.append(FontCacheName)
                 FontPath = self.Font_Path + FontFileLocation.replace("/", tge.TaiyouPath_CorrectSlash)
                 print(FontPath)
 
-                self.CurrentLoadedFonts_Contents += (pygame.font.Font(FontPath, Size),)
-
-                print("Sprite.GetFontObject ; FontCacheObjName: " + FontCacheName)
+                self.CurrentLoadedFonts_Contents.append(pygame.font.Font(FontPath, Size))
 
                 return self.CurrentLoadedFonts_Contents[self.CurrentLoadedFonts_Name.index(FontCacheName)]
 
@@ -517,16 +499,16 @@ class ContentManager:
 
         return self.GetFont_object(FontFileLocation, FontSize).render(Text, True, (255, 255, 255)).get_height() * len(Text.splitlines())
 
-    #endregion
+    # endregion
 
-    #region Sound I/O Functions
+    # region Sound I/O Functions
     def LoadSoundsInFolder(self, FolderName):
         """
         Load all sounds on the specified folder\n
         :param FolderName:Folder Path Name
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
         FolderName = tge.Get_GameSourceFolder() + FolderName
         self.Sound_LastInit = FolderName
         self.InitSoundSystem()
@@ -565,7 +547,7 @@ class ContentManager:
         Unload all loaded sounds
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
         self.AllLoadedSounds = ()
         self.SoundChannels = ()
@@ -575,15 +557,51 @@ class ContentManager:
         Reload all loaded sounds
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
         self.UnloadSounds()
 
         self.LoadSoundsInFolder(self.Sound_LastInit)
 
-    #endregion
+    # endregion
 
-    #region Sound Functions
+    # region Sound Functions
+    # -- Get SoundTune from JIT Cache -- #
+    def GetTune_FromTuneCache(self, Frequency, Duration, SampleRate):
+        """
+        Get SoundJut from JIT Cache
+        :param Frequency:Sound Frequency
+        :param Duration:Sound Duration
+        :param SampleRate:Sample Rate
+        :return:
+        """
+        ObjName = Frequency + Duration + SampleRate
+        try:  # -- Return the Tune from Cache, if existent -- #
+            return self.SoundTuneCache_Cache[self.SoundTuneCache_Names.index(ObjName)]
+
+        except ValueError:  # -- If not, generate the tune, then return it from cache -- #
+            self.SoundTuneCache_Names.append(ObjName)
+            self.SoundTuneCache_Cache.append(self.GenerateSoundTune(Frequency, Duration, SampleRate))
+
+            return self.SoundTuneCache_Cache[self.SoundTuneCache_Names.index(ObjName)]
+
+    def GenerateSoundTune(self, Frequency, Duration, SampleRate):
+        # -- Generate the Tune -- #
+        n_samples = int(round(Duration * SampleRate))
+
+        # -- Setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above -- #
+        buf = numpy.zeros((n_samples, 2), dtype=numpy.int16)
+        max_sample = 2 ** (16 - 1) - 1
+
+        for s in range(n_samples):
+            t = float(s) / SampleRate  # time in seconds
+
+            # grab the x-coordinate of the sine wave at a given time, while constraining the sample to what our mixer is set to with "bits"
+            buf[s][0] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))
+            buf[s][1] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))
+
+        return buf
+
     def PlayTune(self, Frequency, Duration, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0, SampleRate=44000):
         """
         Play a tune on the Specified Frequency
@@ -598,43 +616,37 @@ class ContentManager:
         :param SampleRate:Sample Rate of the Tone
         :return:
         """
+        if SoundDisabled:
+            return
+
         if Frequency == 0 or Duration == 0:
             return
 
-        n_samples = int(round(Duration * SampleRate))
-
-        # setup our numpy array to handle 16 bit ints, which is what we set our mixer to expect with "bits" up above
-        buf = numpy.zeros((n_samples, 2), dtype=numpy.int16)
-        max_sample = 2 ** (16 - 1) - 1
-
-        for s in range(n_samples):
-            t = float(s) / SampleRate  # time in seconds
-
-            # grab the x-coordinate of the sine wave at a given time, while constraining the sample to what our mixer is set to with "bits"
-            buf[s][0] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))  # left
-            buf[s][1] = int(round(max_sample * math.sin(2 * math.pi * Frequency * t)))  # left
-
-        sound = pygame.sndarray.make_sound(buf)
+        # -- Get the tune from the JIT Cache -- #
+        sound = pygame.sndarray.make_sound(self.GetTune_FromTuneCache(Frequency, Duration, SampleRate))
         sound.set_volume(Volume)
 
-        for i, GameChannel in enumerate(self.SoundChannels):
+        return self.PlaySoundObj(sound, PlayOnSpecificID, LeftPan, RightPan, Fadeout, ForcePlay)
+
+    def PlaySoundObj(self, sound, PlayOnSpecificID, LeftPan, RightPan, Fadeout, ForcePlay):
+        for i, channel in enumerate(self.SoundChannels):
             if not PlayOnSpecificID is None:
                 if i == PlayOnSpecificID:
-                    GameChannel.stop()
-                    GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound, fade_ms=Fadeout)
+                    channel.stop()
+                    channel.set_volume(LeftPan, RightPan)
+                    channel.play(sound, fade_ms=Fadeout)
                     return i
             else:
-                if not GameChannel.get_busy():
-                    GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound, fade_ms=Fadeout)
+                if not channel.get_busy():
+                    channel.set_volume(LeftPan, RightPan)
+                    channel.play(sound, fade_ms=Fadeout)
                     return i
 
                 else:
                     if ForcePlay:
-                        GameChannel.stop()
-                        GameChannel.set_volume(LeftPan, RightPan)
-                        GameChannel.play(sound, fade_ms=Fadeout)
+                        channel.stop()
+                        channel.set_volume(LeftPan, RightPan)
+                        channel.play(sound, fade_ms=Fadeout)
                         return i
 
     def StopAllChannels(self):
@@ -642,30 +654,30 @@ class ContentManager:
         Stop all sound channels
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
-        for i, GameChannel in enumerate(self.SoundChannels):
-            GameChannel.stop()
+        for i, channel in enumerate(self.SoundChannels):
+            channel.stop()
 
     def PauseAllChannels(self):
         """
         Pause all sounds on all channels
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
-        for i, Channel in enumerate(self.SoundChannels):
-            Channel.pause()
+        for i, channel in enumerate(self.SoundChannels):
+            channel.pause()
 
     def UnpauseAllChannels(self):
         """
         Unpause all sounds on all channels
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
-        for i, Channel in enumerate(self.SoundChannels):
-            Channel.unpause()
+        for i, channel in enumerate(self.SoundChannels):
+            channel.unpause()
 
     def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0):
         """
@@ -678,31 +690,13 @@ class ContentManager:
         :param PlayOnSpecificID:Play the sound on a Specific ID
         :return:ChannelID
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
         # -- Get Sound -- #
         sound = self.AllLoadedSounds.get(SourceName)
         sound.set_volume(Volume)
 
-        for i, GameChannel in enumerate(self.SoundChannels):
-            if not PlayOnSpecificID is None:
-                if i == PlayOnSpecificID:
-                    GameChannel.stop()
-                    GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound, fade_ms=Fadeout)
-                    return i
-            else:
-                if not GameChannel.get_busy():
-                    GameChannel.set_volume(LeftPan, RightPan)
-                    GameChannel.play(sound, fade_ms=Fadeout)
-                    return i
-
-                else:
-                    if ForcePlay:
-                        GameChannel.stop()
-                        GameChannel.set_volume(LeftPan, RightPan)
-                        GameChannel.play(sound, fade_ms=Fadeout)
-                        return i
+        return self.PlaySoundObj(sound, PlayOnSpecificID, LeftPan, RightPan, Fadeout, ForcePlay)
 
     def StopSound(self, ChannelID):
         """
@@ -710,11 +704,11 @@ class ContentManager:
         :param ChannelID:ChannelID
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
-        for i, GameChannel in enumerate(self.SoundChannels):
+        for i, channel in enumerate(self.SoundChannels):
             if i == ChannelID:
-                GameChannel.stop()
+                channel.stop()
 
     def FadeoutSound(self, ChannelID, FadeoutTime):
         """
@@ -723,19 +717,19 @@ class ContentManager:
         :param FadeoutTime:Fadeout time in Milisecounds
         :return:
         """
-        if SoundEnabled: return
+        if SoundDisabled: return
 
-        for i, GameChannel in enumerate(self.SoundChannels):
+        for i, channel in enumerate(self.SoundChannels):
             if i == ChannelID:
-                GameChannel.fadeout(FadeoutTime)
+                channel.fadeout(FadeoutTime)
 
     def Get_ChannelIsBusy(self, ChannelID):
-        for i, GameChannel in enumerate(self.SoundChannels):
-            if i == ChannelID:
-                return GameChannel.get_busy()
+        if SoundDisabled: return
 
+        for i, channel in enumerate(self.SoundChannels):
+            if i == ChannelID:
+                return channel.get_busy()
 
         return False
 
-
-    #endregion
+    # endregion

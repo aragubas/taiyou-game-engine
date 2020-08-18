@@ -1,6 +1,6 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-17 00:23:20.049439
+2020-08-18 13:23:19.897628
 
 Traceback:
 Traceback (most recent call last):
@@ -8,15 +8,17 @@ Traceback (most recent call last):
     Taiyou.Run()
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 214, in Run
     GameObject.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 49, in Update
-    CurrentScreenToUpdate.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 116, in Update
-    OpenFileDialog.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/OpenFileDialog/__init__.py", line 156, in Update
-    Main.LoadMusicData(tge.TaiyouPath_AppDataFolder + "/" + SelectedFile)
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 88, in LoadMusicData
-    patterns_list = pickle.load(open(FileName, "rb"))
-FileNotFoundError: [Errno 2] No such file or directory: 'AppData/OneTrack/null'
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 184, in Update
+    CurrentUpdate.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 266, in Update
+    IncomingLog.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/IncomingLog/__init__.py", line 104, in Update
+    AddMoney(TextGrind_Value[x])
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/IncomingLog/__init__.py", line 134, in AddMoney
+    gameMain.DefaultCnt.PlaySound("/hit_1.wav", 0.35)
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/CONTENT_MANAGER/__init__.py", line 696, in PlaySound
+    sound = self.AllLoadedSounds[self.AllLoadedSounds.index(SourceName)]
+ValueError: '/hit_1.wav' is not in list
 
 
 Modules Version:

@@ -346,7 +346,7 @@ def InitEngine():
     pygame.transform.set_smoothscale_backend(SmoothScaleTransform)
 
     # -- Initialize Pygame and Sound System -- #
-    if cntMng.SoundEnabled:
+    if cntMng.SoundDisabled:
         # -- Set some Variables -- #
         Frequency = int(AudioFrequency)
         Size = int(AudioSize)
