@@ -28,6 +28,7 @@ import scipy
 import scipy.misc
 import scipy.cluster
 import glob
+import ENGINE.UTILS.Convert as Convert
 
 print("TaiyouGameEngineUtils version " + tge.Get_UtilsVersion())
 

@@ -1,6 +1,6 @@
 -- Taiyou Crash File--
 This log file has been written on:
-2020-08-18 13:23:19.897628
+2020-08-18 23:31:38.691223
 
 Traceback:
 Traceback (most recent call last):
@@ -8,17 +8,13 @@ Traceback (most recent call last):
     Taiyou.Run()
   File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/MAIN/__init__.py", line 214, in Run
     GameObject.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/__init__.py", line 184, in Update
-    CurrentUpdate.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/__init__.py", line 266, in Update
-    IncomingLog.Update()
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/IncomingLog/__init__.py", line 104, in Update
-    AddMoney(TextGrind_Value[x])
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/Fogoso/MAIN/Screens/Game/IncomingLog/__init__.py", line 134, in AddMoney
-    gameMain.DefaultCnt.PlaySound("/hit_1.wav", 0.35)
-  File "/home/abacate/Projetos/Python/Taiyou Game Engine/ENGINE/CONTENT_MANAGER/__init__.py", line 696, in PlaySound
-    sound = self.AllLoadedSounds[self.AllLoadedSounds.index(SourceName)]
-ValueError: '/hit_1.wav' is not in list
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/__init__.py", line 52, in Update
+    CurrentScreenToUpdate.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/__init__.py", line 141, in Update
+    OptionsBar.Update()
+  File "/home/abacate/Projetos/Python/Taiyou Game Engine/OneTrack/MAIN/Screens/Editor/OptionsBar/__init__.py", line 57, in Update
+    obj.Changer.SplitedAlgarims = list(Editor.BPM)
+TypeError: 'int' object is not iterable
 
 
 Modules Version:

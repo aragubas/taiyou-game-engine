@@ -535,12 +535,12 @@ class ContentManager:
         Initialize the Sound System
         :return:
         """
-        self.SoundChannels = ()
+        self.SoundChannels.clear()
 
         pygame.mixer.set_num_channels(255)
 
         for i in range(0, 255):
-            self.SoundChannels += (pygame.mixer.Channel(i),)
+            self.SoundChannels.append(pygame.mixer.Channel(i))
 
     def UnloadSounds(self):
         """
@@ -561,12 +561,9 @@ class ContentManager:
 
         self.UnloadSounds()
 
-        self.LoadSoundsInFolder(self.Sound_LastInit)
-
     # endregion
 
     # region Sound Functions
-    # -- Get SoundTune from JIT Cache -- #
     def GetTune_FromTuneCache(self, Frequency, Duration, SampleRate):
         """
         Get SoundJut from JIT Cache
@@ -586,6 +583,13 @@ class ContentManager:
             return self.SoundTuneCache_Cache[self.SoundTuneCache_Names.index(ObjName)]
 
     def GenerateSoundTune(self, Frequency, Duration, SampleRate):
+        """
+        Generate Sound Tune
+        :param Frequency:Frequency
+        :param Duration:Duration
+        :param SampleRate:Sample Rate
+        :return:Buffer
+        """
         # -- Generate the Tune -- #
         n_samples = int(round(Duration * SampleRate))
 
@@ -616,10 +620,7 @@ class ContentManager:
         :param SampleRate:Sample Rate of the Tone
         :return:
         """
-        if SoundDisabled:
-            return
-
-        if Frequency == 0 or Duration == 0:
+        if SoundDisabled or Frequency == 0 or Duration == 0:
             return
 
         # -- Get the tune from the JIT Cache -- #
@@ -656,7 +657,7 @@ class ContentManager:
         """
         if SoundDisabled: return
 
-        for i, channel in enumerate(self.SoundChannels):
+        for channel in self.SoundChannels:
             channel.stop()
 
     def PauseAllChannels(self):
@@ -666,7 +667,7 @@ class ContentManager:
         """
         if SoundDisabled: return
 
-        for i, channel in enumerate(self.SoundChannels):
+        for channel in self.SoundChannels:
             channel.pause()
 
     def UnpauseAllChannels(self):
@@ -676,7 +677,7 @@ class ContentManager:
         """
         if SoundDisabled: return
 
-        for i, channel in enumerate(self.SoundChannels):
+        for channel in self.SoundChannels:
             channel.unpause()
 
     def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0):
@@ -709,6 +710,8 @@ class ContentManager:
         for i, channel in enumerate(self.SoundChannels):
             if i == ChannelID:
                 channel.stop()
+                break
+
 
     def FadeoutSound(self, ChannelID, FadeoutTime):
         """
@@ -722,6 +725,20 @@ class ContentManager:
         for i, channel in enumerate(self.SoundChannels):
             if i == ChannelID:
                 channel.fadeout(FadeoutTime)
+                break
+
+    def SetSoundVoume(self, ChannelID, NewVolume):
+        """
+        Set Volume of a Sound on Specific ID
+        :param ChannelID:Specified ChannelID
+        :param NewVolume:Volume (Range 0.0 to 1.0)
+        :return:
+        """
+        if SoundDisabled: return
+
+        for i, channel in enumerate(self.SoundChannels):
+            if i == ChannelID:
+                channel.set_volume(NewVolume)
 
     def Get_ChannelIsBusy(self, ChannelID):
         if SoundDisabled: return
