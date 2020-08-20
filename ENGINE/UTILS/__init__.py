@@ -397,3 +397,8 @@ class AnimationController:
 
                 if self.Value <= self.MinValue:
                     self.DisableSignal = True
+
+def Is_Multiple(x, y):
+    x = int(x)
+    y = int(y)
+    return x and (y % x) == 0
