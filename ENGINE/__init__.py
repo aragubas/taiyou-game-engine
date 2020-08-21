@@ -42,10 +42,11 @@ def Get_BootloaderVersion():
 
 
 # -- Calculate the Version of Taiyou Game Engine -- #
-TaiyouGeneralVersion = (float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion())) - 8.0
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion())
 
 # -- Print Runtime Version -- #
-print("Taiyou General version " + Get_Version())
+print("\nTaiyou General version " + str(TaiyouGeneralVersion))
+print("\n")
 
 # -- Imports All Modules -- #
 from ENGINE import CONTENT_MANAGER as cntMng
