@@ -566,7 +566,7 @@ class ContentManager:
     # region Sound Functions
     def GetTune_FromTuneCache(self, Frequency, Duration, SampleRate):
         """
-        Get SoundJut from JIT Cache
+        Get SoundTune from JIT Cache
         :param Frequency:Sound Frequency
         :param Duration:Sound Duration
         :param SampleRate:Sample Rate
