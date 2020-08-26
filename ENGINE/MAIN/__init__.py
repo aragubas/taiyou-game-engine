@@ -174,7 +174,7 @@ def SetGameObject(GameFolder):
     global GameObject
     global DISPLAY
 
-    print("Taiyou.GameExecution.SetGameObject : Loading Module is: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
+    print("Taiyou.GameExecution.SetGameObject : Loading Module: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
 
     utils.GarbageCollector_Collect()
     del GameObject

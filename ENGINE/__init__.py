@@ -32,7 +32,7 @@ def Get_TaiyouMainVersion():
     return "3.3"
 
 def Get_ContentManagerVersion():
-    return "2.1"
+    return "2.2"
 
 def Get_FXVersion():
     return "1.0"

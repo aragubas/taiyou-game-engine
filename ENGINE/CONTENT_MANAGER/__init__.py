@@ -422,6 +422,7 @@ class ContentManager:
         if not FontRenderingDisabled:
             # -- Get the FontFileObject, required for all functions here -- #
             FontFileObject = self.GetFont_object(FontFileLocation, Size)
+            ColorRGB = utils.FixColorRange(ColorRGB)
 
             if X <= DISPLAY.get_width() and Y <= DISPLAY.get_height() and X >= -FontFileObject.render(Text, antialias, ColorRGB).get_width() and Y >= -FontFileObject.render(Text, antialias, ColorRGB).get_height() and not Text == "":
                 # -- Fix Opacity Range -- #
@@ -679,6 +680,12 @@ class ContentManager:
 
         for channel in self.SoundChannels:
             channel.unpause()
+
+    def UnloadSoundTuneCache(self):
+        utils.GarbageCollector_Collect()
+        self.SoundTuneCache_Cache.clear()
+        self.SoundTuneCache_Names.clear()
+        utils.GarbageCollector_Collect()
 
     def PlaySound(self, SourceName, Volume=1.0, LeftPan=1.0, RightPan=1.0, ForcePlay=False, PlayOnSpecificID=None, Fadeout=0):
         """
