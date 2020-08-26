@@ -17,7 +17,7 @@
 
 # -- Modules Versions -- #
 def Get_Version():
-    return "2.9"
+    return "3.0"
 
 def Get_ShapeVersion():
     return "2.0"
@@ -32,7 +32,7 @@ def Get_TaiyouMainVersion():
     return "3.3"
 
 def Get_ContentManagerVersion():
-    return "2.2"
+    return "2.3"
 
 def Get_FXVersion():
     return "1.0"
@@ -40,9 +40,12 @@ def Get_FXVersion():
 def Get_BootloaderVersion():
     return "1.5"
 
+def Get_MAINVersion():
+    return "1.2"
+
 
 # -- Calculate the Version of Taiyou Game Engine -- #
-TaiyouGeneralVersion = float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion())
+TaiyouGeneralVersion = float(Get_Version()) + float(Get_ShapeVersion()) + float(Get_AppDataVersion()) + float(Get_UtilsVersion()) + float(Get_TaiyouMainVersion()) + float(Get_ContentManagerVersion()) + float(Get_FXVersion()) + float(Get_BootloaderVersion()) + float(Get_MAINVersion())
 
 # -- Print Runtime Version -- #
 print("\nTaiyou General version " + str(TaiyouGeneralVersion))
@@ -366,26 +369,32 @@ def InitEngine():
     # -- Initialize FastEvent -- #
     pygame.fastevent.init()
 
-    # -- Set the Game Folder -- #
-    GameFolder = open(".current_game", "r").read().rstrip()
-    CurrentGame_Folder = GameFolder
-
-    # -- Set the AppData Folder -- #
-    if platform.system() == "Linux":
-        TaiyouPath_AppDataFolder = "AppData/" + GameFolder
-
-    elif platform.system() == "Windows":
-        TaiyouPath_AppDataFolder = "AppData\\" + GameFolder
-    utils.Directory_MakeDir(TaiyouPath_AppDataFolder)
-
-
-    MAIN.CurrentRes_W = 800
-    MAIN.CurrentRes_H = 600
-
     MAIN.SetDisplay()
 
-    InitializeGame()
+    InitializeBootloader()
 
+def InitializeBootloader():
+    global TaiyouPath_CorrectSlash
+    global CurrentGame_Folder
+    global TaiyouPath_AppDataFolder
+    global TaiyouPath_CorrectAssetsFolder
+
+    CurrentGame_Folder = "Taiyou{0}Bootloader".format(TaiyouPath_CorrectSlash)
+    TaiyouPath_CorrectAssetsFolder = "{0}{1}".format(CurrentGame_Folder, TaiyouPath_CorrectSlash)
+    MAIN.SetGameObject(CurrentGame_Folder)
+
+
+def UnloadCurrentGame():
+    global TaiyouPath_CorrectSlash
+    global CurrentGame_Folder
+    global TaiyouPath_AppDataFolder
+    global TaiyouPath_CorrectAssetsFolder
+
+    MAIN.DeleteGameObject()
+
+    CurrentGame_Folder = ""
+    TaiyouPath_AppDataFolder = ""
+    TaiyouPath_CorrectAssetsFolder = ""
 
 def InitializeGame():
     """
@@ -397,21 +406,23 @@ def InitializeGame():
     global TaiyouPath_AppDataFolder
     global TaiyouPath_CorrectAssetsFolder
 
-    # -- Load Game Assets -- #
-    GameFolder = open(".current_game", "r").read().rstrip()
+    try:
+        # -- Set the Game Folder -- #
+        CurrentGame_Folder = open(".current_game", "r").read().rstrip()
 
-    CurrentGame_Folder = GameFolder
+        # -- Set the AppData Folder -- #
+        if platform.system() == "Linux":
+            TaiyouPath_AppDataFolder = "AppData/" + CurrentGame_Folder
 
-    TaiyouPath_CorrectAssetsFolder = "{0}{1}".format(GameFolder, TaiyouPath_CorrectSlash)
+        elif platform.system() == "Windows":
+            TaiyouPath_AppDataFolder = "AppData\\" + CurrentGame_Folder
+        utils.Directory_MakeDir(TaiyouPath_AppDataFolder)
 
-    MAIN.SetGameObject(GameFolder)
+        TaiyouPath_CorrectAssetsFolder = "{0}{1}".format(CurrentGame_Folder, TaiyouPath_CorrectSlash)
+        MAIN.SetGameObject(CurrentGame_Folder)
 
-    FileExistPath = GameFolder + "{0}splash.png".format(TaiyouPath_CorrectSlash)
-
-    if utils.Directory_Exists(FileExistPath):
-        SplashLogo = pygame.image.load(FileExistPath).convert()
-        MAIN.DISPLAY.blit(SplashLogo, (0, 0))
-        pygame.display.flip()
+    except Exception as ex:
+        InitializeBootloader()
 
 # region Game Infos Functions
 def Get_GameSourceFolder():

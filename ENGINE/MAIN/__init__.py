@@ -170,23 +170,26 @@ def SetGameObject(GameFolder):
     :param GameFolder:Folder Path
     :return:
     """
-
     global GameObject
     global DISPLAY
 
     print("Taiyou.GameExecution.SetGameObject : Loading Module: [" + tge.Get_MainGameModuleName(GameFolder) + "]")
 
-    utils.GarbageCollector_Collect()
-    del GameObject
-    utils.GarbageCollector_Collect()
-    GameObject = None
-    utils.GarbageCollector_Collect()
+    DeleteGameObject()
     # -- Initialize the Game Object -- #
     GameObject = importlib.import_module(tge.Get_MainGameModuleName(GameFolder))
     utils.GarbageCollector_Collect()
     GameObject.Initialize(DISPLAY)  # -- Call the Game Initialize Function --
     utils.GarbageCollector_Collect()
 
+def DeleteGameObject():
+    global GameObject
+
+    utils.GarbageCollector_Collect()
+    del GameObject
+    utils.GarbageCollector_Collect()
+    GameObject = None
+    utils.GarbageCollector_Collect()
 
 def Run():
     global GameObject

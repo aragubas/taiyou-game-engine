@@ -239,6 +239,25 @@ class ContentManager:
             except Exception as ex:
                 print("Sprite.Render : Error while rendering sprite;\n" + str(ex))
 
+    def GetImage_width(self, sprite, ImageNotLoaded=False):
+        # -- Set the Image Variable -- #
+        if not ImageNotLoaded:
+            Image = self.GetSprite(sprite)
+        else:
+            Image = sprite
+
+        return Image.get_width()
+
+    def GetImage_height(self, sprite, ImageNotLoaded=False):
+        # -- Set the Image Variable -- #
+        if not ImageNotLoaded:
+            Image = self.GetSprite(sprite)
+        else:
+            Image = sprite
+
+        return Image.get_height()
+
+
     def IsOnScreen(self, DISPLAY, X, Y, Width, Height):
         """
         Check if Object is on Screen
@@ -347,24 +366,20 @@ class ContentManager:
         :param keyName:Name of Key [starting with /]
         :return:KeyData
         """
-        try:
-            if valueType is str:
-                return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
+        if valueType is str:
+            return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
 
-            elif valueType is int:
-                return int(self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))])
+        elif valueType is int:
+            return int(self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))])
 
-            elif valueType is float:
-                return float(self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))])
+        elif valueType is float:
+            return float(self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))])
 
-            elif valueType is bool:
-                return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
+        elif valueType is bool:
+            return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
 
-            else:
-                return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
-
-        except ValueError:
-            raise FileNotFoundError("Taiyou.ContentManager.Get_RegKey Error!\nCannot find the Registry Key [{0}].".format(str(keyName)))
+        else:
+            return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
 
     def Write_RegKey(self, keyName, keyValue):
         """

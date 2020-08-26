@@ -26,32 +26,36 @@ import sys
 
 DefaultContents = cntMng.ContentManager
 ExcpWritten = False
-FlashBorderDelta = 0
-FlashBorderValue = 1
+TextToDisplay = "/error_text"
 TracebackText = "null"
-SysTxt = "null"
-ModulesTxt = "null"
-TracebackViewerMode = False
-FontSize = 8
-TextPanX = 0
-TextPanY = 0
+ErrorSoundPlayed = False
+FormatedTrackback = ""
+ErrorDescription = "null"
+ErrorDescriptionX = 0
+ErrorDescriptionY = 0
+
 
 def Initialize(DISPLAY):
     global DefaultContents
+    global TracebackText
+    global FormatedTrackback
+
     tge.RunInFullScreen = False
 
-    MAIN.ReceiveCommand(0, 15)
+    MAIN.ReceiveCommand(0, 60)
     MAIN.ReceiveCommand(1, "800x600")
     MAIN.ReceiveCommand(5, "Taiyou Game Engine has CRASHED!")
-    MAIN.ReceiveCommand(6, True)
+    MAIN.ReceiveCommand(6, False)
 
     DefaultContents = cntMng.ContentManager()
     tge.CurrentGame_Folder = "Taiyou{0}ERROR{0}".format(tge.TaiyouPath_CorrectSlash)
     DefaultContents.SetFontPath("Data{0}FONT".format(tge.TaiyouPath_CorrectSlash))
+    DefaultContents.LoadSpritesInFolder("Data/SPRITE")
+    DefaultContents.LoadRegKeysInFolder("Data/REG")
+    DefaultContents.LoadSoundsInFolder("Data/SOUND")
 
     print("Taiyou.CrashScreen : Initialized")
     WriteLog()
-    UpdateErrorTexts()
 
     # -- Set the Key Repeat -- #
     pygame.key.set_repeat(1, 10)
@@ -59,35 +63,25 @@ def Initialize(DISPLAY):
     # -- Print the Exception -- #
     print(traceback.format_exc())
 
-def UpdateErrorTexts():
-    global SysTxt
-    global ModulesTxt
+    FormatedTrackback = list(TracebackText)
 
-    SysTxt = "                       Taiyou Game Engine has Failed!               \n\n\n" \
-             "If you are seeing this screen, the current application don't have an\n" \
-             "Exception Handling System. Take a Screenshot of this screen and send\n" \
-             "to the developer of the Application.\n\n" \
-             "\n\n#-- Exception 'Nickname' -- #\n" \
-             "Excp(\n\n{0}\n\n)\n" \
-             "\n\n" \
-             "All details of the Exception has been written on\n" \
-             "(.{1}LastExc.txt).\n" \
-             "Press (ESC) key to exit"
+    AllText = ""
 
-    try:
-        SysTxt = SysTxt.format(tge.LastException, tge.TaiyouPath_CorrectSlash)
+    for line in TracebackText.splitlines():
+        LineList = list(line)
 
-    except Exception as ex:
-        print("Taiyou.CrashScreen : Error while parsing the string:\n" + str(ex))
+        while len(LineList) >= 120:
+            LineList = ''.join(LineList)[:-1]
+            print(str(LineList))
 
-    ModulesTxt = "#-- Modules Version --#\n\nRuntime: {0}\n\nAppData: {1}\n\nContentManager: {2}\n\nFx: {3}\n\nMain: {4}\n\nShape: {5}\n\nUtils: {6}\n\nGeneral: {7}"
+        AllChars = ""
 
-    try:
-        ModulesTxt = ModulesTxt.format(str(tge.Get_Version()), str(tge.Get_AppDataVersion()), str(tge.Get_ContentManagerVersion()), str(tge.Get_FXVersion()), str(tge.Get_TaiyouMainVersion()), str(tge.Get_ShapeVersion()), str(tge.Get_UtilsVersion()), str(tge.TaiyouGeneralVersion))
+        for char in LineList:
+            AllChars += char
 
-    except Exception as ex:
-        print("Taiyou.CrashScreen : Error while parsing the string:\n" + str(ex))
+        AllText += "\n{0}".format(AllChars)
 
+    FormatedTrackback = AllText
 
 def WriteLog():
     global TracebackText
@@ -113,51 +107,42 @@ def WriteLog():
     TracebackText = traceback.format_exc()
 
 def Update():
-    global FlashBorderDelta
-    global FlashBorderValue
+    global ErrorDescription
+    global ErrorDescriptionX
+    global ErrorDescriptionY
+    global TracebackText
+    global ErrorSoundPlayed
+    global FormatedTrackback
 
-    FlashBorderDelta += 1
+    if not ErrorSoundPlayed:
+        ErrorSoundPlayed = True
+        DefaultContents.PlaySound("/notify.wav")
 
-    if FlashBorderDelta == 5:
-        FlashBorderValue = 1
-
-    if FlashBorderDelta >= 10:
-        FlashBorderDelta = 1
-
-    if FlashBorderDelta == 1:
-        FlashBorderValue = 4
+    ErrorDescription = DefaultContents.Get_RegKey(TextToDisplay).format(FormatedTrackback)
+    ErrorDescriptionX = 800 / 2 - DefaultContents.GetFont_width("/Ubuntu_Bold.ttf", 14, ErrorDescription) / 2
+    ErrorDescriptionY = 60 + DefaultContents.GetImage_height("/warning.png")
 
 def GameDraw(DISPLAY):
     global DefaultContents
-    global FlashBorderValue
+    global TextToDisplay
+    global ErrorDescription
+    global ErrorDescriptionX
+    global ErrorDescriptionY
     DISPLAY.fill((0, 0, 0))
 
-    shape.Shape_Rectangle(DISPLAY, (135, 20, 55), (5, 5, 790, 255), FlashBorderValue)
+    # -- Render Background -- #
+    DefaultContents.ImageRender(DISPLAY, "/background.png", 0, 0)
 
-    RenderSysTxt(DISPLAY)
+    # -- Render the Taiyou Logo -- #
+    DefaultContents.ImageRender(DISPLAY, "/warning.png", 800 / 2 - DefaultContents.GetImage_width("/warning.png") / 2, 50)
 
-    RenderModuleVersions(DISPLAY)
 
+    # -- Render the Text -- #
+    DefaultContents.ImageRender(DISPLAY, "/bar.png", ErrorDescriptionX, ErrorDescriptionY, DefaultContents.GetFont_width("/Ubuntu_Bold.ttf", 14, ErrorDescription), DefaultContents.GetFont_height("/Ubuntu_Bold.ttf", 14, ErrorDescription))
+    DefaultContents.FontRender(DISPLAY, "/Ubuntu_Bold.ttf", 14, ErrorDescription, (255, 255, 255), ErrorDescriptionX, ErrorDescriptionY)
 
-def RenderSysTxt(DISPLAY):
-    global DefaultContents
-    global SysTxt
-
-    DefaultContents.FontRender(DISPLAY, "/PressStart2P.ttf", 10, SysTxt, (135, 55, 32), 15, 15, backgroundColor=(0, 0, 0))
-
-def RenderModuleVersions(DISPLAY):
-    global DefaultContents
-    global FontSize
-    global TextPanX
-    global TextPanY
-    global ModulesTxt
-    global TracebackViewerMode
-
-    if not TracebackViewerMode:
-        DefaultContents.FontRender(DISPLAY, "/PressStart2P.ttf", FontSize, ModulesTxt, (32, 55, 135), 15 + TextPanX, 275 + TextPanY, backgroundColor=(0, 0, 0))
-    else:
-        DefaultContents.FontRender(DISPLAY, "/PressStart2P.ttf", FontSize, TracebackText, (255, 255, 255), 15 + TextPanX, 275 + TextPanY, backgroundColor=(0, 0, 0))
-
+    # -- Render Cursor -- #
+    DefaultContents.ImageRender(DISPLAY, "/cursor.png", pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 
 def EventUpdate(event):
     global TracebackViewerMode
@@ -167,46 +152,3 @@ def EventUpdate(event):
 
     if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
         MAIN.Destroy()
-
-    # -- Enable Traceback Viewer -- #
-    if event.type == pygame.KEYUP and event.key == pygame.K_t:
-        if not TracebackViewerMode:
-            TracebackViewerMode = True
-        else:
-            TracebackViewerMode = False
-        TextPanX = 0
-        TextPanY = 0
-
-    # -- Traceback Viwer Controls -- #
-    if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_m:
-            if FontSize < 30:
-                FontSize += 1
-
-        # -- Decrease Font Size -- #
-        if event.key == pygame.K_n:
-            if FontSize > 6:
-                FontSize -= 1
-
-        # -- Increase Font Size -- #
-        if event.key == pygame.K_w:
-            TextPanY -= 5
-
-        # -- Move Text -- #
-        if event.key == pygame.K_s:
-            TextPanY += 5
-
-        # -- Move Text -- #
-        if event.key == pygame.K_a:
-            TextPanX -= 5
-
-        # -- Move Text -- #
-        if event.key == pygame.K_d:
-            TextPanX += 5
-
-        # -- Restart Values -- #
-        if event.key == pygame.K_r:
-            TextPanX = 0
-            TextPanY = 0
-            FontSize = 8
-
