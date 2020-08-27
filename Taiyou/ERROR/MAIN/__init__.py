@@ -57,22 +57,19 @@ def Initialize(DISPLAY):
     print("Taiyou.CrashScreen : Initialized")
     WriteLog()
 
-    # -- Set the Key Repeat -- #
-    pygame.key.set_repeat(1, 10)
-
     # -- Print the Exception -- #
     print(traceback.format_exc())
 
     FormatedTrackback = list(TracebackText)
 
     AllText = ""
+    SplitedLines = TracebackText.splitlines()
 
-    for line in TracebackText.splitlines():
+    for line in SplitedLines:
         LineList = list(line)
 
-        while len(LineList) >= 120:
+        while len(LineList) >= 100:
             LineList = ''.join(LineList)[:-1]
-            print(str(LineList))
 
         AllChars = ""
 

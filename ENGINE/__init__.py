@@ -32,7 +32,7 @@ def Get_TaiyouMainVersion():
     return "3.3"
 
 def Get_ContentManagerVersion():
-    return "2.3"
+    return "2.4"
 
 def Get_FXVersion():
     return "1.0"
@@ -342,6 +342,7 @@ def InitEngine():
 
             if VideoX11YUV_HWACCEL:
                 os.environ['SDL_VIDEO_YUV_HWACCEL'] = "1"  # -- Set the YUV HWACCEL Parameter
+        print("Taiyou.Runtime.InitEngine : SDL2 Parameters has been applyed")
 
     else:
         print("Taiyou.Runtime.InitEngine : SDL2 Parameters has been disabled")
@@ -422,6 +423,7 @@ def InitializeGame():
         MAIN.SetGameObject(CurrentGame_Folder)
 
     except Exception as ex:
+        # -- Set to the error screen -- #
         InitializeBootloader()
 
 # region Game Infos Functions
@@ -433,7 +435,7 @@ def Get_GameSourceFolder():
     global CurrentGame_Folder
     global TaiyouPath_CorrectSlash
 
-    return CurrentGame_Folder + TaiyouPath_CorrectSlash
+    return ''.join((CurrentGame_Folder, TaiyouPath_CorrectSlash))
 
 
 def Get_MainGameModuleName(GameFolder):

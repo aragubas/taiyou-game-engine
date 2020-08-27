@@ -48,6 +48,10 @@ def Initialize(DISPLAY):
     DefaultContent.LoadSoundsInFolder("RES/sound")
     DefaultContent.SetFontPath("RES/font")
 
+    print("Sounds Loaded")
+    print(DefaultContent.AllLoadedSounds)
+    print("Initialize Called")
+    
     pygame.mouse.set_visible(False)
     MAIN.ReceiveCommand(5, "Taiyou Game Engine v{0}".format(utils.FormatNumber(tge.TaiyouGeneralVersion)))
     MAIN.ReceiveCommand(0, 60)

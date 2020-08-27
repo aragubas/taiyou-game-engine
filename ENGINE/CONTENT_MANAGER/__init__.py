@@ -286,7 +286,7 @@ class ContentManager:
         # -- Unload the Registry -- #
         self.UnloadRegistry()
 
-        print("Taiyou.ContentManager.LoadRegistry : Loading Application Registry")
+        print("Taiyou.ContentManager.LoadRegistry : Loading Registry...")
 
         temp_reg_keys = utils.Directory_FilesList(reg_dir)
         index = -1
@@ -376,7 +376,7 @@ class ContentManager:
             return float(self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))])
 
         elif valueType is bool:
-            return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))].lower() in ("true", "yes", "t", "1")
+            return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))].lower() in ("true")
 
         else:
             return self.reg_contents[self.reg_keys.index(self.CorrectKeyName(keyName))]
@@ -715,6 +715,9 @@ class ContentManager:
         """
         if SoundDisabled: return
 
+        # -- Convert to the Correct Slash -- #
+        SourceName = SourceName.replace("/", tge.TaiyouPath_CorrectSlash)
+        
         # -- Get Sound -- #
         sound = self.AllLoadedSounds.get(SourceName)
         sound.set_volume(Volume)
