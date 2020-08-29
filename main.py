@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+#!/usr/bin/python3.7
 #   Copyright 2020 Aragubas
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +14,9 @@
 #   limitations under the License.
 #
 #
-from ENGINE import MAIN as Taiyou
-import ENGINE as tge
-import traceback
+import Engine
 
-Taiyou.Initialize()  # -- Initialize Taiyou Game Engine
+# -- Initialize the Game Engine -- #
+Engine.init_engine()
 
-try:
-    while True:
-        # -- Check for Errors -- #
-        Taiyou.Run()
-
-except Exception as ex:
-    print("Taiyou Game Engine has crashed! [{0}]\nInitializing Error Mode...".format(str(ex)))
-    tge.LastException = ex
-
-    Taiyou.SetGameObject("Taiyou{0}ERROR".format(tge.TaiyouPath_CorrectSlash))
-
-    while True:
-        # -- Check for Errors -- #
-        Taiyou.Run()
+Engine.Main.Initialize()
