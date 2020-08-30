@@ -103,40 +103,67 @@ class ContentManager:
 
         Utils.GarbageCollector_Collect()
 
-    def CorrectKeyName(self, keyEntred):
+    def Get_RegKey(self, keyName, valueType=0):
         """
-        Returns the correct name of a key
-        :param keyEntred:KeyTag
+        Returns a String Key\n
+        Return Type LookupTable:\n
+        ID  Value Type\n
+        ##  ##########\n
+        0 - String\n
+        1 - Integer\n
+        2 - Float\n
+        3 - Boolean
+        :param keyName:Name of Key, [starting with /]
+        :param valueType: Value Return Type
+        """
+        return getattr(self, ''.join(('kt', str(valueType))))(keyName)
+
+    def Write_RegKey(self, keyName, keyValue, isBoolean=False):
+        """
+        Write an Registry Key
+        :param keyName:KeyTag
+        :param keyValue:New Value
         :return:
         """
-        if not keyEntred.startswith("/"):
-            return "{0}{1}".format(tge.CorrectSlash, keyEntred)
-        else:
-            return keyEntred.replace("/", tge.CorrectSlash)
+        FileLocation = ''.join((self.RegistrySystem_LastInit, keyName, ".data"))
 
-    def Get_RegKey(self, keyName, valueType=str):
-        """
-        Returns a String Key
-        :param keyName:Name of Key [starting with /]
-        :return:KeyData
-        """
-        if valueType is str:
-            return self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(self.CorrectKeyName(keyName))]
+        # -- Create the directory -- #
+        os.makedirs(os.path.dirname(FileLocation), exist_ok=True)
 
-        elif valueType is int:
-            return int(self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(self.CorrectKeyName(keyName))])
+        # -- Modify the Loaded Value in Memory -- #
+        self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(keyName)] = keyValue
 
-        elif valueType is float:
-            return float(self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(self.CorrectKeyName(keyName))])
+        # -- Re-Write the Key Value -- #
+        f = open(FileLocation, "w+")
 
-        elif valueType is bool:
-            return self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(self.CorrectKeyName(keyName))].lower() in ("true")
+        if not isBoolean:  # -- If is not boolean, directly write the value
+            f.write(keyValue)
 
-        else:
-            return self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(self.CorrectKeyName(keyName))]
+        else: # -- Value is boolean
+            if keyValue is True or keyValue == "True":
+                f.write("1")
+            else:
+                f.write("0")
 
+        f.close()
 
     #endregion
+
+    #region Registry Key Types
+    def kt0(self, keyName):
+        return self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(keyName)]
+
+    def kt1(self, keyName):
+        return int(self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(keyName)])
+
+    def kt2(self, keyName):
+        return float(self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(keyName)])
+
+    def kt3(self, keyName):
+        return self.LoadedRegistryKeys_Data[self.LoadedRegistryKeys_Names.index(keyName)].lower() in "1"
+
+    #endregion
+
 
     #region Texture I/O Functions
     def LoadSpritesInFolder(self, FolderName):
@@ -170,7 +197,8 @@ class ContentManager:
         """
         try:
             return self.LoadedTextures_Data[self.LoadedTextures_Name.index(SpriteResourceName)]
-        except:
+
+        except ValueError:
             print("GetSprite : Sprite[" + SpriteResourceName + "] does not exist.")
             return DefaultSprite
 

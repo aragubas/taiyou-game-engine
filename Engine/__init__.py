@@ -23,7 +23,10 @@ def Get_ContentManager():
 def Get_UtilsVersion():
     return "1.1"
 
-GeneralVersion = float(Get_Version()) + float(Get_ContentManager()) + float(Get_UtilsVersion()) + 20
+def Get_AppDataVersion():
+    return "1.1"
+
+GeneralVersion = float(Get_Version()) + float(Get_ContentManager()) + float(Get_UtilsVersion()) + float(Get_AppDataVersion()) + 20
 
 print("Taiyou General Version\n{0}".format(GeneralVersion))
 
@@ -35,9 +38,10 @@ IPLloaderName = ""
 
 Current_ApplicationFolder = ""
 
-from Engine import Utils as utils
-from Engine.Utils import Convert as convert
+from Engine import Utils
+from Engine.Utils import Convert
 from Engine import Main
+from Engine import AppData
 import Engine.ContentManager as Content
 
 import os, platform
@@ -70,8 +74,10 @@ def init_engine():
 def Loader(source_folder):
     global CorrectSlash
     global Current_ApplicationFolder
+    global AppDataFolder
 
     Current_ApplicationFolder = source_folder
+    AppDataFolder = ''.join(("AppData", CorrectSlash, source_folder.replace("/", "."), "/"))
     print("Taiyou.Loader : Loading Module {0}...".format(Current_ApplicationFolder))
 
     Main.SetGameObject(source_folder)

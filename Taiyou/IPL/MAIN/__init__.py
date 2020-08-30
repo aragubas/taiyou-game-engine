@@ -20,29 +20,34 @@ from pyglet.gl import *
 from random import randint
 
 import Engine as tge
-from Engine import utils
+from Engine import Utils
 from Engine import Content
+from Engine import AppData
 
 cursor_x = 0
 cursor_y = 0
 window = tge.Main.window
 
-AnimationController = utils.AnimationController
+AnimationController = Utils.AnimationController
 
 ContentManager = Content.ContentManager
+
 Cursor = pyglet.sprite.Sprite
 Background = pyglet.sprite.Sprite
 TaiyouLogo = pyglet.sprite.Sprite
 
-main_batch = pyglet.graphics
+main_batch = pyglet.graphics.Batch
 background = pyglet.graphics.OrderedGroup
 foreground = pyglet.graphics.OrderedGroup
 cursor = pyglet.graphics.OrderedGroup
 TextDisplay = pyglet.text.Label
 
+ErrorScreenEnabled = False
 StartupChime = False
 NotifyChime = True
 LogoAnimationReady = False
+InitialUpdate = False
+
 AnimationNextEnableDelay = 0
 AnimationMode = 0
 AnimationEndDelay = 0
@@ -72,7 +77,7 @@ def Initialize():
     foreground = pyglet.graphics.OrderedGroup(2)
     cursor = pyglet.graphics.OrderedGroup(0)
 
-    AnimationController = utils.AnimationController(0.05)
+    AnimationController = Utils.AnimationController(0.05)
 
     ContentManager = Content.ContentManager()
     ContentManager.LoadRegKeysInFolder("Data/reg")
@@ -94,15 +99,21 @@ def Initialize():
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+    FileIO = AppData.GetAppDataPathIO("/ceiral.data")
+    FileIO.write("Ceiral")
+    FileIO.close()
+
 def on_draw():
     global main_batch
     global cursor_x
     global cursor_y
+    global InitialUpdate
 
     window.clear()
 
     # -- Draw the Sprites -- #
-    main_batch.draw()
+    if InitialUpdate:
+        main_batch.draw()
 
 def run(DeltaTime):
     global Cursor
@@ -119,11 +130,30 @@ def run(DeltaTime):
     global TextDisplay
     global StartupChime
     global NotifyChime
+    global ErrorScreenEnabled
+    global InitialUpdate
 
     AnimationController.Update()
 
+    # -- Set Sprites Opacity -- #
+    Background.opacity = AnimationController.Value
+    TaiyouLogo.opacity = AnimationController.Value
+    TextDisplay.color = (230, 230, 230, int(AnimationController.Value))
+
+    # -- Set Objects Position -- #
+    Cursor.x = cursor_x
+    Cursor.y = cursor_y
+    TaiyouLogo.x = window.width / 2 - TaiyouLogo.width / 2
+    TextDisplay.x = window.width / 2
+    TextDisplay.y = 50
+
+    if ContentManager.Get_RegKey("/skip") and not ErrorScreenEnabled:
+        InitializationStep()
+        StartupChime = True
+        return
+
     # -- Limit Value Range -- #
-    AnimationController.Value = utils.LimitValueRange(AnimationController.Value, 0, 255)
+    AnimationController.Value = Utils.LimitValueRange(AnimationController.Value, 0, 255)
 
     if not StartupChime:
         StartupChime = True
@@ -133,20 +163,7 @@ def run(DeltaTime):
     if not NotifyChime:
         NotifyChime = True
         ContentManager.PlaySound("/notify.wav")
-
-
-    # -- Set Sprites Opacity -- #
-    Background.opacity = AnimationController.Value
-    TaiyouLogo.opacity = AnimationController.Value
-    TextDisplay.color = (230, 230, 230, int(AnimationController.Value))
-
-    Cursor.x = cursor_x
-    Cursor.y = cursor_y
-
-    TaiyouLogo.x = window.width / 2 - TaiyouLogo.width / 2
-
-    TextDisplay.x = window.width//2
-    TextDisplay.y = 50
+        ContentManager.Write_RegKey("/test", False, True)
 
     # -- Animation Triggers -- #
     if not AnimationController.Enabled and AnimationEndDelay == 0:
@@ -167,6 +184,8 @@ def run(DeltaTime):
         AnimationMode += 1
         AnimationController.Enabled = True
 
+    InitialUpdate = True
+
 def ErrorScreen(RegKeyText):
     global AnimationMode
     global TextDisplay
@@ -174,7 +193,9 @@ def ErrorScreen(RegKeyText):
     global NotifyChime
     global TaiyouLogo
     global AnimationController
+    global ErrorScreenEnabled
 
+    ErrorScreenEnabled = True
     AnimationMode += 1
     TextDisplay.text = ContentManager.Get_RegKey(RegKeyText)
     AnimationEndDelay = 50
@@ -186,13 +207,13 @@ def ErrorScreen(RegKeyText):
 def InitializationStep():
     global LogoAnimationReady
     global AnimationMode
-    global TextToDisplay
     global AnimationEndDelay
     global NotifyChime
     global StartupChime
     global AnimationNextEnableDelay
     global TaiyouLogo
     global AnimationController
+    global InitialUpdate
 
     # -- Check if there is any game to Initialize -- #
     CurrentGame_Folder = open(".current_game", "r").read().rstrip()
@@ -214,19 +235,17 @@ def InitializationStep():
             tge.Loader("Taiyou/IPL")
             ErrorScreen("/cannot_boot_game")
 
-
         if Bookshelf:
-            print("ceirla")
             tge.CloseApplicationFolder()
 
             # -- Restart Variables -- #
-            TextToDisplay = ContentManager.Get_RegKey("/text1")
             StartupChime = False
             NotifyChime = True
             LogoAnimationReady = False
             AnimationNextEnableDelay = 0
             AnimationMode = 0
             AnimationEndDelay = 0
+            InitialUpdate = False
             window.set_caption("Taiyou Game Engine v{0}".format(tge.GeneralVersion))
 
 @window.event
