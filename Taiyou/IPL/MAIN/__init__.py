@@ -14,7 +14,7 @@
 #   limitations under the License.
 #
 #
-import pyglet
+import pyglet, traceback
 from pyglet.window import key
 from pyglet.gl import *
 from random import randint
@@ -80,10 +80,10 @@ def Initialize():
     AnimationController = Utils.AnimationController(0.05)
 
     ContentManager = Content.ContentManager()
+    ContentManager.InitSoundSystem()
     ContentManager.LoadRegKeysInFolder("Data/reg")
     ContentManager.LoadSpritesInFolder("Data/img")
     ContentManager.AddFontsInFolder("Data/font")
-    ContentManager.InitSoundSystem()
     ContentManager.LoadSoundsInFolder("Data/sound")
 
     Cursor = pyglet.sprite.Sprite(ContentManager.GetSprite("/cursor.png"), 0, 0, batch=main_batch)
@@ -99,10 +99,6 @@ def Initialize():
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    FileIO = AppData.GetAppDataPathIO("/ceiral.data")
-    FileIO.write("Ceiral")
-    FileIO.close()
-
 def on_draw():
     global main_batch
     global cursor_x
@@ -115,7 +111,7 @@ def on_draw():
     if InitialUpdate:
         main_batch.draw()
 
-def run(DeltaTime):
+def run(dt):
     global Cursor
     global Background
     global AnimationController
@@ -134,6 +130,13 @@ def run(DeltaTime):
     global InitialUpdate
 
     AnimationController.Update()
+    # -- Limit Value Range -- #
+    AnimationController.Value = Utils.LimitValueRange(AnimationController.Value, 0, 255)
+
+    if ContentManager.Get_RegKey("/skip", 3) and not ErrorScreenEnabled:
+        InitializationStep()
+        StartupChime = True
+        return
 
     # -- Set Sprites Opacity -- #
     Background.opacity = AnimationController.Value
@@ -146,14 +149,6 @@ def run(DeltaTime):
     TaiyouLogo.x = window.width / 2 - TaiyouLogo.width / 2
     TextDisplay.x = window.width / 2
     TextDisplay.y = 50
-
-    if ContentManager.Get_RegKey("/skip") and not ErrorScreenEnabled:
-        InitializationStep()
-        StartupChime = True
-        return
-
-    # -- Limit Value Range -- #
-    AnimationController.Value = Utils.LimitValueRange(AnimationController.Value, 0, 255)
 
     if not StartupChime:
         StartupChime = True
@@ -169,7 +164,7 @@ def run(DeltaTime):
     if not AnimationController.Enabled and AnimationEndDelay == 0:
         AnimationNextEnableDelay += 1
 
-        if AnimationNextEnableDelay >= ContentManager.Get_RegKey("/animation_next_delay", int):
+        if AnimationNextEnableDelay >= ContentManager.Get_RegKey("/animation_next_delay", 1):
             AnimationController.Enabled = True
             AnimationMode += 1
 
@@ -177,7 +172,7 @@ def run(DeltaTime):
         AnimationController.Enabled = False
         AnimationEndDelay += 1
 
-        if AnimationEndDelay >= ContentManager.Get_RegKey("/animation_end_delay", int):
+        if AnimationEndDelay >= ContentManager.Get_RegKey("/animation_end_delay", 1):
             InitializationStep()
 
     if AnimationMode == 3:
@@ -194,6 +189,8 @@ def ErrorScreen(RegKeyText):
     global TaiyouLogo
     global AnimationController
     global ErrorScreenEnabled
+
+    print(traceback.format_exc())
 
     ErrorScreenEnabled = True
     AnimationMode += 1
@@ -229,15 +226,13 @@ def InitializationStep():
             tge.Loader(CurrentGame_Folder)
             Bookshelf = True
 
-            print("bookshelf")
+            print("IPL : Application Loaded Sucefully!")
         except:
             Bookshelf = False
             tge.Loader("Taiyou/IPL")
             ErrorScreen("/cannot_boot_game")
 
         if Bookshelf:
-            tge.CloseApplicationFolder()
-
             # -- Restart Variables -- #
             StartupChime = False
             NotifyChime = True

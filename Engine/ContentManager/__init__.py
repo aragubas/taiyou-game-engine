@@ -172,12 +172,12 @@ class ContentManager:
         :param FolderName:Folder Path
         :return:
         """
+        print("\nContentManager.LoadSpritesInFolder : Started")
+
         FolderName = ''.join((tge.Current_ApplicationFolder, tge.CorrectSlash, FolderName)).replace("/", tge.CorrectSlash)
         self.Texture_LastInit = FolderName
 
         temp_sprite_files = Utils.Directory_FilesList(FolderName)
-
-        print("ContentManager.LoadSpritesInFolder : Started")
 
         for texture in temp_sprite_files:
             TextureName = texture.replace(FolderName, "")
@@ -187,7 +187,7 @@ class ContentManager:
             self.LoadedTextures_Name.append(TextureName)
             self.LoadedTextures_Data.append(pyglet.image.load(SourceName))
 
-        print("ContentManager.LoadSpritesInFolder : Operation Completed.")
+        print("ContentManager.LoadSpritesInFolder : Operation Completed.\n")
 
     def GetSprite(self, SpriteResourceName):
         """
@@ -199,7 +199,7 @@ class ContentManager:
             return self.LoadedTextures_Data[self.LoadedTextures_Name.index(SpriteResourceName)]
 
         except ValueError:
-            print("GetSprite : Sprite[" + SpriteResourceName + "] does not exist.")
+            print("\nGetSprite : Sprite[" + SpriteResourceName + "] does not exist.\n")
             return DefaultSprite
 
     def UnloadSprite(self):
@@ -207,8 +207,6 @@ class ContentManager:
         Unload all loaded sprites
         :return:
         """
-        print("Sprite.Unload : Unloading Sprites...")
-
         self.LoadedTextures_Data.clear()
         self.LoadedTextures_Name.clear()
 
@@ -226,7 +224,7 @@ class ContentManager:
 
         temp_font_files = Utils.Directory_FilesList(FolderName)
 
-        print("ContentManager.AddFontsInFolder : Started")
+        print("\nContentManager.AddFontsInFolder : Started")
 
         LastfontTryed = ""
         for texture in temp_font_files:
@@ -238,7 +236,7 @@ class ContentManager:
             except Exception as ex:
                 print("Error while adding the font {0}\n{1}".format(LastfontTryed, str(ex)))
 
-        print("ContentManager.LoadFontsInFolder : Operation Completed")
+        print("ContentManager.LoadFontsInFolder : Operation Completed\n")
 
     #endregion
 
@@ -283,7 +281,7 @@ class ContentManager:
             self.SoundChannels.append(pygame.mixer.Channel(i))
 
     def InitSoundSystem(self, AudioFrequency=44000, AudioSize=-16, AudioChannels=2, AudioBufferSize=1500):
-        print("Taiyou.ContentManager.InitSoundSystem : Initializing Sound System...")
+        print("\nTaiyou.ContentManager.InitSoundSystem : Initializing Sound System...")
         # -- Set some Variables -- #
         Frequency = int(AudioFrequency)
         Size = int(AudioSize)
@@ -292,32 +290,23 @@ class ContentManager:
 
         pygame.mixer.init(Frequency, Size, Channels, BufferSize)
 
-        print("Taiyou.ContentManager.InitSoundSystem : Check for audio-avaliability...")
+        print("Taiyou.ContentManager.InitSoundSystem : Check for audio-availability...")
 
         if not pygame.mixer.get_init():
-            print("Taiyou.ContentManager.InitSoundSystem : Sound System has failed to start.")
+            print("Taiyou.ContentManager.InitSoundSystem : Sound System has failed to start.\n")
+            return False
 
         else:
-            print("Taiyou.ContentManager.InitSoundSystem : Sound System is ready!")
+            print("Taiyou.ContentManager.InitSoundSystem : Sound System is ready!\n")
+            return True
 
     def UnloadSounds(self):
         """
         Unload all loaded sounds
         :return:
         """
-        if SoundDisabled: return
-
         self.AllLoadedSounds = ()
         self.SoundChannels = ()
-
-    def ReloadSounds(self):
-        """
-        Reload all loaded sounds
-        :return:
-        """
-        if SoundDisabled: return
-
-        self.UnloadSounds()
 
     # endregion
 
@@ -342,7 +331,7 @@ class ContentManager:
 
     def GenerateSoundTune(self, Frequency, Duration, SampleRate):
         """
-        Generate Sound Tune
+        Generate Sinewave Tune
         :param Frequency:Frequency
         :param Duration:Duration
         :param SampleRate:Sample Rate

@@ -30,6 +30,7 @@ window = pyglet.window.Window(caption="Taiyou Game Engine v{0}".format(tge.Gener
 @window.event
 def on_draw():
     global GameObject
+
     # -- Run Application Draw Code -- #
     GameObject.on_draw()
 
@@ -39,12 +40,10 @@ def run(dt):
 
     GameObject.run(dt)
 
-
 # -- Non-Pyglet Functions -- #
 def Initialize():
     # -- Initialize Pyglet -- #
     pyglet.clock.schedule_interval(run, 1 / 60.0)
-    window.set_vsync(False)
 
     pyglet.app.run()
 

@@ -414,3 +414,6 @@ def LimitValueRange(Input, MinValue, MaxValue):
         Input = MaxValue
 
     return Input
+
+def IsOnScreen(ScreenSize, Position, Size):
+    return Position[0] <= ScreenSize[0] and Position[0] >= (0 - Size[0]) and Position[1] <= ScreenSize[1] and Position[1] >= (0 - Size[1])
