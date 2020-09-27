@@ -1,0 +1,6 @@
+######################################
+## This is a nice comment line test ##
+######################################
+
+WriteLine "DebugProbe";
+WriteLine "SinasComCeira";
