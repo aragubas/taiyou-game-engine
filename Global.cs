@@ -19,7 +19,6 @@ namespace TaiyouScriptEngine.Desktop
 
         public static int GlobalDelay = 1;
 
-        #region Taiyou Interpreter Variables
         public static List<string> LoadedTaiyouScripts = new List<string>();
         public static List<List<TaiyouLine>> LoadedTaiyouScripts_Data = new List<List<TaiyouLine>>();
 
@@ -302,34 +301,34 @@ namespace TaiyouScriptEngine.Desktop
         {
             MouseState state = Mouse.GetState();
 
-            ChangeVar("M.X", Convert.ToString(state.X));
-            ChangeVar("M.Y", Convert.ToString(state.Y));
+            ChangeVar("M.X", state.X, "Int");
+            ChangeVar("M.Y", state.Y, "Int");
 
             if (!DefaultValuesSet)
             {
                 DefaultValuesSet = true;
-                ChangeVar("MLP.X", "0");
-                ChangeVar("MLP.Y", "0");
-                ChangeVar("MLR.X", "0");
-                ChangeVar("MLR.Y", "0");
-                ChangeVar("MRP.X", "0");
-                ChangeVar("MRP.Y", "0");
-                ChangeVar("MRR.X", "0");
-                ChangeVar("MRR.Y", "0");
+                ChangeVar("MLP.X", 0, "Int");
+                ChangeVar("MLP.Y", 0, "Int");
+                ChangeVar("MLR.X", 0, "Int");
+                ChangeVar("MLR.Y", 0, "Int");
+                ChangeVar("MRP.X", 0, "Int");
+                ChangeVar("MRP.Y", 0, "Int");
+                ChangeVar("MRR.X", 0, "Int");
+                ChangeVar("MRR.Y", 0, "Int");
             }
 
             switch (state.LeftButton)
             {
                 case ButtonState.Pressed:
-                    ChangeVar("MLP.X", Convert.ToString(state.X));
-                    ChangeVar("MLP.Y", Convert.ToString(state.Y));
+                    ChangeVar("MLP.X", state.X, "Int");
+                    ChangeVar("MLP.Y", state.Y, "Int");
                     break;
 
                 case ButtonState.Released:
                     if (oldState.LeftButton == ButtonState.Pressed)
                     {
-                        ChangeVar("MLR.X", Convert.ToString(state.X));
-                        ChangeVar("MLR.Y", Convert.ToString(state.Y));
+                        ChangeVar("MLR.X", state.X, "Int");
+                        ChangeVar("MLR.Y", state.Y, "Int");
                     }
 
                     break;
@@ -338,15 +337,15 @@ namespace TaiyouScriptEngine.Desktop
             switch (state.RightButton)
             {
                 case ButtonState.Pressed:
-                    ChangeVar("MRP.X", Convert.ToString(state.X));
-                    ChangeVar("MRP.Y", Convert.ToString(state.Y));
+                    ChangeVar("MRP.X", state.X, "Int");
+                    ChangeVar("MRP.Y", state.Y, "Int");
                     break;
 
                 case ButtonState.Released:
                     if (oldState.RightButton == ButtonState.Pressed)
                     {
-                        ChangeVar("MRR.X", Convert.ToString(state.X));
-                        ChangeVar("MRR.Y", Convert.ToString(state.Y));
+                        ChangeVar("MRR.X", state.X, "Int");
+                        ChangeVar("MRR.Y", state.Y, "Int");
                     }
                     break;
             }
@@ -354,25 +353,25 @@ namespace TaiyouScriptEngine.Desktop
             oldState = state;
         }
 
-        public static void ChangeVar(string VarName, string VarValue)
+        public static void ChangeVar(string VarName, dynamic VarValue, string VarType)
         {
             int VarIndex = VarList_Keys.IndexOf(VarName);
 
             // If it does not exist, add the variable
             if (VarIndex == -1)
             {
-                VarList.Add(new Variable("Int", VarValue, VarName));
+                VarList.Add(new Variable(VarType, VarValue, VarName));
                 VarList_Keys.Add(VarName);
 
             } // If exist, update it's value
             else
             {
-                VarList[VarIndex].Value = VarValue;
+                VarList[VarIndex].Set_Value(VarValue);
             }
 
         }
 
-        #endregion
+
 
     }
 }

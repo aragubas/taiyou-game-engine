@@ -14,9 +14,11 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
             // Set the Operator
             int OperatorIndex = Global.VarList_Keys.IndexOf(OperatorVarName);
             if (OperatorIndex == -1) { throw new IndexOutOfRangeException("Cannot find the variable [" + OperatorVarName + "]."); }
-            string OperatorValue = Global.VarList[OperatorIndex].Value;
+            Variable OperatorVariable = Global.VarList[OperatorIndex];
+            if (OperatorVariable.Type != "Int") { throw new Exception("Variable [" + OperatorVarName + "] is not an Integer."); }
+            var OperatorValue = OperatorVariable.Get_Value();
 
-            if (!Regex.IsMatch(OperatorValue, @"\d"))
+            if (!Regex.IsMatch(Convert.ToString(OperatorVariable.Value), @"\d"))
             {
                 Console.WriteLine("-- Invalid Operator Value --");
                 Console.WriteLine("OperatorVarName: " + OperatorVarName);
@@ -51,8 +53,27 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
             switch (MathOperation)
             {
                 case "+":
-                    Global.VarList[OperatorIndex].Value = Convert.ToString(Convert.ToInt32(OperatorValue) + Convert.ToInt32(ActuatorValue));
+                    Global.VarList[OperatorIndex].Set_Value(OperatorValue + Convert.ToInt32(ActuatorValue));
                     break;
+
+                case "-":
+                    Global.VarList[OperatorIndex].Set_Value(OperatorValue - Convert.ToInt32(ActuatorValue));
+                    break;
+
+                case "/":
+                    Global.VarList[OperatorIndex].Set_Value(OperatorValue / Convert.ToInt32(ActuatorValue));
+                    break;
+
+                case "*":
+                    Global.VarList[OperatorIndex].Set_Value(OperatorValue * Convert.ToInt32(ActuatorValue));
+                    break;
+
+                case "%":
+                    Global.VarList[OperatorIndex].Set_Value(OperatorValue % Convert.ToInt32(ActuatorValue));
+                    break;
+
+                default:
+                    throw new IndexOutOfRangeException("Invalid MathOperation [" + MathOperation + "]");
             }
 
         }

@@ -26,6 +26,10 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                     Game1.Reference.Window.IsBorderless = Convert.ToBoolean(OptionValue);
                     return;
 
+                case "ReloadEverthing":
+                    Global.Reload();
+                    return;
+
 
                 default:
                     throw new ArgumentOutOfRangeException("Invalid argument: [" + OptionName + "]");

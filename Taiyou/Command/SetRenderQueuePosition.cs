@@ -11,10 +11,16 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
 
             int RenderQueueIndex = Game1.RenderQueueList_Keys.IndexOf(RqTagName);
             int MvAmmountVarIndex = Global.VarList_Keys.IndexOf(MvAmmount);
+            dynamic MvAmmountValue = 0;
 
             if (MvAmmountVarIndex != -1)
             {
-                MvAmmount = Global.VarList[MvAmmountVarIndex].Value;
+                Variable varWax = Global.VarList[MvAmmountVarIndex];
+
+                if (varWax.GenericVarType != "Number") { throw new Exception("Cannot Set the Operator Value to a non-number variable."); }
+
+                MvAmmountValue = varWax.Value;
+
             }
 
             if (RenderQueueIndex == -1)
@@ -26,16 +32,29 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
             switch (MvPosition)
             {
                 case "x":
-                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = Convert.ToInt32(MvAmmount);
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = MvAmmountValue;
                     return;
 
                 case "y":
-                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = Convert.ToInt32(MvAmmount);
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = MvAmmountValue;
                     return;
 
                 case "xy":
-                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = Convert.ToInt32(MvAmmount);
-                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = Convert.ToInt32(MvAmmount);
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = MvAmmountValue;
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = MvAmmountValue;
+                    return;
+
+                case "x-":
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = -MvAmmountValue;
+                    return;
+
+                case "y-":
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = -MvAmmountValue;
+                    return;
+
+                case "x-y-":
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.Y = -MvAmmountValue;
+                    Game1.RenderQueueList[RenderQueueIndex].destRect.X = -MvAmmountValue;
                     return;
 
 

@@ -11,7 +11,7 @@ namespace TaiyouScriptEngine.Desktop.GameLogic
 
         public static void Update()
         {
-            Global.ChangeVar("SYS.CSR", Convert.ToString(CurrentRoom));
+            Global.ChangeVar("SYS.CSR", Convert.ToString(CurrentRoom), "Int");
 
             // Update the current selected room
             RoomColection[CurrentRoom].Update();

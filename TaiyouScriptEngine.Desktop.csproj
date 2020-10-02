@@ -73,6 +73,9 @@
     <Compile Include="Taiyou\Command\SetOption.cs" />
     <Compile Include="GameLogic\GameRoom.cs" />
     <Compile Include="GameLogic\RoomSelector.cs" />
+    <Compile Include="Taiyou\Command\OffsetInteger.cs" />
+    <Compile Include="Taiyou\Command\SetVarValue.cs" />
+    <Compile Include="Taiyou\Command\JumpToFunctionIfEqual.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -80,6 +83,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />

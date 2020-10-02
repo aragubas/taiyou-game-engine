@@ -7,3 +7,6 @@ IntegerOperation;006
 EventHandler;007
 FunctionHandler;008
 SetOption;009
+OffsetInteger;010
+SetVarValue;011
+JumpToFunctionIfEqual;012

@@ -83,7 +83,9 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                 {
                     int VarIndex = Global.VarList_Keys.IndexOf(RqRotation);
                     if (VarIndex == -1) { throw new IndexOutOfRangeException("Variable [" + RqRotation + "] does not exist."); }
-                    string VarValue = Global.VarList[VarIndex].Value;
+                    string VarValue = Convert.ToString(Global.VarList[VarIndex].Value);
+
+
 
                     Rotation = float.Parse(VarValue);
 

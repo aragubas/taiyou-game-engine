@@ -1,11 +1,10 @@
 # OPTION Test
-SetVar "Int", "CursorWithOffset", "$M.X";
-IntegerOperation "CursorWithOffset", "+", "#1";
 
-SetRenderQueuePosition "CursorWithOffset", "x", "M.X";
+SetRenderQueuePosition "Cursor", "x", "M.X";
 SetRenderQueuePosition "Cursor", "y", "M.Y";
 SetRenderQueuePosition "CursorMLP", "x", "MLP.X";
 SetRenderQueuePosition "CursorMLP", "y", "MLP.Y";
 SetRenderQueuePosition "CursorMLR", "x", "MLR.X";
 SetRenderQueuePosition "CursorMLR", "y", "MLR.Y";
+
 

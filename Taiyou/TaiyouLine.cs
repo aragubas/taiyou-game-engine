@@ -54,6 +54,18 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
                     FunctionCall = Command.SetOption.call;
                     break;
 
+                case "010":
+                    FunctionCall = Command.OffsetInteger.call;
+                    break;
+
+                case "011":
+                    FunctionCall = Command.SetVarValue.call;
+                    break;
+
+                case "012":
+                    FunctionCall = Command.JumpToFunctionIfEqual.call;
+                    break;
+
 
                 default:
                     Console.WriteLine("Taiyou.Interpreter : Unknow TSUP (" + CommandCode + ")");
