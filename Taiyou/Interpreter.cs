@@ -10,43 +10,33 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
     {
 
         private string scriptName;
-        private int scriptID;
         private List<TaiyouLine> Code;
 
-        public Interpreter(string ScriptName)
+        public Interpreter(string ScriptName, bool DirectCode = false, List<TaiyouLine> taiyouLines = null)
         {
             scriptName = ScriptName;
 
             // Find the script on Script List
+            if (DirectCode)
+            {
+                Code = taiyouLines;
+                return;
+            }
             int ScriptIndex = Global.LoadedTaiyouScripts.IndexOf(ScriptName);
             if (ScriptIndex == -1) { throw new EntryPointNotFoundException("the Taiyou Script (" + ScriptName + ") does not exist."); }
 
-            scriptID = ScriptIndex;
-            Code = Global.LoadedTaiyouScripts_Data[scriptID];
+            Code = Global.LoadedTaiyouScripts_Data[ScriptIndex];
 
         }
 
         public void Interpret()
         {
+            if (Global.IsOnStopOperation) { return; }
             Global.UpdateGlobalVariables();
 
-            int lineIndex = -1;
             foreach (var line in Code)
             {
-                lineIndex++;
-                string[] arguments = line.Arguments;
-
-                for (int i = 0; i < arguments.Length; i++)
-                {
-                    foreach (var Var in Global.VarList)
-                    {
-                        arguments[i] = arguments[i].Replace(Var.SearchPattern, Var.Value);
-
-                    }
-                }
-
-
-                line.call(arguments);
+                line.call();
             }
 
 

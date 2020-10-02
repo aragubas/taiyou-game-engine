@@ -1,8 +1,1 @@
-# OPTION Test
-SetRenderQueuePosition "Cursor", "x", "M.X";
-SetRenderQueuePosition "Cursor", "y", "M.Y";
-SetRenderQueuePosition "CursorMLP", "x", "MLP.X";
-SetRenderQueuePosition "CursorMLP", "y", "MLP.Y";
-SetRenderQueuePosition "CursorMLR", "x", "MLR.X";
-SetRenderQueuePosition "CursorMLR", "y", "MLR.Y";
-
+# The quick brown fox jumps over the laxy dog.

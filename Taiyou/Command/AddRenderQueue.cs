@@ -42,6 +42,14 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                 Dst.Width = Convert.ToInt32(AllRectCode[2]);
                 Dst.Height = Convert.ToInt32(AllRectCode[3]);
             }
+            else
+            {
+                int VarIndex = Global.VarList_Keys.IndexOf(RqRectangle);
+                // Check if variable exists
+
+
+
+            }
 
             // Destination Color is a Literal
             if (RqBlendColor.StartsWith("#", StringComparison.Ordinal))
@@ -64,12 +72,23 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                 string RqOrigin = Utils.GetSubstring(Arguments[5], '"');
                 string RqSpriteEffect = Utils.GetSubstring(Arguments[6], '"');
                 string RqLayerDepth = Utils.GetSubstring(Arguments[7], '"');
+                string RqSrcRect = Utils.GetSubstring(Arguments[8], '"');
+
 
                 // RqRotation is a Literal
                 if (RqRotation.StartsWith("#", StringComparison.Ordinal))
                 {
                     Rotation = float.Parse(RqRotation.Remove(0, 1));
+                }else if(RqRotation.Length > 3)
+                {
+                    int VarIndex = Global.VarList_Keys.IndexOf(RqRotation);
+                    if (VarIndex == -1) { throw new IndexOutOfRangeException("Variable [" + RqRotation + "] does not exist."); }
+                    string VarValue = Global.VarList[VarIndex].Value;
+
+                    Rotation = float.Parse(VarValue);
+
                 }
+
 
                 // RqOrigin is a Literal
                 if (RqOrigin.StartsWith("#", StringComparison.Ordinal))
@@ -99,13 +118,31 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                     }
                 }
 
-                // RqLayerDepth 
+                // RqLayerDepth is a Literal
                 if (RqLayerDepth.StartsWith("#", StringComparison.Ordinal))
                 {
                     LayerDepth = float.Parse(RqLayerDepth.Remove(0, 1));
                 }
 
+                // Source Rectangle is a Literal
+                if (RqSrcRect.StartsWith("#", StringComparison.Ordinal))
+                {
+                    string[] AllRectCode = RqSrcRect.Remove(0, 1).Split(';');
 
+                    // Set the Correct Dest Rectangle
+                    SrcRect.X = Convert.ToInt32(AllRectCode[0]);
+                    SrcRect.Y = Convert.ToInt32(AllRectCode[1]);
+                    SrcRect.Width = Convert.ToInt32(AllRectCode[2]);
+                    SrcRect.Height = Convert.ToInt32(AllRectCode[3]);
+                }
+
+
+            }
+
+
+            if (SrcRect == Rectangle.Empty)
+            {
+                SrcRect = Sprites.GetSprite(RqResSprite).Bounds;
             }
 
             // Finnaly, add everthing to the render queue

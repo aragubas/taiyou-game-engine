@@ -23,6 +23,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
 
         public void run()
         {
+            if (!EventEnabled) { return; }
             InterpreterInstance.Interpret();
         }
 

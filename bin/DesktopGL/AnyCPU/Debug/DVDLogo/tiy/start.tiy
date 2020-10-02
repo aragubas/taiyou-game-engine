@@ -1,9 +1,9 @@
-# Inicia o Sinas
-WriteLine "Start Script";
-SetVar "Int", "FrameCount", "0";
-AddRenderQueue "Cursor", "/base.png", "#15;15;15;15", "#255;255;255;255";
-AddRenderQueue "CursorMLP", "/base.png", "#15;15;15;15", "#110;195;185;255";
-AddRenderQueue "CursorMLR", "/base.png", "#15;15;15;15", "#15;75;43;255";
-EventHandler "Add", "DebugProbe", "debug";
-CallEvent "DebugProbe";
+### -- Initialize the Render Queue -- ###
+FunctionHandler "SetWindowOptions";
+  
+$FUNCTION "SetWindowOptions";
+    SetOption "WindowTitle", "Cachorro com ceira";
+
+$END
+
 

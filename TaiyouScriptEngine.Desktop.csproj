@@ -66,10 +66,13 @@
     <Compile Include="Taiyou\Command\SetRenderQueuePosition.cs" />
     <Compile Include="Taiyou\TaiyouLine.cs" />
     <Compile Include="Taiyou\TaiyouGlobal.cs" />
-    <Compile Include="Taiyou\Command\MathOperation.cs" />
+    <Compile Include="Taiyou\Command\IntegerOperation.cs" />
     <Compile Include="Taiyou\Command\SerRenderQueueParameter.cs" />
     <Compile Include="Taiyou\Command\EventHandler.cs" />
-    <Compile Include="Taiyou\Command\CallEvent.cs" />
+    <Compile Include="Taiyou\Command\FunctionHandler.cs" />
+    <Compile Include="Taiyou\Command\SetOption.cs" />
+    <Compile Include="GameLogic\GameRoom.cs" />
+    <Compile Include="GameLogic\RoomSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -135,6 +138,7 @@
     <Folder Include="SpriteManager\" />
     <Folder Include="Taiyou\" />
     <Folder Include="Taiyou\Command\" />
+    <Folder Include="GameLogic\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

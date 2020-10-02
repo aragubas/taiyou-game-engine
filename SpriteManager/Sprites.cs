@@ -59,14 +59,10 @@ namespace TaiyouScriptEngine.Desktop
         // Load Sprite From File
         private static Texture2D LoadTexture2D_FromFile(Game gameObj, string FileLocation)
         {
-            Texture2D ValToReturn = new Texture2D(gameObj.GraphicsDevice,5,5);
-
-            string SpriteDir = FileLocation;
-
             FileStream fileStream = new FileStream(FileLocation, FileMode.Open);
-            ValToReturn = Texture2D.FromStream(gameObj.GraphicsDevice, fileStream);
+            Texture2D ValToReturn = Texture2D.FromStream(gameObj.GraphicsDevice, fileStream);
             fileStream.Dispose();
-           
+
             return ValToReturn;
         }
 
@@ -157,21 +153,12 @@ namespace TaiyouScriptEngine.Desktop
 
         public static Texture2D GetSprite(string SpriteName)
         {
-            Texture2D SpriteToReturn;
-            int SpriteID = AllSpritedLoaded_Names.IndexOf(SpriteName);
-
-            if (SpriteID == -1)
+            if (AllSpritedLoaded_Names.IndexOf(SpriteName) == -1)
             {
-                SpriteToReturn = LoadTexture2D_FromFile(Game1.Reference, Registry.ReadKeyValue("ERROR/MissingTexture"));
+                return LoadTexture2D_FromFile(Game1.Reference, Registry.ReadKeyValue("ERROR/MissingTexture"));
             }
-            else
-            {
-                SpriteToReturn = AllSpritedLoaded_Content[SpriteID]; // Return the correct sprite
+            return AllSpritedLoaded_Content[AllSpritedLoaded_Names.IndexOf(SpriteName)]; // Return the correct sprite
 
-            }
-
-
-            return SpriteToReturn;
         }
 
         public static SpriteFont GetFont(string FontName)

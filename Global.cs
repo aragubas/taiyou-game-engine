@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework.Input;
 using TaiyouScriptEngine.Desktop.Taiyou;
 
@@ -28,16 +29,31 @@ namespace TaiyouScriptEngine.Desktop
         private static bool DefaultValuesSet = false;
         private static MouseState oldState;
 
+        // Functions List
+        public static List<List<TaiyouLine>> Functions_Data = new List<List<TaiyouLine>>();
+        public static List<string> Functions_Keys = new List<string>();
+
+        // TSCN and TSUP lists
+        static List<string> TSCN = new List<string>();
+        static List<string> TSUP = new List<string>();
+
+        // Operation Signals
+        public static bool IsOnStopOperation;
+
         public static void LoadTaiyouScripts(string Path)
         {
+            // Clear the lists
             LoadedTaiyouScripts.Clear();
             LoadedTaiyouScripts_Data.Clear();
+            Functions_Data.Clear();
+            Functions_Keys.Clear();
 
             // Load the Dictionary File
             Console.WriteLine("### Loading Taiyou Dictionary File... ###");
             string[] TaiyouDictonary = File.ReadAllLines("./Taiyou/taiyou_dict.data");
-            List<string> TSCN = new List<string>();
-            List<string> TSUP = new List<string>();
+            // Clear the Lists
+            TSCN.Clear();
+            TSUP.Clear();
 
             foreach (var item in TaiyouDictonary)
             {
@@ -76,18 +92,108 @@ namespace TaiyouScriptEngine.Desktop
 
                 // Remove every line that is less than 3 Characters
                 int index = -1;
-                foreach (var line in ReadTextLines)
+
+                bool IsReadingFunctionLine = false;
+                string LastFuncLineName = "";
+                var FunctionCode = new List<TaiyouLine>();
+
+                for (int i2 = 0; i2 < ReadTextLines.Length; i2++)
                 {
+                    string line = ReadTextLines[i2];
+
                     if (line.Length < 3) { Console.WriteLine("Removed Dead Line"); continue; }
                     if (line.StartsWith("#", StringComparison.Ordinal)) { Console.WriteLine("Removed comment line [" + line + "]"); continue; }
 
-                    CorrectTextLines.Add(line);
+                    // Initialize the Function Read
+                    if (line.StartsWith("$FUNCTION", StringComparison.Ordinal))
+                    {
+                        Console.WriteLine(" -- Found Function Block --");
+                        string FunctionName = line.Split('"')[1];
+
+                        IsReadingFunctionLine = true;
+
+                        LastFuncLineName = FunctionName;
+                        Console.WriteLine("Function Name:\n" + FunctionName);
+
+                    }
+                    
+                    // Read the function code
+                    if (IsReadingFunctionLine)
+                    {
+                        // Check if function is not at the end
+                        if (line.StartsWith("$END", StringComparison.Ordinal))
+                        {
+                            // Add the key and the data
+                            Functions_Keys.Add(LastFuncLineName);
+                            Console.WriteLine(FunctionCode.Count);
+                            List<TaiyouLine> Copyied = new List<TaiyouLine>();
+                            foreach (var item in FunctionCode)
+                            {
+                                Copyied.Add(item);
+                            }
+
+                            Functions_Data.Add(Copyied);
+
+                            IsReadingFunctionLine = false;
+                            FunctionCode.Clear();
+                            LastFuncLineName = "";
+                            Console.WriteLine(" -- Function Block Completed -- ");
+
+                        }
+
+                        // Count if line a Command Line
+                        // If line starts with 1 tab identation, is it valid!
+                        if (line.StartsWith("    ", StringComparison.Ordinal))
+                        {
+                            string EditedLine = line;
+                            EditedLine = EditedLine.Remove(0, 4);
+                            if (EditedLine.Length < 3)
+                            {
+                                continue;
+                            }
+                            EditedLine = ReplaceWithTSUP(EditedLine);
+
+                            FunctionCode.Add(new TaiyouLine(EditedLine));
+
+                            Console.WriteLine("Added Command line: [" + EditedLine + "] to function block.");
+                        }
+
+                    }
+
+                    // Add the Line if is not a Function Line
+                    if (IsReadingFunctionLine == false)
+                    {
+                        if (line.StartsWith("$END", StringComparison.Ordinal))
+                        {
+                            continue;
+                        }
+                        Console.WriteLine("Added Line [" + line + "]");
+                        CorrectTextLines.Add(line);
+                    }
+
+
                 }
 
                 // ##########################################
                 // ######### -- Parser Step 2 - #############
                 // ##########################################
                 Console.WriteLine("\n### Parser : Step 2 ###");
+
+                // Check if a functions start was not left behind
+                if (IsReadingFunctionLine)
+                {
+                    string Error = "Error while parsing Taiyou Script: A function has been initialized and not finished properly." +
+                        "\nScriptName: " + KeyNameFiltred +
+                        "\nFunctionName: " + LastFuncLineName;
+
+                    throw new FileLoadException(Error);
+                }
+
+                // ##########################################
+                // ######### -- Parser Step 3 - #############
+                // ##########################################
+                Console.WriteLine("\n### Parser : Step 3 ###");
+
 
                 // Convert thr result to Array
                 string[] ScriptData = CorrectTextLines.ToArray();
@@ -107,26 +213,9 @@ namespace TaiyouScriptEngine.Desktop
                     }
 
                     string EditedLine = line;
-                    string LineInstruction = line.Split(' ')[0];
 
                     // Replace TSCN with TSUP
-                    int IntructionNameIndex = TSCN.IndexOf(LineInstruction);
-                    if (IntructionNameIndex == -1)
-                    {
-                        Console.WriteLine(" -- WARNING : Unknow TSUP (" + LineInstruction + ") -- ");
-                    }
-                    else
-                    {
-                        string InstructionUpcode = TSUP[IntructionNameIndex];
-
-                        EditedLine = EditedLine.Replace(LineInstruction, InstructionUpcode);
-                        Console.WriteLine("Renamed Command-Name(" + LineInstruction + ") to TSUP(" + InstructionUpcode + ")");
-                    }
-
-                    // ##########################################
-                    // ######### -- Parser Step 3 - #############
-                    // ##########################################
-                    Console.WriteLine("\n### Parser : Step 3 ###");
+                    EditedLine = ReplaceWithTSUP(EditedLine);
 
                     if (!EditedLine.EndsWith(";", StringComparison.Ordinal)) { throw new FileLoadException("Error while parsing Taiyou Script Code\nLine Ending expected.\n\nat Script(" + KeyNameFiltred + ")\nin Line(" + line + ")\nat Index(" + index + ")."); }
                     EditedLine = EditedLine.Remove(EditedLine.Length - 1, 1);
@@ -136,12 +225,33 @@ namespace TaiyouScriptEngine.Desktop
                     ParsedCode.Add(new TaiyouLine(EditedLine));
                 }
 
-                Console.WriteLine("\nParser Completed.\n\n");
+                Console.WriteLine("\n\n --- Parser Completed ---\n\n");
 
                 LoadedTaiyouScripts_Data.Add(ParsedCode);
 
             }
             Console.WriteLine("Taiyou.Initialize : Sucefully added all scripts.\n\n\n\n");
+
+        }
+
+        public static string ReplaceWithTSUP(string Input)
+        {
+            string LineInstruction = Input.Split(' ')[0];
+
+            // Replace TSCN with TSUP
+            int IntructionNameIndex = TSCN.IndexOf(LineInstruction);
+            if (IntructionNameIndex == -1)
+            {
+                Console.WriteLine(" -- WARNING : Unknow TSUP (" + LineInstruction + ") -- ");
+                return Input;
+            }
+
+            string InstructionUpcode = TSUP[IntructionNameIndex];
+
+            Console.WriteLine("Renamed Command-Name(" + LineInstruction + ") to TSUP(" + InstructionUpcode + ")");
+            return Input.Replace(LineInstruction, InstructionUpcode);
+
+
 
         }
 
@@ -157,6 +267,7 @@ namespace TaiyouScriptEngine.Desktop
 
         public static void Reload()
         {
+            IsOnStopOperation = true;
             Console.WriteLine(" -- Taiyou.System --\nReloading everthing...");
             Game1.UpdateThread.Abort();
             DefaultValuesSet = false;
@@ -174,8 +285,15 @@ namespace TaiyouScriptEngine.Desktop
             LoopEvent.EventList.Clear();
             Game1.RenderQueueList.Clear();
             Game1.RenderQueueList_Keys.Clear();
+            Functions_Keys.Clear();
+            Functions_Data.Clear();
 
+            // Re-Load all scripts
             LoadTaiyouScripts(TaiyouDir);
+
+            // Re-Initialize the Rooms
+            GameLogic.RoomSelector.Initialize();
+
             Game1.RestartUpdateThread();
 
         }
@@ -236,7 +354,7 @@ namespace TaiyouScriptEngine.Desktop
             oldState = state;
         }
 
-        private static void ChangeVar(string VarName, string VarValue)
+        public static void ChangeVar(string VarName, string VarValue)
         {
             int VarIndex = VarList_Keys.IndexOf(VarName);
 

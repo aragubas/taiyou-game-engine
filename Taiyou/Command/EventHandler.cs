@@ -9,7 +9,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
             string EventName = Utils.GetSubstring(Args[1], '"');
             string EventScript = "null";
             // Optional Argument
-            if (Args.Length > 1)
+            if (Args.Length >= 3)
             {
                 EventScript = Utils.GetSubstring(Args[2], '"');
             }
@@ -41,6 +41,17 @@ namespace TaiyouScriptEngine.Desktop.Taiyou.Command
                     Event.EventList.RemoveAt(EventNameIndex);
                     Event.EventListNames.RemoveAt(EventNameIndex);
                     return;
+
+                case "Call":
+                    if (EventNameIndex == -1)
+                    {
+                        Console.WriteLine("Taiyou.EventHandler.Operators.Remove : Event does not exist [" + EventName + "].\nOperation may not execute.");
+                        return;
+                    }
+
+                    Event.TriggerEvent(EventName);
+                    break;
+
 
             }
 

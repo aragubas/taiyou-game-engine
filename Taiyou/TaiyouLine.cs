@@ -5,12 +5,15 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
     {
         public Action<string[]> FunctionCall;
         public string[] Arguments;
+        public string OriginalTSUP;
 
         public TaiyouLine(string Line)
         {
             string CommandCode = Line.Substring(0, 3);
             // Set the Arguments string
             Arguments = Line.Remove(0, 3).Split(',');
+
+            OriginalTSUP = CommandCode;
 
             // Switch Case the TGEUC Interpretation
             switch (CommandCode)
@@ -36,7 +39,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
                     break;
 
                 case "006":
-                    FunctionCall = Command.MathOperation.call;
+                    FunctionCall = Command.IntegerOperation.call;
                     break;
 
                 case "007":
@@ -44,22 +47,26 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
                     break;
 
                 case "008":
-                    FunctionCall = Command.CallEvent.call;
+                    FunctionCall = Command.FunctionHandler.call;
+                    break;
+
+                case "009":
+                    FunctionCall = Command.SetOption.call;
                     break;
 
 
                 default:
                     Console.WriteLine("Taiyou.Interpreter : Unknow TSUP (" + CommandCode + ")");
-                    throw new InvalidCastException("Taiyou.Interpreter : Unknow TSUP (" + CommandCode + ")");
+                    throw new ArgumentOutOfRangeException("Taiyou.Interpreter : Unknow TSUP (" + CommandCode + ")");
 
             }
 
 
         }
 
-        public void call(string[] Args)
+        public void call()
         {
-            FunctionCall.Invoke(Args);
+            FunctionCall.Invoke(Arguments);
         }
 
         public string[] GetArguments()

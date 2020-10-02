@@ -12,6 +12,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
         public static List<bool> EventEnables = new List<bool>();
         public static bool UpdateEnable = true;
 
+
         /// <summary>
         /// Runs the events on event queue
         /// </summary>
@@ -37,6 +38,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
                         continue;
                     }
 
+                    // Dispatch the Event
                     Event.run();
 
                 }
@@ -65,7 +67,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
             EventListNames.Add(EventName);
             EventList.Add(new EventObject(EventName, EventScript));
             EventEnables.Add(true);
-
+           
             if (AutoEnable)
             {
                 EventID = EventList.Count - 1;
@@ -97,6 +99,26 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
 
         }
 
+        /// <summary>
+        /// Set the EnableState of event
+        /// </summary>
+        /// <param name="EventName">Event name.</param>
+        public static void SetEventEnable(string EventName, bool EnableState)
+        {
+            // Check if event already exists
+            int EventID = EventListNames.IndexOf(EventName);
+            // If already exists, remove it
+            if (EventID != -1)
+            {
+                EventList[EventID].EventEnabled = EnableState;
+
+            }
+            else
+            {
+                Console.WriteLine("Cannot update an loop event that does not exists.\nEventName(" + EventName + ").");
+            }
+
+        }
 
 
     }
