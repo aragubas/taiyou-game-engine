@@ -32,7 +32,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
         public void Interpret()
         {
             if (Global.IsOnStopOperation) { return; }
-            Global.UpdateGlobalVariables();
+            Desktop.Global.UpdateGlobalVariables();
 
             foreach (var line in Code)
             {

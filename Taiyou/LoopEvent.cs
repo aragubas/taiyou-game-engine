@@ -21,7 +21,7 @@ namespace TaiyouScriptEngine.Desktop.Taiyou
             while (UpdateEnable) // Make the thread loop forever and ever
             {
                 // Pause the thread for 1 milisecounds, to make it not CRASH the pc
-                Thread.Sleep(Global.GlobalDelay);
+                Thread.Sleep(Taiyou.Global.GlobalDelay);
 
                 // Run update for every thread here
                 int id = -1;

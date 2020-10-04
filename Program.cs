@@ -21,8 +21,8 @@ namespace TaiyouScriptEngine.Desktop
 
                 if (arg.StartsWith("-thread_wait", StringComparison.Ordinal))
                 {
-                    Global.GlobalDelay = Convert.ToInt32(Args[index]);
-                    Console.WriteLine("Thread Wait was set to : " + Global.GlobalDelay);
+                    Taiyou.Global.GlobalDelay = Convert.ToInt32(Args[index]);
+                    Console.WriteLine("Thread Wait was set to : " + Taiyou.Global.GlobalDelay);
                 }
 
             }

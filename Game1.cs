@@ -64,7 +64,7 @@ namespace TaiyouScriptEngine.Desktop
 
             Sprites.FindAllSprites(this, SpriteDir, FontDir);
             Registry.Initialize(RegDir);
-            Global.LoadTaiyouScripts(TaiyouDir);
+            Taiyou.Global.LoadTaiyouScripts(TaiyouDir);
             SoundLoader.FindAllSounds(SoundDir);
             SoundtrackManager.CreateBGMInstances();
 
@@ -114,7 +114,7 @@ namespace TaiyouScriptEngine.Desktop
 
             if (newState.IsKeyDown(Keys.F12) && oldState.IsKeyUp(Keys.F12))
             {
-                Global.Reload();
+                Taiyou.Global.Reload();
             }
 
 
@@ -146,7 +146,7 @@ namespace TaiyouScriptEngine.Desktop
 
             UpdateThread.Start();
             Taiyou.LoopEvent.UpdateEnable = true;
-            Global.IsOnStopOperation = false;
+            Taiyou.Global.IsOnStopOperation = false;
 
         }
 

@@ -76,6 +76,7 @@
     <Compile Include="Taiyou\Command\OffsetInteger.cs" />
     <Compile Include="Taiyou\Command\SetVarValue.cs" />
     <Compile Include="Taiyou\Command\JumpToFunctionIfEqual.cs" />
+    <Compile Include="Taiyou\Global.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
